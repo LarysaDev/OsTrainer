@@ -7,7 +7,7 @@ function Register() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-    const [role, setRole] = useState("");
+    const [role, setRole] = useState("Student");
     const navigate = useNavigate();
 
     // state variable for error messages
@@ -108,7 +108,6 @@ function Register() {
                 <div>
                     <label htmlFor="selectRole">Select Your role:</label></div><div>
                     <select value={role} onChange={(e) => {
-                        console.log(e.target.value)
                         setRole(e.target.value)
                     }}>
                         <option value="Student">Student</option>
