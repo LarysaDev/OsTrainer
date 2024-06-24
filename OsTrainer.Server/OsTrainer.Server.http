@@ -1,0 +1,6 @@
+@OsTrainer.Server_HostAddress = http://localhost:5056
+
+GET {{OsTrainer.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
