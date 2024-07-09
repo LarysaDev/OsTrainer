@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OsTrainer.Server.Data;
+using OsTrainer.Server.Services.Scheduling;
 using System.Security.Claims;
 
 namespace OsTrainer.Server
@@ -23,6 +24,15 @@ namespace OsTrainer.Server
             // Add services to the container.
 
             builder.Services.AddControllers();
+            builder.Services.AddSingleton<SchedulingService>();
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll", builder =>
+                {
+                    builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+                });
+            });
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();

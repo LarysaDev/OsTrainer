@@ -1,0 +1,52 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+    background-color: #f8f9fa;
+    width: 100%;
+}
+
+.left {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.right {
+    display: flex;
+    gap: 10px;
+}
+
+.button {
+    padding: 10px 20px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.button:hover {
+    background-color: #0056b3;
+}
+
+.body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-image: url('path-to-your-dog-learning-image.jpg');
+    background-size: cover;
+    background-position: center;
+}
+
+.textContainer {
+    font-size: 48px;
+    color: white;
+    text-align: left;
+}
+
+.landingPage {
+    font-family: Arial, sans-serif;
+    width: 100%;
+}
+
+
