@@ -24,5 +24,54 @@ namespace OsTrainer.Server.Services.Scheduling
 
             return processes;
         }
+
+        public List<Process> PerformRoundRobin(List<Process> processes, int timeQuantum)
+        {
+            int currentTime = 0;
+            Queue<Process> processQueue = new Queue<Process>(processes.OrderBy(p => p.ArrivalTime));
+            Queue<Process> readyQueue = new Queue<Process>();
+            Dictionary<int, int> remainingTime = processes.ToDictionary(p => p.Id, p => p.BurstTime);
+
+            while (processQueue.Count > 0 || readyQueue.Count > 0)
+            {
+                while (processQueue.Count > 0 && processQueue.Peek().ArrivalTime <= currentTime)
+                {
+                    readyQueue.Enqueue(processQueue.Dequeue());
+                }
+
+                if (readyQueue.Count > 0)
+                {
+                    var process = readyQueue.Dequeue();
+                    int timeSlice = Math.Min(timeQuantum, remainingTime[process.Id]);
+                    currentTime += timeSlice;
+                    remainingTime[process.Id] -= timeSlice;
+
+                    while (processQueue.Count > 0 && processQueue.Peek().ArrivalTime <= currentTime)
+                    {
+                        readyQueue.Enqueue(processQueue.Dequeue());
+                    }
+
+                    if (remainingTime[process.Id] > 0)
+                    {
+                        readyQueue.Enqueue(process);
+                    }
+                    else
+                    {
+                        process.CompletionTime = currentTime;
+                        process.TurnaroundTime = process.CompletionTime - process.ArrivalTime;
+                        process.WaitingTime = process.TurnaroundTime - process.BurstTime;
+                    }
+                }
+                else
+                {
+                    if (processQueue.Count > 0)
+                    {
+                        currentTime = processQueue.Peek().ArrivalTime;
+                    }
+                }
+            }
+
+            return processes;
+        }
     }
 }
