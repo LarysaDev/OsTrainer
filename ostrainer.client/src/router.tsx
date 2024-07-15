@@ -4,10 +4,12 @@ import Login from "./Pages/Login/Login.tsx";
 import Register from "./Pages/Register/Register.tsx";
 import Landing from "../src/Pages/Landing/Landing.tsx";
 
+import {StudentDashboard} from '../src/Pages/Student/Dashboard/Dashboard.tsx';
+
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Home />,
+    element: <StudentDashboard />,
   },
   {
     path: "/home",

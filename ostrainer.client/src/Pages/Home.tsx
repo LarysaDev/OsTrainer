@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import TeacherDashboard from "./TeacherHome";
-import StudentDashboard from "./StudentHome";
+import { StudentDashboard } from "../Pages/Student/Dashboard/Dashboard";
 
 const Home: React.FC = () => {
   const [role, setRole] = useState<string | null>(null);
@@ -21,7 +21,7 @@ const Home: React.FC = () => {
   }
 
   return (
-    <React.Fragment>
+    <>
       {role === "Teacher" ? (
         <TeacherDashboard />
       ) : role === "Student" ? (
@@ -29,7 +29,7 @@ const Home: React.FC = () => {
       ) : (
         <div>Invalid Role</div>
       )}
-    </React.Fragment>
+    </>
   );
 };
 

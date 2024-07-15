@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import LogoutLink from "../Components/LogoutLink.tsx";
 import AuthorizeView, { AuthorizedUser } from "../Components/AuthorizeView.tsx";
 
