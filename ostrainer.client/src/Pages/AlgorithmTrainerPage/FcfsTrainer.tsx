@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import './Trainer.css';
+import { useState } from "react";
+import axios from "axios";
+import styles from "./Trainer.module.less";
+import { links } from "../Student/Dashboard/Dashboard";
+import { SidePanel } from "../../Components/SidePanel/SidePanel";
 
 interface Process {
   id: number;
@@ -11,36 +13,36 @@ interface Process {
   waitingTime?: number;
 }
 
-const OsAlgorithmTrainer: React.FC = () => {
+const FcfsTrainer: React.FC = () => {
   const [processes, setProcesses] = useState<Process[]>([]);
-  const [arrivalTimes, setArrivalTimes] = useState<string>('');
-  const [burstTimes, setBurstTimes] = useState<string>('');
+  const [arrivalTimes, setArrivalTimes] = useState<string>("");
+  const [burstTimes, setBurstTimes] = useState<string>("");
   const [matrix, setMatrix] = useState<(string | number)[][]>([]);
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState<string>("");
 
   const handleGenerate = async () => {
-    const arrivalArray = arrivalTimes.split(',').map(Number);
-    const burstArray = burstTimes.split(',').map(Number);
+    const arrivalArray = arrivalTimes.split(",").map(Number);
+    const burstArray = burstTimes.split(",").map(Number);
 
     const processList = arrivalArray.map((arrival, index) => ({
       id: index + 1,
       arrivalTime: arrival,
-      burstTime: burstArray[index]
+      burstTime: burstArray[index],
     }));
 
     try {
-      const response = await axios.post('/api/ganttchart/fcfs', processList);
+      const response = await axios.post("/api/ganttchart/fcfs", processList);
       setProcesses(response.data);
       generateMatrixTable(response.data);
     } catch (error) {
-      console.error('Error generating Gantt chart', error);
+      console.error("Error generating Gantt chart", error);
     }
   };
 
   const generateMatrixTable = (processes: Process[]) => {
-    const completionTimes = processes.map(p => p.completionTime || 0);
-    const arrivalArray = processes.map(p => p.arrivalTime);
-    const burstArray = processes.map(p => p.burstTime);
+    const completionTimes = processes.map((p) => p.completionTime || 0);
+    const arrivalArray = processes.map((p) => p.arrivalTime);
+    const burstArray = processes.map((p) => p.burstTime);
 
     const maxTime = Math.max(...completionTimes);
     const matrix: (string | number)[][] = [];
@@ -54,15 +56,15 @@ const OsAlgorithmTrainer: React.FC = () => {
       const row: (string | number)[] = [`P${index + 1}`];
       for (let t = 0; t <= maxTime; t++) {
         if (t < process.arrivalTime) {
-          row.push('-');
+          row.push("-");
         } else if (t >= process.arrivalTime && t < process.completionTime!) {
           if (t - process.arrivalTime < process.burstTime) {
-            row.push('e'); // Executing
+            row.push("e"); // Executing
           } else {
-            row.push('w'); // Waiting
+            row.push("w"); // Waiting
           }
         } else {
-          row.push('x'); // Completed
+          row.push("x"); // Completed
         }
       }
       matrix.push(row);
@@ -73,28 +75,28 @@ const OsAlgorithmTrainer: React.FC = () => {
 
   return (
     <div>
-      <h1>Gantt Chart Generator</h1>
-      <h4>🙏 Give it a ⭐ and Fork on GitHub to contribute! 🚀🙌</h4>
-      <div className="container">
-        <div className="button-container">
-          <a href="https://github.com/ShubhamChoudharyShubh/process-scheduling-solver" target="_blank">
-            <img src="https://img.shields.io/github/stars/ShubhamChoudharyShubh/process-scheduling-solver?style=social" alt="Star this repo on GitHub" />
-          </a>
-          <a href="https://github.com/ShubhamChoudharyShubh/process-scheduling-solver/fork" target="_blank">
-            <img src="https://img.shields.io/github/forks/ShubhamChoudharyShubh/process-scheduling-solver?label=Fork&style=social" alt="Fork on GitHub" />
-          </a>
-        </div>
-      </div>
+      <SidePanel links={links} />
+      <h1>Gantt Chart Generator: FCFS</h1>
       <form>
         <label>
           Arrival Times (comma-separated):
-          <input type="text" value={arrivalTimes} onChange={e => setArrivalTimes(e.target.value)} />
+          <input
+            type="text"
+            value={arrivalTimes}
+            onChange={(e) => setArrivalTimes(e.target.value)}
+          />
         </label>
         <label>
           Burst Times (comma-separated):
-          <input type="text" value={burstTimes} onChange={e => setBurstTimes(e.target.value)} />
+          <input
+            type="text"
+            value={burstTimes}
+            onChange={(e) => setBurstTimes(e.target.value)}
+          />
         </label>
-        <button type="button" onClick={handleGenerate}>Generate Gantt Chart</button>
+        <button type="button" onClick={handleGenerate}>
+          Generate Gantt Chart
+        </button>
       </form>
       <h2>Gantt Chart: Output</h2>
       <div id="ganttChart">
@@ -110,7 +112,7 @@ const OsAlgorithmTrainer: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {processes.map(process => (
+            {processes.map((process) => (
               <tr key={process.id}>
                 <td>{process.id}</td>
                 <td>{process.arrivalTime}</td>
@@ -142,18 +144,8 @@ const OsAlgorithmTrainer: React.FC = () => {
           </tbody>
         </table>
       </div>
-      <h2>Share on WhatsApp</h2>
-      <p>Share my repository with others on WhatsApp:</p>
-      <div className="button-container">
-        <button className="whatsapp-button" onClick={() => {
-          const repoLink = "https://github.com/ShubhamChoudharyShubh/process-scheduling-solver";
-          const message = "Check out this awesome GitHub repository: " + repoLink;
-          const whatsappLink = "https://wa.me/?text=" + encodeURIComponent(message);
-          window.open(whatsappLink, "_blank");
-        }}>Share on WhatsApp</button>
-      </div>
     </div>
   );
 };
 
-export default OsAlgorithmTrainer;
+export default FcfsTrainer;

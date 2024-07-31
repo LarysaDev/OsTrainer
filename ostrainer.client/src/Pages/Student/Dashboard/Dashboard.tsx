@@ -16,8 +16,10 @@ import Popper from "@mui/material/Popper";
 import MenuItem from "@mui/material/MenuItem";
 import MenuList from "@mui/material/MenuList";
 import Stack from "@mui/material/Stack";
+import { AssignedCourses } from "../AssignedCourses/AssignedCourses.tsx";
+import AlgorithmCards from "../DashboardLearn/LearnAlgorithms.tsx";
 
-const links: SidePanelLink[] = [
+export const links: SidePanelLink[] = [
   { label: "Dashboard", link: "/", active: true },
   { label: "Scheduling", link: "/" },
   { label: "Page Replacement", link: "/" },
@@ -69,7 +71,8 @@ export function StudentDashboard() {
     <AuthorizeView>
       <div className={styles.container}>
         <SidePanel links={links} />
-        <div className={styles.main}>
+        <div className={styles.main}>          
+          {/* Profile icon */}
           <div className={styles.profile}>
             <Stack direction="row" spacing={2}>
               <div>
@@ -129,6 +132,9 @@ export function StudentDashboard() {
               </div>
             </Stack>
           </div>
+          {/* End of profile icon */}
+          <AssignedCourses/>
+          <AlgorithmCards/>
         </div>
       </div>
     </AuthorizeView>

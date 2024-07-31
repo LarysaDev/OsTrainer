@@ -1,6 +1,6 @@
 import LogoutLink from "../Components/LogoutLink.tsx";
 import AuthorizeView, { AuthorizedUser } from "../Components/AuthorizeView.tsx";
-import OsAlgorithmTrainer from './AlgorithmTrainerPage/Trainer.tsx';
+import OsAlgorithmTrainer from './AlgorithmTrainerPage/FcfsTrainer.tsx';
 
 function Home() {
     return (
