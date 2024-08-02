@@ -1,114 +1,30 @@
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f3f3f3;
-    margin: 0;
-}
-
-h1 {
-    text-align: center;
-    color: #333;
-}
-
-h4 {
-    text-align: center;
-    color: #424242;
-}
-
-form {
-    max-width: 400px;
-    margin: 20px auto;
-    background-color: #fff;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-label {
-    display: block;
-    margin-bottom: 10px;
-    color: #333;
-}
-
-input[type="number"],
-input[type="text"],
-select {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-}
-
-button {
-    display: block;
-    width: 100%;
-    padding: 10px;
-    background-color: #4CAF50;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-    text-transform: uppercase;
-}
-
-button:hover {
-    background-color: #45a049;
-}
-
-.error {
-    color: red;
-    margin-top: 10px;
-}
-
-h2 {
-    margin-top: 20px;
-    color: #333;
-}
-
-#ganttChart {
-    margin-top: 20px;
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-table {
-    border-collapse: collapse;
-    margin: auto;
-    width: 100%;
-}
-
-table, th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
-}
-
-th {
-    background-color: #f2f2f2;
-}
-
-.gantt-bars {
+/* Add this to your styles (e.g., Trainer.module.less) */
+.container {
     display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    margin-top: 10px;
-    height: 40px;
-    background-color: #f2f2f2;
-    border-radius: 4px;
+    justify-content: center;
+    background-color: #F5F5F5;
+    font-family: Arial, sans-serif;
+    height: 100vh;
     overflow: hidden;
 }
 
-.gantt-bar {
+.main {
+    width: 80%;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    height: 100%;
-    background-color: #4CAF50;
-    color: #fff;
-    font-weight: bold;
 }
 
-.error {
-    color: red;
+.chartContainer {
+    padding: 50px 50px;
+    background-color: #F5F5F5;
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.sidePanel {
+    width: 20%;
+    position: sticky;
+    top: 0;
+    height: 100vh;
 }

@@ -3,6 +3,19 @@ import axios from "axios";
 import styles from "./Trainer.module.less";
 import { links } from "../Student/Dashboard/Dashboard";
 import { SidePanel } from "../../Components/SidePanel/SidePanel";
+import AuthorizeView from "../../Components/AuthorizeView";
+import {
+  TextField,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Box,
+} from "@mui/material";
 
 interface Process {
   id: number;
@@ -13,12 +26,13 @@ interface Process {
   waitingTime?: number;
 }
 
-const FcfsTrainer: React.FC = () => {
+export const FcfsTrainer: React.FC = () => {
   const [processes, setProcesses] = useState<Process[]>([]);
   const [arrivalTimes, setArrivalTimes] = useState<string>("");
   const [burstTimes, setBurstTimes] = useState<string>("");
   const [matrix, setMatrix] = useState<(string | number)[][]>([]);
-  const [error, setError] = useState<string>("");
+  const [userMatrix, setUserMatrix] = useState<(string | number)[][]>([]);
+  const [colorMatrix, setColorMatrix] = useState<(string | number)[][]>([]);
 
   const handleGenerate = async () => {
     const arrivalArray = arrivalTimes.split(",").map(Number);
@@ -41,9 +55,6 @@ const FcfsTrainer: React.FC = () => {
 
   const generateMatrixTable = (processes: Process[]) => {
     const completionTimes = processes.map((p) => p.completionTime || 0);
-    const arrivalArray = processes.map((p) => p.arrivalTime);
-    const burstArray = processes.map((p) => p.burstTime);
-
     const maxTime = Math.max(...completionTimes);
     const matrix: (string | number)[][] = [];
     const headerRow: (string | number)[] = ["Process\\Time"];
@@ -71,81 +82,248 @@ const FcfsTrainer: React.FC = () => {
     });
 
     setMatrix(matrix);
+    setUserMatrix(
+      matrix.map((row) =>
+        row.map((cell) =>
+          typeof cell === "number" ? cell : ""
+        )
+      )
+    );
+    setColorMatrix(matrix.map((row) => row.map(() => "")));
+  };
+
+  const handleUserInputChange = (
+    rowIndex: number,
+    cellIndex: number,
+    value: string
+  ) => {
+    const newUserMatrix = [...userMatrix];
+    newUserMatrix[rowIndex][cellIndex] = value;
+    setUserMatrix(newUserMatrix);
+  };
+
+  const handleVerify = () => {
+    const newColorMatrix = matrix.map((row, i) =>
+      row.map((cell, j) => {
+        if (i === 0 || j === 0) return "";
+        return userMatrix[i][j] === cell ? "green" : "red";
+      })
+    );
+    setColorMatrix(newColorMatrix);
+  };
+
+  const handleClearAll = () => {
+    setUserMatrix(
+      matrix.map((row) =>
+        row.map((cell) =>
+          typeof cell === "number" ? cell : ""
+        )
+      )
+    );
+    setColorMatrix(matrix.map((row) => row.map(() => "")));
+  };
+
+  const handleFillCalculatedValues = () => {
+    setUserMatrix(matrix);
+  };
+
+  const handleProcessInputChange = (
+    index: number,
+    field: keyof Process,
+    value: string
+  ) => {
+    const updatedProcesses = [...processes];
+    updatedProcesses[index] = {
+      ...updatedProcesses[index],
+      [field]: parseFloat(value),
+    };
+    setProcesses(updatedProcesses);
   };
 
   return (
-    <div>
-      <SidePanel links={links} />
-      <h1>Gantt Chart Generator: FCFS</h1>
-      <form>
-        <label>
-          Arrival Times (comma-separated):
-          <input
-            type="text"
-            value={arrivalTimes}
-            onChange={(e) => setArrivalTimes(e.target.value)}
-          />
-        </label>
-        <label>
-          Burst Times (comma-separated):
-          <input
-            type="text"
-            value={burstTimes}
-            onChange={(e) => setBurstTimes(e.target.value)}
-          />
-        </label>
-        <button type="button" onClick={handleGenerate}>
-          Generate Gantt Chart
-        </button>
-      </form>
-      <h2>Gantt Chart: Output</h2>
-      <div id="ganttChart">
-        <table>
-          <thead>
-            <tr>
-              <th>Process</th>
-              <th>Arrival Time</th>
-              <th>Burst Time</th>
-              <th>Completion Time</th>
-              <th>Turnaround Time</th>
-              <th>Waiting Time</th>
-            </tr>
-          </thead>
-          <tbody>
-            {processes.map((process) => (
-              <tr key={process.id}>
-                <td>{process.id}</td>
-                <td>{process.arrivalTime}</td>
-                <td>{process.burstTime}</td>
-                <td>{process.completionTime}</td>
-                <td>{process.turnaroundTime}</td>
-                <td>{process.waitingTime}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <h2>Matrix of process status</h2>
-        <table>
-          <thead>
-            <tr>
-              {matrix[0]?.map((header, index) => (
-                <th key={index}>{header}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {matrix.slice(1).map((row, rowIndex) => (
-              <tr key={rowIndex}>
-                {row.map((cell, cellIndex) => (
-                  <td key={cellIndex}>{cell}</td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+    <div className={styles.container}>
+      <AuthorizeView>
+        <div className={styles.sidePanel}>
+          <SidePanel links={links} />
+        </div>
+        <div className={styles.main}>
+          <div className={styles.chartContainer}>
+            <h1>Gantt Chart Generator: FCFS</h1>
+            <form>
+              <TextField
+                label="Arrival Times (comma-separated)"
+                variant="outlined"
+                value={arrivalTimes}
+                onChange={(e) => setArrivalTimes(e.target.value)}
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="Burst Times (comma-separated)"
+                variant="outlined"
+                value={burstTimes}
+                onChange={(e) => setBurstTimes(e.target.value)}
+                fullWidth
+                margin="normal"
+              />
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleGenerate}
+              >
+                Generate Gantt Chart
+              </Button>
+            </form>
+            <h2>Gantt Chart: Output</h2>
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Process</TableCell>
+                    <TableCell>Arrival Time</TableCell>
+                    <TableCell>Burst Time</TableCell>
+                    <TableCell>Completion Time</TableCell>
+                    <TableCell>Turnaround Time</TableCell>
+                    <TableCell>Waiting Time</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {processes.map((process, index) => (
+                    <TableRow key={process.id}>
+                      <TableCell>{process.id}</TableCell>
+                      <TableCell>
+                        <TextField
+                          value={process.arrivalTime || ""}
+                          onChange={(e) =>
+                            handleProcessInputChange(
+                              index,
+                              "arrivalTime",
+                              e.target.value
+                            )
+                          }
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <TextField
+                          value={process.burstTime || ""}
+                          onChange={(e) =>
+                            handleProcessInputChange(
+                              index,
+                              "burstTime",
+                              e.target.value
+                            )
+                          }
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <TextField
+                          value={process.completionTime ?? 0}
+                          onChange={(e) =>
+                            handleProcessInputChange(
+                              index,
+                              "completionTime",
+                              e.target.value
+                            )
+                          }
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <TextField
+                          value={process.turnaroundTime ?? 0}
+                          onChange={(e) =>
+                            handleProcessInputChange(
+                              index,
+                              "turnaroundTime",
+                              e.target.value
+                            )
+                          }
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <TextField
+                          value={process.waitingTime ?? 0}
+                          onChange={(e) =>
+                            handleProcessInputChange(
+                              index,
+                              "waitingTime",
+                              e.target.value
+                            )
+                          }
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <h2>Matrix of process status</h2>
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    {matrix[0]?.map((header, index) => (
+                      <TableCell key={index}>{header}</TableCell>
+                    ))}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {matrix.slice(1).map((row, rowIndex) => (
+                    <TableRow key={rowIndex}>
+                      <TableCell>{row[0]}</TableCell>
+                      {row.slice(1).map((cell, cellIndex) => (
+                        <TableCell
+                          key={cellIndex}
+                          style={{
+                            backgroundColor:
+                              colorMatrix[rowIndex + 1][cellIndex + 1] ||
+                              "white",
+                          }}
+                        >
+                          <TextField
+                            value={userMatrix[rowIndex + 1][cellIndex + 1]}
+                            onChange={(e) =>
+                              handleUserInputChange(
+                                rowIndex + 1,
+                                cellIndex + 1,
+                                e.target.value
+                              )
+                            }
+                          />
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <Box mt={2}>
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={handleVerify}
+                style={{ marginRight: "10px" }}
+              >
+                Verify
+              </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleClearAll}
+                style={{ marginRight: "10px" }}
+              >
+                Clear all
+              </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleFillCalculatedValues}
+              >
+                Fill with calculated values
+              </Button>
+            </Box>
+          </div>
+        </div>
+      </AuthorizeView>
     </div>
   );
 };
-
-export default FcfsTrainer;

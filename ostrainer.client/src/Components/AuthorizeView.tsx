@@ -1,6 +1,7 @@
 /* eslint-disable prefer-const */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState, useEffect, createContext } from 'react';
+import * as React from 'react';
+import { useState, useEffect, createContext } from 'react';
 import { Navigate } from 'react-router-dom';
 
 

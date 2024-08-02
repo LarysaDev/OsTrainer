@@ -17,11 +17,11 @@ import MenuItem from "@mui/material/MenuItem";
 import MenuList from "@mui/material/MenuList";
 import Stack from "@mui/material/Stack";
 import { AssignedCourses } from "../AssignedCourses/AssignedCourses.tsx";
-import AlgorithmCards from "../DashboardLearn/LearnAlgorithms.tsx";
+import { courses } from "../AssignedCourses/dump.ts";
 
 export const links: SidePanelLink[] = [
   { label: "Dashboard", link: "/", active: true },
-  { label: "Scheduling", link: "/" },
+  { label: "Scheduling", link: "/scheduling" },
   { label: "Page Replacement", link: "/" },
   { label: "Avoiding Deadlocks", link: "/" },
   { label: "Assignments", link: "/" },
@@ -70,8 +70,10 @@ export function StudentDashboard() {
   return (
     <AuthorizeView>
       <div className={styles.container}>
-        <SidePanel links={links} />
-        <div className={styles.main}>          
+        <div style={{ width: "20%" }}>
+          <SidePanel links={links} />
+        </div>
+        <div className={styles.main}>
           {/* Profile icon */}
           <div className={styles.profile}>
             <Stack direction="row" spacing={2}>
@@ -133,8 +135,11 @@ export function StudentDashboard() {
             </Stack>
           </div>
           {/* End of profile icon */}
-          <AssignedCourses/>
-          <AlgorithmCards/>
+          {courses.length > 0 ? (
+            <AssignedCourses />
+          ) : (
+            "You are not assigned to any courses"
+          )}
         </div>
       </div>
     </AuthorizeView>

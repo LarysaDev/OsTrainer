@@ -3,8 +3,9 @@ import Home from "./Pages/Home";
 import Login from "./Pages/Login/Login.tsx";
 import Register from "./Pages/Register/Register.tsx";
 import Landing from "../src/Pages/Landing/Landing.tsx";
-import FcfsTrainer from "./Pages/AlgorithmTrainerPage/FcfsTrainer.tsx";
+import { FcfsTrainer } from "./Pages/AlgorithmTrainerPage/FcfsTrainer.tsx";
 import {StudentDashboard} from '../src/Pages/Student/Dashboard/Dashboard.tsx';
+import { SchedulingAlgorithmCards } from "./Pages/Student/DashboardLearn/SchedulingAlgorithmCards.tsx";
 
 const router = createBrowserRouter([
   {
@@ -31,6 +32,10 @@ const router = createBrowserRouter([
     path: "/practice/fcfs",
     element: <FcfsTrainer />,
   },
+  {
+    path: "/scheduling",
+    element: <SchedulingAlgorithmCards />,
+  }
 ]);
 
 export default router;
