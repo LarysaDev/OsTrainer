@@ -275,7 +275,7 @@ export const FcfsTrainer: React.FC = () => {
                           key={cellIndex}
                           style={{
                             backgroundColor:
-                              colorMatrix[rowIndex + 1][cellIndex + 1] ||
+                              colorMatrix[rowIndex + 1][cellIndex + 1].toString() ||
                               "white",
                           }}
                         >
