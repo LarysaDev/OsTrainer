@@ -33,6 +33,10 @@ export const FcfsTrainer: React.FC = () => {
   const [matrix, setMatrix] = useState<(string | number)[][]>([]);
   const [userMatrix, setUserMatrix] = useState<(string | number)[][]>([]);
   const [colorMatrix, setColorMatrix] = useState<(string | number)[][]>([]);
+  
+  //const [ganttChart, setGanttChart] = useState<(number)[][]>([]);
+  //const [userGanttChart, setUserGanttChart] = useState<(number)[][]>([]);
+  //const [colorGanttChart, setColorGanttChart] = useState<(number)[][]>([]);
 
   const handleGenerate = async () => {
     const arrivalArray = arrivalTimes.split(",").map(Number);

@@ -4,16 +4,11 @@ import Login from "./Pages/Login/Login.tsx";
 import Register from "./Pages/Register/Register.tsx";
 import Landing from "../src/Pages/Landing/Landing.tsx";
 import { FcfsTrainer } from "./Pages/AlgorithmTrainerPage/FcfsTrainer.tsx";
-import {StudentDashboard} from '../src/Pages/Student/Dashboard/Dashboard.tsx';
 import { SchedulingAlgorithmCards } from "./Pages/Student/DashboardLearn/SchedulingAlgorithmCards.tsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <StudentDashboard />,
-  },
-  {
-    path: "/home",
     element: <Home />,
   },
   {

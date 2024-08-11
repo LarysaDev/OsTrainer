@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import TeacherDashboard from "./TeacherHome";
+import { TeacherDashboard } from "./Teacher/Dashboard/TeacherDashboard";
 import { StudentDashboard } from "../Pages/Student/Dashboard/Dashboard";
 
 const Home: React.FC = () => {
