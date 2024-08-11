@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OsTrainer.Server.Data;
 
@@ -11,9 +12,11 @@ using OsTrainer.Server.Data;
 namespace OsTrainer.Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240811114329_AddStudentTeacherAssignmentEntities")]
+    partial class AddStudentTeacherAssignmentEntities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,51 +24,6 @@ namespace OsTrainer.Server.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("Assignment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AlgorithmType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ArrivalTimes")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("BurstTimes")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("StudentId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("TeacherId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("StudentId");
-
-                    b.HasIndex("TeacherId");
-
-                    b.ToTable("Assignments");
-                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
@@ -219,12 +177,6 @@ namespace OsTrainer.Server.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsStudent")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsTeacher")
-                        .HasColumnType("bit");
-
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
 
@@ -271,23 +223,46 @@ namespace OsTrainer.Server.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("Assignment", b =>
+            modelBuilder.Entity("OsTrainer.Server.Data.Student", b =>
                 {
-                    b.HasOne("OsTrainer.Server.Data.AppUser", "Student")
-                        .WithMany("AssignmentsAsStudent")
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                    b.Property<string>("StudentId")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.HasOne("OsTrainer.Server.Data.AppUser", "Teacher")
-                        .WithMany("AssignmentsAsTeacher")
-                        .HasForeignKey("TeacherId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Navigation("Student");
+                    b.HasKey("StudentId");
 
-                    b.Navigation("Teacher");
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Students");
+                });
+
+            modelBuilder.Entity("OsTrainer.Server.Data.StudentAssignment", b =>
+                {
+                    b.Property<int>("StudentAssignmentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StudentAssignmentId"));
+
+                    b.Property<int>("AssignmentId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("Grade")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("StudentId1")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("StudentAssignmentId");
+
+                    b.HasIndex("StudentId1");
+
+                    b.ToTable("StudentAssignment");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -341,11 +316,25 @@ namespace OsTrainer.Server.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("OsTrainer.Server.Data.AppUser", b =>
+            modelBuilder.Entity("OsTrainer.Server.Data.Student", b =>
                 {
-                    b.Navigation("AssignmentsAsStudent");
+                    b.HasOne("OsTrainer.Server.Data.AppUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
 
-                    b.Navigation("AssignmentsAsTeacher");
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("OsTrainer.Server.Data.StudentAssignment", b =>
+                {
+                    b.HasOne("OsTrainer.Server.Data.Student", null)
+                        .WithMany("StudentAssignments")
+                        .HasForeignKey("StudentId1");
+                });
+
+            modelBuilder.Entity("OsTrainer.Server.Data.Student", b =>
+                {
+                    b.Navigation("StudentAssignments");
                 });
 #pragma warning restore 612, 618
         }

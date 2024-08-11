@@ -26,6 +26,18 @@ namespace OsTrainer.Server.Controllers
             }
 
             var user = new AppUser { UserName = model.Email, Email = model.Email };
+
+            if (model.Role == "Student")
+            {
+                user.IsStudent = true;
+                user.IsTeacher = false;
+            }
+            else if (model.Role == "Teacher")
+            {
+                user.IsTeacher = true;
+                user.IsStudent = false;
+            }
+
             var result = await _userManager.CreateAsync(user, model.Password);
 
             if (result.Succeeded)
