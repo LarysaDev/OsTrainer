@@ -26,7 +26,6 @@ namespace OsTrainer.Server.Controllers
                 return BadRequest("Invalid assignment data.");
             }
 
-            // Find the teacher by email
             var teacher = await _userManager.Users
                 .FirstOrDefaultAsync(u => u.Email == model.TeacherEmail);
 
@@ -35,7 +34,6 @@ namespace OsTrainer.Server.Controllers
                 return BadRequest("Invalid teacher email.");
             }
 
-            // Find the students by email
             var students = await _userManager.Users
                 .Where(u => model.StudentEmails.Contains(u.Email) && u.IsStudent)
                 .ToListAsync();
@@ -45,7 +43,6 @@ namespace OsTrainer.Server.Controllers
                 return BadRequest("One or more student emails are invalid.");
             }
 
-            // Create assignments for each student
             foreach (var student in students)
             {
                 var assignment = new Assignment
@@ -62,11 +59,107 @@ namespace OsTrainer.Server.Controllers
                 _dbContext.Assignments.Add(assignment);
             }
 
-            // Save changes to the database
             await _dbContext.SaveChangesAsync();
 
             return Ok("Assignment(s) created successfully.");
         }
+
+        [HttpGet("getTeacherAssignments")]
+        public async Task<IActionResult> GetTeacherAssignments([FromQuery] string teacherEmail)
+        {
+            if (string.IsNullOrEmpty(teacherEmail))
+            {
+                return BadRequest("Teacher email is required.");
+            }
+
+            var teacher = await _userManager.Users
+                .FirstOrDefaultAsync(u => u.Email == teacherEmail);
+
+            if (teacher == null || !teacher.IsTeacher)
+            {
+                return BadRequest("Invalid teacher email.");
+            }
+
+            var assignments = await _dbContext.Assignments
+                .Where(a => a.TeacherId == teacher.Id)
+                .ToListAsync();
+
+            if (assignments == null || !assignments.Any())
+            {
+                return NotFound("No assignments found for the given teacher.");
+            }
+
+            return Ok(assignments);
+        }
+
+        [HttpGet("getStudentAssignments")]
+        public async Task<IActionResult> GetStudentAssignments([FromQuery] string studentEmail)
+        {
+            if (string.IsNullOrEmpty(studentEmail))
+            {
+                return BadRequest("Student email is required.");
+            }
+
+            var student = await _userManager.Users
+                .FirstOrDefaultAsync(u => u.Email == studentEmail);
+
+            if (student == null || !student.IsStudent)
+            {
+                return BadRequest("Invalid student email.");
+            }
+
+            var assignments = await _dbContext.Assignments
+                .Where(a => a.StudentId == student.Id)
+                .ToListAsync();
+
+            if (assignments == null || !assignments.Any())
+            {
+                return NotFound("No assignments found for the given student.");
+            }
+
+            return Ok(assignments);
+        }
+
+        [HttpPut("editAssignment/{id}")]
+        public async Task<IActionResult> EditAssignment(int id, [FromBody] EditAssignmentModel model)
+        {
+            if (model == null)
+            {
+                return BadRequest("Invalid assignment data.");
+            }
+
+            var assignment = await _dbContext.Assignments.FindAsync(id);
+            if (assignment == null)
+            {
+                return NotFound("Assignment not found.");
+            }
+
+            assignment.Name = model.Name;
+            assignment.Description = model.Description;
+            assignment.ArrivalTimes = model.ArrivalTimes;
+            assignment.BurstTimes = model.BurstTimes;
+
+            await _dbContext.SaveChangesAsync();
+
+            return Ok("Assignment updated successfully.");
+        }
+
+        [HttpDelete("removeAssignment/{id}")]
+        public async Task<IActionResult> RemoveAssignment(int id)
+        {
+            var assignment = await _dbContext.Assignments.FindAsync(id);
+            if (assignment == null)
+            {
+                return NotFound("Assignment not found.");
+            }
+
+            _dbContext.Assignments.Remove(assignment);
+
+            await _dbContext.SaveChangesAsync();
+
+            return Ok("Assignment removed successfully.");
+        }
+
     }
 
     public class AssignmentModel
@@ -79,6 +172,14 @@ namespace OsTrainer.Server.Controllers
 
         public string[] StudentEmails { get; set; }
         public string TeacherEmail { get; set; }
+    }
+
+    public class EditAssignmentModel
+    {
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public string ArrivalTimes { get; set; }
+        public string BurstTimes { get; set; }
     }
 
 }

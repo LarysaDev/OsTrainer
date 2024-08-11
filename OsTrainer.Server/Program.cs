@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using OsTrainer.Server.Data;
 using OsTrainer.Server.Services.Scheduling;
 using System.Security.Claims;
+using System.Text.Json.Serialization;
 
 namespace OsTrainer.Server
 {
@@ -23,7 +24,11 @@ namespace OsTrainer.Server
 
             // Add services to the container.
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+                });
             builder.Services.AddSingleton<SchedulingService>();
             builder.Services.AddCors(options =>
             {
