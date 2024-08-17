@@ -1,30 +1,18 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./Login.module.less";
-import { useDispatch } from 'react-redux';
-import { setUser } from "../../app/userSlice";
-import { AppDispatch } from "../../app/store";
+import { useLoginMutation } from "../../app/authApi";
 import { User } from "../../app/types";
+import { setUser } from "../../app/userSlice";
 
 function Login() {
-  const dispatch = useDispatch<AppDispatch>();
-
-  const handleUpdateUser = (userToUpdate: User) => {
-    const newUser = {
-      id: userToUpdate?.id,
-      name: userToUpdate?.name,
-      email: userToUpdate?.email,
-    };
-    
-    dispatch(setUser(newUser));
-  };
-
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [rememberme, setRememberme] = useState<boolean>(false);
-
   const [error, setError] = useState<string>("");
   const navigate = useNavigate();
+
+  const [login, { isLoading }] = useLoginMutation();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -37,42 +25,20 @@ function Login() {
     navigate("/register");
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!email || !password) {
       setError("Please fill in all fields.");
     } else {
       setError("");
-
-      var loginurl = "";
-      if (rememberme == true) loginurl = "/api/Auth/login?useCookies=true";
-      else loginurl = "/api/Auth/login?useSessionCookies=true";
-
-      fetch(loginurl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: email,
-          password: password,
-        }),
-      })
-        .then((data) => {
-          if (data.ok) {
-            handleUpdateUser({email: email} as User);
-            data.json().then((jsonData) => {
-              const role = jsonData.role as string;
-              console.log(role);
-              localStorage.setItem("role", role);
-              navigate("/home");
-            });
-          } else setError("Error Logging In.");
-        })
-        .catch((error) => {
-          console.error(error);
-          setError("Error Logging in.");
-        });
+      try {
+        const user: User = await login({ email, password }).unwrap();
+        setUser(user);
+        navigate("/home"); 
+      } catch (err) {
+        setError("Error Logging in.");
+        console.error(err);
+      }
     }
   };
 
@@ -128,7 +94,7 @@ function Login() {
             </label>
           </div>
           <div className={styles.buttonGroup}>
-            <button className={styles.button} type="submit">
+            <button className={styles.button} type="submit" disabled={isLoading}>
               LOGIN
             </button>
           </div>

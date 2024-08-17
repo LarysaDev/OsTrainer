@@ -7,11 +7,10 @@ import Typography from "@mui/material/Typography";
 import styles from './AssignedCourses.module.less';
 import axios from 'axios';
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { RootState } from "../../../app/store";
+import { selectUser } from "../../../app/userSlice";
 
 export const AssignedCourses = () => {
-  const user = useSelector((state: RootState) => state.user.user);
+  const user = selectUser();
   const [courses, setCourses] = useState<AssignedCourse[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -19,10 +18,12 @@ export const AssignedCourses = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await axios.get<AssignedCourse[]>('/api/assignment/getstudentassignments', {
-          params: { studentEmail: user?.email },
-        });
-        setCourses(response.data.$values);
+        const response = await axios.get<AssignedCourse[]>(
+          "/api/assignment/getstudentassignments",
+          {
+            params: { studentEmail: user?.email },
+          });
+        setCourses(response.data.assignments.$values);
       } catch (err) {
         setError('Failed to fetch courses.');
       } finally {

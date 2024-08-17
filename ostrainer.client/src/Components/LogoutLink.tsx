@@ -21,7 +21,7 @@ function LogoutLink(props: { children: React.ReactNode }) {
         })
             .then((data) => {
                 if (data.ok) {
-                    dispatch(clearUser());
+                    clearUser();
                     navigate("/login");
                 }
                 else { }

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using OsTrainer.Server.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Net.Mail;
 
 namespace OsTrainer.Server.Controllers
 {
@@ -93,12 +94,12 @@ namespace OsTrainer.Server.Controllers
         }
 
         [HttpGet("getStudentAssignments")]
-        public async Task<List<Assignment>> GetStudentAssignments([FromQuery] string studentEmail)
+        public async Task<IActionResult> GetStudentAssignments([FromQuery] string studentEmail)
         {
             List<Assignment> assignments = new List<Assignment>();
             if (string.IsNullOrEmpty(studentEmail))
             {
-                return assignments;
+                return Ok(new { Assignments = assignments });
             }
 
             var student = await _userManager.Users
@@ -106,7 +107,7 @@ namespace OsTrainer.Server.Controllers
 
             if (student == null || !student.IsStudent)
             {
-                return assignments;
+                return Ok(new { Assignments = assignments });
             }
 
             assignments = await _dbContext.Assignments
@@ -115,10 +116,10 @@ namespace OsTrainer.Server.Controllers
 
             if (assignments == null || !assignments.Any())
             {
-                return assignments;
+                return Ok(new { Assignments = assignments });
             }
 
-            return assignments;
+            return Ok(new { Assignments = assignments });
         }
 
         [HttpPut("editAssignment/{id}")]

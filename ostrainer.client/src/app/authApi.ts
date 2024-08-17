@@ -1,0 +1,27 @@
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { User } from './types';
+import { AssignedCourse } from '../Pages/Student/AssignedCourses/AssignedCourses';
+
+export const authApi = createApi({
+  reducerPath: 'authApi',
+  baseQuery: fetchBaseQuery({ baseUrl: '/api/' }),
+  endpoints: (builder) => ({
+    login: builder.mutation<User, { email: string; password: string }>({
+      query: ({ email, password }) => ({
+        url: 'Auth/login?useSessionCookies=true',
+        method: 'POST',
+        body: { email, password },
+      }),
+    }),
+    getStudentsAssignments: builder.mutation<AssignedCourse[], { studentEmail: string }>({
+      query: ({ studentEmail }) => ({
+        url: '/assignment/getstudentassignments',
+        params: { studentEmail: studentEmail },
+        method: 'POST',
+        body: { studentEmail },
+      }),
+    }),
+  }),
+});
+
+export const { useLoginMutation, useGetStudentsAssignmentsMutation } = authApi;

@@ -93,7 +93,7 @@ export default defineConfig({
             },
             '^/api/assignment/getstudentassignments': {
                 target: 'https://localhost:7111/',
-                secure: true
+                secure: false
             },
         },
         port: 5173,
