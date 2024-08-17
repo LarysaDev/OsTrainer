@@ -73,7 +73,7 @@ namespace OsTrainer.Server.Controllers
             if (result.Succeeded)
             {
                 var roles = await _userManager.GetRolesAsync(user);
-                return Ok(new { Roles = roles });
+                return Ok(new { Role = roles.SingleOrDefault() });
             }
 
             return Unauthorized();

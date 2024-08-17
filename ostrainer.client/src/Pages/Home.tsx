@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { TeacherDashboard } from "./Teacher/Dashboard/TeacherDashboard";
 import { StudentDashboard } from "../Pages/Student/Dashboard/Dashboard";
+import AuthorizeView from "../Components/AuthorizeView";
 
 const Home: React.FC = () => {
   const [role, setRole] = useState<string | null>(null);
@@ -27,7 +28,7 @@ const Home: React.FC = () => {
       ) : role === "Student" ? (
         <StudentDashboard />
       ) : (
-        <div>Invalid Role</div>
+        <AuthorizeView>Invalid Role</AuthorizeView>
       )}
     </>
   );

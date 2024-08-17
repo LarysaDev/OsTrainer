@@ -52,9 +52,9 @@ function Login() {
           // handle success or error from the server
           if (data.ok) {
             data.json().then((jsonData) => {
-              const roles = jsonData.roles as string[];
-              console.log(roles);
-              localStorage.setItem("role", roles[0]);
+              const role = jsonData.role as string;
+              console.log(role);
+              localStorage.setItem("role", role);
               navigate("/home");
             });
           } else setError("Error Logging In.");
