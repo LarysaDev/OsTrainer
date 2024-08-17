@@ -93,11 +93,12 @@ namespace OsTrainer.Server.Controllers
         }
 
         [HttpGet("getStudentAssignments")]
-        public async Task<IActionResult> GetStudentAssignments([FromQuery] string studentEmail)
+        public async Task<List<Assignment>> GetStudentAssignments([FromQuery] string studentEmail)
         {
+            List<Assignment> assignments = new List<Assignment>();
             if (string.IsNullOrEmpty(studentEmail))
             {
-                return BadRequest("Student email is required.");
+                return assignments;
             }
 
             var student = await _userManager.Users
@@ -105,19 +106,19 @@ namespace OsTrainer.Server.Controllers
 
             if (student == null || !student.IsStudent)
             {
-                return BadRequest("Invalid student email.");
+                return assignments;
             }
 
-            var assignments = await _dbContext.Assignments
+            assignments = await _dbContext.Assignments
                 .Where(a => a.StudentId == student.Id)
                 .ToListAsync();
 
             if (assignments == null || !assignments.Any())
             {
-                return NotFound("No assignments found for the given student.");
+                return assignments;
             }
 
-            return Ok(assignments);
+            return assignments;
         }
 
         [HttpPut("editAssignment/{id}")]

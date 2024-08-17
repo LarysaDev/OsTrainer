@@ -1,17 +1,31 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./Login.module.less";
+import { useDispatch } from 'react-redux';
+import { setUser } from "../../app/userSlice";
+import { AppDispatch } from "../../app/store";
+import { User } from "../../app/types";
 
 function Login() {
-  // state variables for email and passwords
+  const dispatch = useDispatch<AppDispatch>();
+
+  const handleUpdateUser = (userToUpdate: User) => {
+    const newUser = {
+      id: userToUpdate?.id,
+      name: userToUpdate?.name,
+      email: userToUpdate?.email,
+    };
+    
+    dispatch(setUser(newUser));
+  };
+
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [rememberme, setRememberme] = useState<boolean>(false);
-  // state variable for error messages
+
   const [error, setError] = useState<string>("");
   const navigate = useNavigate();
 
-  // handle change events for input fields
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     if (name === "email") setEmail(value);
@@ -23,16 +37,12 @@ function Login() {
     navigate("/register");
   };
 
-  // handle submit event for the form
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // validate email and passwords
     if (!email || !password) {
       setError("Please fill in all fields.");
     } else {
-      // clear error message
       setError("");
-      // post data to the /register api
 
       var loginurl = "";
       if (rememberme == true) loginurl = "/api/Auth/login?useCookies=true";
@@ -49,8 +59,8 @@ function Login() {
         }),
       })
         .then((data) => {
-          // handle success or error from the server
           if (data.ok) {
+            handleUpdateUser({email: email} as User);
             data.json().then((jsonData) => {
               const role = jsonData.role as string;
               console.log(role);
@@ -60,7 +70,6 @@ function Login() {
           } else setError("Error Logging In.");
         })
         .catch((error) => {
-          // handle network error
           console.error(error);
           setError("Error Logging in.");
         });

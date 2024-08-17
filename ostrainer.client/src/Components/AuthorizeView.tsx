@@ -5,7 +5,7 @@ import { useState, useEffect, createContext } from 'react';
 import { Navigate } from 'react-router-dom';
 
 
-const UserContext = createContext({});
+export const UserContext = createContext({});
 
 interface User {
     email: string;

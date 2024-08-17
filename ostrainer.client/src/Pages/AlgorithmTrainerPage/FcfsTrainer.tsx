@@ -15,6 +15,8 @@ import {
   TableRow,
   Paper,
   Box,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
 
 interface Process {
@@ -27,6 +29,7 @@ interface Process {
 }
 
 export const FcfsTrainer: React.FC = () => {
+  const [showGanttChart, setShowGanttChart] = useState(false);
   const [processes, setProcesses] = useState<Process[]>([]);
   const [arrivalTimes, setArrivalTimes] = useState<string>("");
   const [burstTimes, setBurstTimes] = useState<string>("");
@@ -54,7 +57,9 @@ export const FcfsTrainer: React.FC = () => {
   };
 
   const generateMatrixTable = (processes: Process[]) => {
-    const completionTimes = (processes as Process[]).map((p) => p.completionTime || 0);
+    const completionTimes = (processes as Process[]).map(
+      (p) => p.completionTime || 0
+    );
     const maxTime = Math.max(...completionTimes);
     const matrix: (string | number)[][] = [];
     const headerRow: (string | number)[] = ["Process\\Time"];
@@ -84,9 +89,7 @@ export const FcfsTrainer: React.FC = () => {
     setMatrix(matrix);
     setUserMatrix(
       matrix.map((row) =>
-        row.map((cell) =>
-          typeof cell === "number" ? cell : ""
-        )
+        row.map((cell) => (typeof cell === "number" ? cell : ""))
       )
     );
     setColorMatrix(matrix.map((row) => row.map(() => "")));
@@ -115,9 +118,7 @@ export const FcfsTrainer: React.FC = () => {
   const handleClearAll = () => {
     setUserMatrix(
       matrix.map((row) =>
-        row.map((cell) =>
-          typeof cell === "number" ? cell : ""
-        )
+        row.map((cell) => (typeof cell === "number" ? cell : ""))
       )
     );
     setColorMatrix(matrix.map((row) => row.map(() => "")));
@@ -166,6 +167,18 @@ export const FcfsTrainer: React.FC = () => {
                 fullWidth
                 margin="normal"
               />
+              <Box>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={showGanttChart}
+                      onChange={(e) => setShowGanttChart(e.target.checked)}
+                      color="primary"
+                    />
+                  }
+                  label="Show calculated Gantt Chart"
+                />
+              </Box>
               <Button
                 variant="contained"
                 color="primary"
@@ -275,8 +288,9 @@ export const FcfsTrainer: React.FC = () => {
                           key={cellIndex}
                           style={{
                             backgroundColor:
-                              colorMatrix[rowIndex + 1][cellIndex + 1].toString() ||
-                              "white",
+                              colorMatrix[rowIndex + 1][
+                                cellIndex + 1
+                              ].toString() || "white",
                           }}
                         >
                           <TextField
