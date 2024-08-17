@@ -27,7 +27,7 @@ export const links: SidePanelLink[] = [
   { label: "Assignments", link: "/" },
 ];
 
-const studentName = "John Doe";
+const studentName = "MY ACCOUNT";
 
 export function StudentDashboard() {
   const [open, setOpen] = React.useState(false);

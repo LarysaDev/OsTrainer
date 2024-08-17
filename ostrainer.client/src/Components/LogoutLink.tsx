@@ -1,8 +1,11 @@
 
 import { useNavigate } from "react-router-dom";
+import { clearUser } from "../app/userSlice";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../app/store";
 
 function LogoutLink(props: { children: React.ReactNode }) {
-
+    const dispatch = useDispatch<AppDispatch>();
     const navigate = useNavigate();
 
 
@@ -18,7 +21,7 @@ function LogoutLink(props: { children: React.ReactNode }) {
         })
             .then((data) => {
                 if (data.ok) {
-
+                    dispatch(clearUser());
                     navigate("/login");
                 }
                 else { }

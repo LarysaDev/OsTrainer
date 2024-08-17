@@ -12,7 +12,6 @@ import { RootState } from "../../../app/store";
 
 export const AssignedCourses = () => {
   const user = useSelector((state: RootState) => state.user.user);
-  console.log(user)
   const [courses, setCourses] = useState<AssignedCourse[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
