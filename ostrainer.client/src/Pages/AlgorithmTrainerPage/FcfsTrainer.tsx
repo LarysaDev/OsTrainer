@@ -33,10 +33,6 @@ export const FcfsTrainer: React.FC = () => {
   const [matrix, setMatrix] = useState<(string | number)[][]>([]);
   const [userMatrix, setUserMatrix] = useState<(string | number)[][]>([]);
   const [colorMatrix, setColorMatrix] = useState<(string | number)[][]>([]);
-  
-  //const [ganttChart, setGanttChart] = useState<(number)[][]>([]);
-  //const [userGanttChart, setUserGanttChart] = useState<(number)[][]>([]);
-  //const [colorGanttChart, setColorGanttChart] = useState<(number)[][]>([]);
 
   const handleGenerate = async () => {
     const arrivalArray = arrivalTimes.split(",").map(Number);
@@ -50,15 +46,15 @@ export const FcfsTrainer: React.FC = () => {
 
     try {
       const response = await axios.post("/api/ganttchart/fcfs", processList);
-      setProcesses(response.data);
-      generateMatrixTable(response.data);
+      setProcesses(response.data.$values);
+      generateMatrixTable(response.data.$values);
     } catch (error) {
       console.error("Error generating Gantt chart", error);
     }
   };
 
   const generateMatrixTable = (processes: Process[]) => {
-    const completionTimes = processes.map((p) => p.completionTime || 0);
+    const completionTimes = (processes as Process[]).map((p) => p.completionTime || 0);
     const maxTime = Math.max(...completionTimes);
     const matrix: (string | number)[][] = [];
     const headerRow: (string | number)[] = ["Process\\Time"];
@@ -67,7 +63,7 @@ export const FcfsTrainer: React.FC = () => {
     }
     matrix.push(headerRow);
 
-    processes.forEach((process, index) => {
+    (processes as Process[]).forEach((process, index) => {
       const row: (string | number)[] = [`P${index + 1}`];
       for (let t = 0; t <= maxTime; t++) {
         if (t < process.arrivalTime) {

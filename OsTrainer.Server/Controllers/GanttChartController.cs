@@ -17,10 +17,10 @@ namespace OsTrainer.Server.Controllers
         }
 
         [HttpPost("fcfs")]
-        public IActionResult GenerateFcFsGanttChart([FromBody] List<Process> processes)
+        public IList<Process> GenerateFcFsGanttChart([FromBody] List<Process> processes)
         {
             var result = _schedulingService.PerformFCFS(processes);
-            return Ok(result);
+            return result;
         }
 
         [HttpPost("rr")]
