@@ -20,13 +20,13 @@ const userSlice = createSlice({
   },
 });
 
-export const selectUser = (): User | null => {
-    const userString = localStorage.getItem('user');
+export const selectUser = (): string | null => {
+    const userString = localStorage.getItem('role');
     if (userString) {
       try {
-        return JSON.parse(userString) as User;
+        return userString;
       } catch (error) {
-        console.error('Failed to parse user from localStorage', error);
+        console.error('Failed to parse user role from localStorage', error);
         return null;
       }
     }

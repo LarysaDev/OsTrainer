@@ -7,20 +7,18 @@ import { selectUser } from "../app/userSlice";
 import { useSelector } from "react-redux";
 
 function Home() {
-  const user = useSelector(selectUser);
+  const userRole = useSelector(selectUser);
 
   const [role, setRole] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  console.log('here')
-
   useEffect(() => {
-    if (!user) {
+    if (!userRole) {
       navigate("/login");
     } else {
-      setRole(user?.role ?? "");
+      setRole(userRole ?? "");
     }
-  }, [user, navigate]);
+  }, [navigate]);
 
   if (!role) {
     return <div>Loading...</div>;

@@ -7,10 +7,10 @@ import Typography from "@mui/material/Typography";
 import styles from './AssignedCourses.module.less';
 import axios from 'axios';
 import { useEffect, useState } from "react";
-import { selectUser } from "../../../app/userSlice";
+import { getUserEmail } from "../../../Components/AuthorizeView";
 
 export const AssignedCourses = () => {
-  const user = selectUser();
+  const user = getUserEmail();
   const [courses, setCourses] = useState<AssignedCourse[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -21,7 +21,7 @@ export const AssignedCourses = () => {
         const response = await axios.get<AssignedCourse[]>(
           "/api/assignment/getstudentassignments",
           {
-            params: { studentEmail: user?.email },
+            params: { studentEmail: user },
           });
         setCourses(response.data.assignments.$values);
       } catch (err) {

@@ -115,4 +115,12 @@ export function AuthorizedUser(props: { value: string }) {
         return <></>
 }
 
+export function getUserEmail() {
+    // Consume the username from the UserContext
+    const user: any = React.useContext(UserContext);
+
+    return user.email;
+}
+
+
 export default AuthorizeView;

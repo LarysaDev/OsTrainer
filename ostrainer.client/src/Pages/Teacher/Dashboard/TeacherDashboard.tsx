@@ -7,12 +7,11 @@ import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
 import { EditIcon } from "../../../assets/EditIcon";
 import DeleteIcon from "../../../assets/DeleteIcon";
 import AddUserIcon from "../../../assets/AddUserIcon";
 import styles from '../../Student/AssignedCourses/AssignedCourses.module.less';
-import { selectUser } from "../../../app/userSlice";
+import { getUserEmail } from "../../../Components/AuthorizeView";
 
 export const links: SidePanelLink[] = [
   { label: "Dashboard", link: "/", active: true },
@@ -20,7 +19,7 @@ export const links: SidePanelLink[] = [
 ];
 
 export const TeacherDashboard = () => {
-  const user = useSelector(selectUser);
+  const user = getUserEmail();
 
   const [courses, setCourses] = useState<CreatedCourse[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -32,7 +31,7 @@ export const TeacherDashboard = () => {
         const response = await axios.get<CreatedCourse[]>(
           "/api/assignment/getteacherassignments",
           {
-            params: { teacherEmail: user?.email },
+            params: { teacherEmail: user },
           }
         );
         setCourses(response.data.$values);
@@ -44,7 +43,7 @@ export const TeacherDashboard = () => {
     };
 
     fetchCourses();
-  }, [user?.email]);
+  }, [user]);
 
   return (
     <>

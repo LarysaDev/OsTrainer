@@ -33,7 +33,7 @@ function Login() {
       setError("");
       try {
         const user: User = await login({ email, password }).unwrap();
-        setUser(user);
+        localStorage.setItem('role', user.role);
         navigate("/home"); 
       } catch (err) {
         setError("Error Logging in.");
