@@ -15,7 +15,7 @@ import { getUserEmail } from "../../../Components/AuthorizeView";
 
 export const links: SidePanelLink[] = [
   { label: "Dashboard", link: "/", active: true },
-  { label: "Create Course", link: "/" },
+  { label: "Create Course", link: "/newCourse" },
 ];
 
 export const TeacherDashboard = () => {

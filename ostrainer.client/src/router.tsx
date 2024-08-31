@@ -5,6 +5,7 @@ import Register from "./Pages/Register/Register.tsx";
 import Landing from "../src/Pages/Landing/Landing.tsx";
 import { FcfsTrainer } from "./Pages/AlgorithmTrainerPage/FcfsTrainer.tsx";
 import { SchedulingAlgorithmCards } from "./Pages/Student/DashboardLearn/SchedulingAlgorithmCards.tsx";
+import { NewCourse } from "./Pages/Teacher/NewCource/NewCource.tsx";
 
 const router = createBrowserRouter([
   {
@@ -34,6 +35,10 @@ const router = createBrowserRouter([
   {
     path: "/scheduling",
     element: <SchedulingAlgorithmCards />,
+  },
+  {
+    path: "/newCourse",
+    element: <NewCourse />,
   }
 ]);
 
