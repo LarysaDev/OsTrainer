@@ -87,6 +87,22 @@ export default defineConfig({
                 target: 'https://localhost:7111/',
                 secure: false
             },
+            '^/api/ganttchart/preemptive_sjf': {
+                target: 'https://localhost:7111/',
+                secure: false
+            },
+            '^/api/ganttchart/nonpreemptive_sjf': {
+                target: 'https://localhost:7111/',
+                secure: false
+            },
+            '^/api/ganttchart/preemptive_priority': {
+                target: 'https://localhost:7111/',
+                secure: false
+            },
+            '^/api/ganttchart/nonpreemptive_priority': {
+                target: 'https://localhost:7111/',
+                secure: false
+            },
             '^/api/assignment/createassignment': {
                 target: 'https://localhost:7111/',
                 secure: false

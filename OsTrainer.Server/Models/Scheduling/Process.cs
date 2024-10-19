@@ -8,6 +8,7 @@
         public int CompletionTime { get; set; }
         public int TurnaroundTime { get; set; }
         public int WaitingTime { get; set; }
+        public int Priority { get; set; }
     }
 
 }

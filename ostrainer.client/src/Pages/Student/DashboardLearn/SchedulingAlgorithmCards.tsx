@@ -74,38 +74,38 @@ type Algorithm = {
 const algorithms: Algorithm[] = [
   {
     name: "FCFS",
-    theoryLink: "https://example.com/theory/fcfs",
+    theoryLink: "https://www.tutorialspoint.com/fcfs-scheduling",
     practiceLink: "/practice/fcfs",
     category: "Thread Scheduling",
   },
   {
     name: "Round-Robin Scheduling",
-    theoryLink: "https://example.com/theory/round-robin",
+    theoryLink: "https://www.javatpoint.com/os-round-robin-scheduling-algorithm",
     practiceLink: "/practice/rr",
     category: "Thread Scheduling",
   },
   {
     name: "SJF (Non-preemptive)",
-    theoryLink: "https://example.com/theory/sjf-non-preemptive",
-    practiceLink: "https://example.com/practice/sjf-non-preemptive",
+    theoryLink: "https://www.guru99.com/shortest-job-first-sjf-scheduling.html",
+    practiceLink: "/practice/nonpreemptive_sjf",
     category: "Thread Scheduling",
   },
   {
     name: "SJF (Preemptive)",
-    theoryLink: "https://example.com/theory/sjf-preemptive",
-    practiceLink: "https://example.com/practice/sjf-preemptive",
+    theoryLink: "https://www.guru99.com/shortest-job-first-sjf-scheduling.html",
+    practiceLink: "/practice/preemptive_sjf",
     category: "Thread Scheduling",
   },
   {
     name: "Priority (Non-preemptive)",
-    theoryLink: "https://example.com/theory/priority-non-preemptive",
-    practiceLink: "https://example.com/practice/priority-non-preemptive",
+    theoryLink: "https://www.guru99.com/priority-scheduling-program.html",
+    practiceLink: "/practice/nonpreemptive_priority",
     category: "Thread Scheduling",
   },
   {
     name: "Priority (Preemptive)",
-    theoryLink: "https://example.com/theory/priority-preemptive",
-    practiceLink: "https://example.com/practice/priority-preemptive",
+    theoryLink: "https://www.guru99.com/priority-scheduling-program.html",
+    practiceLink: "/practice/preemptive_priority",
     category: "Thread Scheduling",
   },
 ];

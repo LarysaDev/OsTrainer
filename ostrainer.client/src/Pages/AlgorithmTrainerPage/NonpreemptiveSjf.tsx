@@ -19,15 +19,14 @@ import {
 import { Process } from "../common";
 
 export const links: SidePanelLink[] = [
-    { label: "Dashboard", link: "/" },
-    { label: "Scheduling", link: "/scheduling", active: true },
-    { label: "Page Replacement", link: "/" },
-    { label: "Avoiding Deadlocks", link: "/" },
-    { label: "Assignments", link: "/" },
-  ];
+  { label: "Dashboard", link: "/" },
+  { label: "Scheduling", link: "/scheduling", active: true },
+  { label: "Page Replacement", link: "/" },
+  { label: "Avoiding Deadlocks", link: "/" },
+  { label: "Assignments", link: "/" },
+];
 
-export const RrTrainer: React.FC = () => {
-  const [timeQuantum, setTimeQuantum] = useState<number>(0);
+export const NonpreemptiveSjfTrainer: React.FC = () => {
   const [arrivalTimes, setArrivalTimes] = useState<string>("");
   const [burstTimes, setBurstTimes] = useState<string>("");
   const [arrivalError, setArrivalError] = useState<string | null>(null);
@@ -46,12 +45,8 @@ export const RrTrainer: React.FC = () => {
     let valid = true;
 
     if (arrivalArray.length !== burstArray.length) {
-      setArrivalError(
-        "Arrival Times and Burst Times must have the same number of values."
-      );
-      setBurstError(
-        "Arrival Times and Burst Times must have the same number of values."
-      );
+      setArrivalError("Arrival Times and Burst Times must have the same number of values.");
+      setBurstError("Arrival Times and Burst Times must have the same number of values.");
       valid = false;
     } else {
       setArrivalError(null);
@@ -87,10 +82,7 @@ export const RrTrainer: React.FC = () => {
       return;
     }
 
-    const arrivalArray = arrivalTimes
-      .replace(/\s+/g, "")
-      .split(",")
-      .map(Number);
+    const arrivalArray = arrivalTimes.replace(/\s+/g, "").split(",").map(Number);
     const burstArray = burstTimes.replace(/\s+/g, "").split(",").map(Number);
 
     const processList = arrivalArray.map((arrival, index) => ({
@@ -100,11 +92,7 @@ export const RrTrainer: React.FC = () => {
     }));
 
     try {
-      const requestData = {
-        processes: processList,
-        timeQuantum: timeQuantum,
-      };
-      const response = await axios.post("/api/ganttchart/rr", requestData);
+      const response = await axios.post("/api/ganttchart/nonpreemptive_sjf", processList);
       generateMatrixTable(response.data.$values);
     } catch (error) {
       console.error("Error generating Gantt chart", error);
@@ -130,12 +118,12 @@ export const RrTrainer: React.FC = () => {
           row.push("-");
         } else if (t >= process.arrivalTime && t < process.completionTime!) {
           if (t - process.arrivalTime < process.burstTime) {
-            row.push("e"); // Executing
+            row.push("e");
           } else {
-            row.push("w"); // Waiting
+            row.push("w");
           }
         } else {
-          row.push("x"); // Completed
+          row.push("x");
         }
       }
       matrix.push(row);
@@ -191,7 +179,7 @@ export const RrTrainer: React.FC = () => {
         </div>
         <div className={styles.main}>
           <div className={styles.chartContainer}>
-            <h1>Gantt Chart Generator: RoundRobin</h1>
+            <h1>Gantt Chart Generator: Non-Preemptive SJF</h1>
             <form>
               <TextField
                 label="Arrival Times (comma-separated)"
@@ -213,14 +201,6 @@ export const RrTrainer: React.FC = () => {
                 fullWidth
                 margin="normal"
               />
-              <TextField
-                label="Time Quantum"
-                variant="outlined"
-                value={timeQuantum}
-                onChange={(e) => setTimeQuantum(+e.target.value)}
-                fullWidth
-                margin="normal"
-              />
               <Button
                 variant="contained"
                 color="primary"
@@ -231,16 +211,13 @@ export const RrTrainer: React.FC = () => {
             </form>
             <h2>Matrix of process statuses</h2>
             <Typography variant="body1" style={{ margin: "20px 0" }}>
-              <strong>-</strong> : Not Started <br />
-              <strong>e</strong> : Executed <br />
-              <strong>w</strong> : Waiting <br />
-              <strong>x</strong> : Completed <br />
+              <strong>-</strong> : Not Started <br/>
+              <strong>e</strong> : Executed <br/>
+              <strong>w</strong> : Waiting <br/>
+              <strong>x</strong> : Completed <br/>
             </Typography>
-            <TableContainer
-              component={Paper}
-              style={{ maxWidth: "1000px", overflowX: "auto" }}
-            >
-              <Table>
+            <TableContainer component={Paper} style={{ maxWidth: '1000px', overflowX: 'auto' }}>
+            <Table>
                 <TableHead>
                   <TableRow>
                     {matrix[0]?.map((header, index) => (
@@ -256,8 +233,9 @@ export const RrTrainer: React.FC = () => {
                         <TableCell
                           key={cellIndex}
                           style={{
-                            backgroundColor:
-                              colorMatrix[rowIndex + 1][cellIndex + 1],
+                            backgroundColor: colorMatrix[rowIndex + 1][
+                              cellIndex + 1
+                            ],
                           }}
                         >
                           <input

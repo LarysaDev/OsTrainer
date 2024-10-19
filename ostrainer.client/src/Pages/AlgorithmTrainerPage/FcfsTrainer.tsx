@@ -1,7 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
 import styles from "./Trainer.module.less";
-import { links } from "../Student/Dashboard/Dashboard";
 import { SidePanel } from "../../Components/SidePanel/SidePanel";
 import AuthorizeView from "../../Components/AuthorizeView";
 import {
@@ -18,6 +17,14 @@ import {
   TextField,
 } from "@mui/material";
 import { Process } from "../common";
+
+export const links: SidePanelLink[] = [
+  { label: "Dashboard", link: "/" },
+  { label: "Scheduling", link: "/scheduling", active: true },
+  { label: "Page Replacement", link: "/" },
+  { label: "Avoiding Deadlocks", link: "/" },
+  { label: "Assignments", link: "/" },
+];
 
 export const FcfsTrainer: React.FC = () => {
   const [arrivalTimes, setArrivalTimes] = useState<string>("");

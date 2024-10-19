@@ -19,19 +19,20 @@ import {
 import { Process } from "../common";
 
 export const links: SidePanelLink[] = [
-    { label: "Dashboard", link: "/" },
-    { label: "Scheduling", link: "/scheduling", active: true },
-    { label: "Page Replacement", link: "/" },
-    { label: "Avoiding Deadlocks", link: "/" },
-    { label: "Assignments", link: "/" },
-  ];
+  { label: "Dashboard", link: "/" },
+  { label: "Scheduling", link: "/scheduling", active: true },
+  { label: "Page Replacement", link: "/" },
+  { label: "Avoiding Deadlocks", link: "/" },
+  { label: "Assignments", link: "/" },
+];
 
-export const RrTrainer: React.FC = () => {
-  const [timeQuantum, setTimeQuantum] = useState<number>(0);
+export const PreemptivePriorityTrainer: React.FC = () => {
   const [arrivalTimes, setArrivalTimes] = useState<string>("");
   const [burstTimes, setBurstTimes] = useState<string>("");
+  const [priorities, setPriorities] = useState<string>("");
   const [arrivalError, setArrivalError] = useState<string | null>(null);
   const [burstError, setBurstError] = useState<string | null>(null);
+  const [prioritiesError, setPrioritiesError] = useState<string | null>(null);
   const [matrix, setMatrix] = useState<(string | number)[][]>([]);
   const [userMatrix, setUserMatrix] = useState<(string | number)[][]>([]);
   const [colorMatrix, setColorMatrix] = useState<(string | number)[][]>([]);
@@ -39,23 +40,27 @@ export const RrTrainer: React.FC = () => {
   const validateInputs = () => {
     const trimmedArrivalTimes = arrivalTimes.replace(/\s+/g, "");
     const trimmedBurstTimes = burstTimes.replace(/\s+/g, "");
+    const trimmedPriorities = priorities.replace(/\s+/g, "");
 
     const arrivalArray = trimmedArrivalTimes.split(",");
     const burstArray = trimmedBurstTimes.split(",");
+    const priorityArray = trimmedPriorities.split(",");
 
     let valid = true;
 
-    if (arrivalArray.length !== burstArray.length) {
-      setArrivalError(
-        "Arrival Times and Burst Times must have the same number of values."
-      );
-      setBurstError(
-        "Arrival Times and Burst Times must have the same number of values."
-      );
+    if (arrivalArray.length !== burstArray.length ) {
+      setArrivalError("Arrival Times and Burst Times must have the same number of values.");
+      setBurstError("Arrival Times and Burst Times must have the same number of values.");
       valid = false;
-    } else {
+    } 
+    else if(arrivalArray.length !== priorityArray.length){
+        setPrioritiesError("Arrival Times, Burst Times, and Priorities must have the same");
+        valid = false;
+    }
+    else {
       setArrivalError(null);
       setBurstError(null);
+      setPrioritiesError(null);
     }
 
     const arrivalInvalid = arrivalArray.some(
@@ -64,6 +69,9 @@ export const RrTrainer: React.FC = () => {
     const burstInvalid = burstArray.some(
       (value) => isNaN(Number(value)) || value === ""
     );
+    const priorityInvalid = priorityArray.some(
+        (value) => isNaN(Number(value)) || value === ""
+      );
 
     if (arrivalInvalid) {
       setArrivalError("Arrival Times must contain only valid numbers.");
@@ -79,6 +87,13 @@ export const RrTrainer: React.FC = () => {
       setBurstError(null);
     }
 
+    if (priorityInvalid) {
+        setPrioritiesError("Priority values must contain only valid numbers.");
+        valid = false;
+      } else if (!prioritiesError) {
+        setPrioritiesError(null);
+      }
+
     return valid;
   };
 
@@ -87,24 +102,19 @@ export const RrTrainer: React.FC = () => {
       return;
     }
 
-    const arrivalArray = arrivalTimes
-      .replace(/\s+/g, "")
-      .split(",")
-      .map(Number);
+    const arrivalArray = arrivalTimes.replace(/\s+/g, "").split(",").map(Number);
     const burstArray = burstTimes.replace(/\s+/g, "").split(",").map(Number);
+    const priorityArray = priorities.replace(/\s+/g, "").split(",").map(Number);
 
     const processList = arrivalArray.map((arrival, index) => ({
       id: index + 1,
       arrivalTime: arrival,
       burstTime: burstArray[index],
+      priority: priorityArray[index],
     }));
 
     try {
-      const requestData = {
-        processes: processList,
-        timeQuantum: timeQuantum,
-      };
-      const response = await axios.post("/api/ganttchart/rr", requestData);
+      const response = await axios.post("/api/ganttchart/preemptive_sjf", processList);
       generateMatrixTable(response.data.$values);
     } catch (error) {
       console.error("Error generating Gantt chart", error);
@@ -191,7 +201,7 @@ export const RrTrainer: React.FC = () => {
         </div>
         <div className={styles.main}>
           <div className={styles.chartContainer}>
-            <h1>Gantt Chart Generator: RoundRobin</h1>
+            <h1>Gantt Chart Generator: Preemptive Priority</h1>
             <form>
               <TextField
                 label="Arrival Times (comma-separated)"
@@ -214,10 +224,12 @@ export const RrTrainer: React.FC = () => {
                 margin="normal"
               />
               <TextField
-                label="Time Quantum"
+                label="Priorities (comma-separated)"
                 variant="outlined"
-                value={timeQuantum}
-                onChange={(e) => setTimeQuantum(+e.target.value)}
+                value={priorities}
+                onChange={(e) => setPriorities(e.target.value)}
+                error={!!prioritiesError}
+                helperText={prioritiesError}
                 fullWidth
                 margin="normal"
               />
@@ -231,16 +243,13 @@ export const RrTrainer: React.FC = () => {
             </form>
             <h2>Matrix of process statuses</h2>
             <Typography variant="body1" style={{ margin: "20px 0" }}>
-              <strong>-</strong> : Not Started <br />
-              <strong>e</strong> : Executed <br />
-              <strong>w</strong> : Waiting <br />
-              <strong>x</strong> : Completed <br />
+              <strong>-</strong> : Not Started <br/>
+              <strong>e</strong> : Executed <br/>
+              <strong>w</strong> : Waiting <br/>
+              <strong>x</strong> : Completed <br/>
             </Typography>
-            <TableContainer
-              component={Paper}
-              style={{ maxWidth: "1000px", overflowX: "auto" }}
-            >
-              <Table>
+            <TableContainer component={Paper} style={{ maxWidth: '1000px', overflowX: 'auto' }}>
+            <Table>
                 <TableHead>
                   <TableRow>
                     {matrix[0]?.map((header, index) => (
@@ -256,8 +265,9 @@ export const RrTrainer: React.FC = () => {
                         <TableCell
                           key={cellIndex}
                           style={{
-                            backgroundColor:
-                              colorMatrix[rowIndex + 1][cellIndex + 1],
+                            backgroundColor: colorMatrix[rowIndex + 1][
+                              cellIndex + 1
+                            ],
                           }}
                         >
                           <input

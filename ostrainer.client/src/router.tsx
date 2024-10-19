@@ -7,6 +7,10 @@ import { FcfsTrainer } from "./Pages/AlgorithmTrainerPage/FcfsTrainer.tsx";
 import { SchedulingAlgorithmCards } from "./Pages/Student/DashboardLearn/SchedulingAlgorithmCards.tsx";
 import { NewCourse } from "./Pages/Teacher/NewCource/NewCource.tsx";
 import { RrTrainer } from "./Pages/AlgorithmTrainerPage/RrTrainer.tsx";
+import { NonpreemptiveSjfTrainer } from "./Pages/AlgorithmTrainerPage/NonpreemptiveSjf.tsx";
+import { PreemptiveSjfTrainer } from "./Pages/AlgorithmTrainerPage/PreemptiveSjf.tsx";
+import { PreemptivePriorityTrainer } from "./Pages/AlgorithmTrainerPage/PreemptivePriorityTrainer.tsx";
+import { NonpreemptivePriorityTrainer } from "./Pages/AlgorithmTrainerPage/NonpreemptivePriorityTrainer.tsx";
 
 const router = createBrowserRouter([
   {
@@ -36,6 +40,22 @@ const router = createBrowserRouter([
   {
     path: "/practice/rr",
     element: <RrTrainer />,
+  },
+  {
+    path: "/practice/preemptive_sjf",
+    element: <PreemptiveSjfTrainer />,
+  },
+  {
+    path: "/practice/nonpreemptive_sjf",
+    element: <NonpreemptiveSjfTrainer />,
+  },
+  {
+    path: "/practice/preemptive_priority",
+    element: <PreemptivePriorityTrainer />,
+  },
+  {
+    path: "/practice/nonpreemptive_priority",
+    element: <NonpreemptivePriorityTrainer />,
   },
   {
     path: "/scheduling",
