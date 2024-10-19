@@ -1,4 +1,5 @@
-﻿using OsTrainer.Server.Models.Scheduling;
+﻿using Microsoft.AspNetCore.Mvc;
+using OsTrainer.Server.Models.Scheduling;
 
 namespace OsTrainer.Server.Services.Scheduling
 {
@@ -25,12 +26,12 @@ namespace OsTrainer.Server.Services.Scheduling
             return processes;
         }
 
-        public List<Process> PerformRoundRobin(List<Process> processes, int timeQuantum)
+        public List<Process> PerformRoundRobin(RoundRobinInput roundRobinInput)
         {
             int currentTime = 0;
-            Queue<Process> processQueue = new Queue<Process>(processes.OrderBy(p => p.ArrivalTime));
+            Queue<Process> processQueue = new Queue<Process>(roundRobinInput.Processes.OrderBy(p => p.ArrivalTime));
             Queue<Process> readyQueue = new Queue<Process>();
-            Dictionary<int, int> remainingTime = processes.ToDictionary(p => p.Id, p => p.BurstTime);
+            Dictionary<int, int> remainingTime = roundRobinInput.Processes.ToDictionary(p => p.Id, p => p.BurstTime);
 
             while (processQueue.Count > 0 || readyQueue.Count > 0)
             {
@@ -42,7 +43,7 @@ namespace OsTrainer.Server.Services.Scheduling
                 if (readyQueue.Count > 0)
                 {
                     var process = readyQueue.Dequeue();
-                    int timeSlice = Math.Min(timeQuantum, remainingTime[process.Id]);
+                    int timeSlice = Math.Min(roundRobinInput.TimeQuantum, remainingTime[process.Id]);
                     currentTime += timeSlice;
                     remainingTime[process.Id] -= timeSlice;
 
@@ -71,7 +72,13 @@ namespace OsTrainer.Server.Services.Scheduling
                 }
             }
 
-            return processes;
+            return roundRobinInput.Processes;
         }
+    }
+
+    public class RoundRobinInput
+    {
+        public List<Process> Processes { get; set; }
+        public int TimeQuantum { get; set; }
     }
 }

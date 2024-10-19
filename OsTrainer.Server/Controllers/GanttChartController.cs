@@ -24,9 +24,9 @@ namespace OsTrainer.Server.Controllers
         }
 
         [HttpPost("rr")]
-        public IActionResult GenerateRrGanttChart([FromBody] List<Process> processes, int timeQuantum)
+        public IActionResult GenerateRrGanttChart([FromBody] RoundRobinInput roundRobinInput)
         {
-            var result = _schedulingService.PerformRoundRobin(processes, timeQuantum);
+            var result = _schedulingService.PerformRoundRobin(roundRobinInput);
             return Ok(result);
         }
     }

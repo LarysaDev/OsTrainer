@@ -6,6 +6,7 @@ import Landing from "../src/Pages/Landing/Landing.tsx";
 import { FcfsTrainer } from "./Pages/AlgorithmTrainerPage/FcfsTrainer.tsx";
 import { SchedulingAlgorithmCards } from "./Pages/Student/DashboardLearn/SchedulingAlgorithmCards.tsx";
 import { NewCourse } from "./Pages/Teacher/NewCource/NewCource.tsx";
+import { RrTrainer } from "./Pages/AlgorithmTrainerPage/RrTrainer.tsx";
 
 const router = createBrowserRouter([
   {
@@ -31,6 +32,10 @@ const router = createBrowserRouter([
   {
     path: "/practice/fcfs",
     element: <FcfsTrainer />,
+  },
+  {
+    path: "/practice/rr",
+    element: <RrTrainer />,
   },
   {
     path: "/scheduling",

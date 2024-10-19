@@ -83,6 +83,10 @@ export default defineConfig({
                 target: 'https://localhost:7111/',
                 secure: false
             },
+            '^/api/ganttchart/rr': {
+                target: 'https://localhost:7111/',
+                secure: false
+            },
             '^/api/assignment/createassignment': {
                 target: 'https://localhost:7111/',
                 secure: false

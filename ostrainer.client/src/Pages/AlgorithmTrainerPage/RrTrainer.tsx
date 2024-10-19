@@ -19,7 +19,8 @@ import {
 } from "@mui/material";
 import { Process } from "../common";
 
-export const FcfsTrainer: React.FC = () => {
+export const RrTrainer: React.FC = () => {
+  const [timeQuantum, setTimeQuantum] = useState<number>(0);
   const [arrivalTimes, setArrivalTimes] = useState<string>("");
   const [burstTimes, setBurstTimes] = useState<string>("");
   const [arrivalError, setArrivalError] = useState<string | null>(null);
@@ -38,8 +39,12 @@ export const FcfsTrainer: React.FC = () => {
     let valid = true;
 
     if (arrivalArray.length !== burstArray.length) {
-      setArrivalError("Arrival Times and Burst Times must have the same number of values.");
-      setBurstError("Arrival Times and Burst Times must have the same number of values.");
+      setArrivalError(
+        "Arrival Times and Burst Times must have the same number of values."
+      );
+      setBurstError(
+        "Arrival Times and Burst Times must have the same number of values."
+      );
       valid = false;
     } else {
       setArrivalError(null);
@@ -75,7 +80,10 @@ export const FcfsTrainer: React.FC = () => {
       return;
     }
 
-    const arrivalArray = arrivalTimes.replace(/\s+/g, "").split(",").map(Number);
+    const arrivalArray = arrivalTimes
+      .replace(/\s+/g, "")
+      .split(",")
+      .map(Number);
     const burstArray = burstTimes.replace(/\s+/g, "").split(",").map(Number);
 
     const processList = arrivalArray.map((arrival, index) => ({
@@ -85,7 +93,11 @@ export const FcfsTrainer: React.FC = () => {
     }));
 
     try {
-      const response = await axios.post("/api/ganttchart/fcfs", processList);
+      const requestData = {
+        processes: processList,
+        timeQuantum: timeQuantum,
+      };
+      const response = await axios.post("/api/ganttchart/rr", requestData);
       generateMatrixTable(response.data.$values);
     } catch (error) {
       console.error("Error generating Gantt chart", error);
@@ -172,7 +184,7 @@ export const FcfsTrainer: React.FC = () => {
         </div>
         <div className={styles.main}>
           <div className={styles.chartContainer}>
-            <h1>Gantt Chart Generator: FCFS</h1>
+            <h1>Gantt Chart Generator: RoundRobin</h1>
             <form>
               <TextField
                 label="Arrival Times (comma-separated)"
@@ -194,6 +206,14 @@ export const FcfsTrainer: React.FC = () => {
                 fullWidth
                 margin="normal"
               />
+              <TextField
+                label="Time Quantum"
+                variant="outlined"
+                value={timeQuantum}
+                onChange={(e) => setTimeQuantum(+e.target.value)}
+                fullWidth
+                margin="normal"
+              />
               <Button
                 variant="contained"
                 color="primary"
@@ -204,13 +224,16 @@ export const FcfsTrainer: React.FC = () => {
             </form>
             <h2>Matrix of process statuses</h2>
             <Typography variant="body1" style={{ margin: "20px 0" }}>
-              <strong>-</strong> : Not Started <br/>
-              <strong>e</strong> : Executed <br/>
-              <strong>w</strong> : Waiting <br/>
-              <strong>x</strong> : Completed <br/>
+              <strong>-</strong> : Not Started <br />
+              <strong>e</strong> : Executed <br />
+              <strong>w</strong> : Waiting <br />
+              <strong>x</strong> : Completed <br />
             </Typography>
-            <TableContainer component={Paper} style={{ maxWidth: '1000px', overflowX: 'auto' }}>
-            <Table>
+            <TableContainer
+              component={Paper}
+              style={{ maxWidth: "1000px", overflowX: "auto" }}
+            >
+              <Table>
                 <TableHead>
                   <TableRow>
                     {matrix[0]?.map((header, index) => (
@@ -226,9 +249,8 @@ export const FcfsTrainer: React.FC = () => {
                         <TableCell
                           key={cellIndex}
                           style={{
-                            backgroundColor: colorMatrix[rowIndex + 1][
-                              cellIndex + 1
-                            ],
+                            backgroundColor:
+                              colorMatrix[rowIndex + 1][cellIndex + 1],
                           }}
                         >
                           <input

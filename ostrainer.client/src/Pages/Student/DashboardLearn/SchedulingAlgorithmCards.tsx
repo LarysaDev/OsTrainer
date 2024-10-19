@@ -81,7 +81,7 @@ const algorithms: Algorithm[] = [
   {
     name: "Round-Robin Scheduling",
     theoryLink: "https://example.com/theory/round-robin",
-    practiceLink: "https://example.com/practice/round-robin",
+    practiceLink: "/practice/rr",
     category: "Thread Scheduling",
   },
   {
