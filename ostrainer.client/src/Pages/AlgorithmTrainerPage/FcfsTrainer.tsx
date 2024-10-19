@@ -220,8 +220,8 @@ export const FcfsTrainer: React.FC = () => {
               <strong>w</strong> : Waiting <br/>
               <strong>x</strong> : Completed <br/>
             </Typography>
-            <TableContainer component={Paper}>
-              <Table>
+            <TableContainer component={Paper} style={{ maxWidth: '1000px', overflowX: 'auto' }}>
+            <Table>
                 <TableHead>
                   <TableRow>
                     {matrix[0]?.map((header, index) => (
