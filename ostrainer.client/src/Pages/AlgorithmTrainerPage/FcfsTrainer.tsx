@@ -5,7 +5,6 @@ import { links } from "../Student/Dashboard/Dashboard";
 import { SidePanel } from "../../Components/SidePanel/SidePanel";
 import AuthorizeView from "../../Components/AuthorizeView";
 import {
-  TextField,
   Button,
   Table,
   TableBody,
@@ -15,8 +14,8 @@ import {
   TableRow,
   Paper,
   Box,
-  FormControlLabel,
-  Checkbox,
+  Typography,
+  TextField,
 } from "@mui/material";
 
 interface Process {
@@ -33,13 +32,61 @@ export const FcfsTrainer: React.FC = () => {
   const [processes, setProcesses] = useState<Process[]>([]);
   const [arrivalTimes, setArrivalTimes] = useState<string>("");
   const [burstTimes, setBurstTimes] = useState<string>("");
+  const [arrivalError, setArrivalError] = useState<string | null>(null); // Error state for Arrival Times
+  const [burstError, setBurstError] = useState<string | null>(null); // Error state for Burst Times
   const [matrix, setMatrix] = useState<(string | number)[][]>([]);
   const [userMatrix, setUserMatrix] = useState<(string | number)[][]>([]);
   const [colorMatrix, setColorMatrix] = useState<(string | number)[][]>([]);
 
+  const validateInputs = () => {
+    const trimmedArrivalTimes = arrivalTimes.replace(/\s+/g, "");
+    const trimmedBurstTimes = burstTimes.replace(/\s+/g, "");
+
+    const arrivalArray = trimmedArrivalTimes.split(",");
+    const burstArray = trimmedBurstTimes.split(",");
+
+    let valid = true;
+
+    if (arrivalArray.length !== burstArray.length) {
+      setArrivalError("Arrival Times and Burst Times must have the same number of values.");
+      setBurstError("Arrival Times and Burst Times must have the same number of values.");
+      valid = false;
+    } else {
+      setArrivalError(null);
+      setBurstError(null);
+    }
+
+    const arrivalInvalid = arrivalArray.some(
+      (value) => isNaN(Number(value)) || value === ""
+    );
+    const burstInvalid = burstArray.some(
+      (value) => isNaN(Number(value)) || value === ""
+    );
+
+    if (arrivalInvalid) {
+      setArrivalError("Arrival Times must contain only valid numbers.");
+      valid = false;
+    } else if (!arrivalError) {
+      setArrivalError(null);
+    }
+
+    if (burstInvalid) {
+      setBurstError("Burst Times must contain only valid numbers.");
+      valid = false;
+    } else if (!burstError) {
+      setBurstError(null);
+    }
+
+    return valid;
+  };
+
   const handleGenerate = async () => {
-    const arrivalArray = arrivalTimes.split(",").map(Number);
-    const burstArray = burstTimes.split(",").map(Number);
+    if (!validateInputs()) {
+      return;
+    }
+
+    const arrivalArray = arrivalTimes.replace(/\s+/g, "").split(",").map(Number);
+    const burstArray = burstTimes.replace(/\s+/g, "").split(",").map(Number);
 
     const processList = arrivalArray.map((arrival, index) => ({
       id: index + 1,
@@ -128,19 +175,6 @@ export const FcfsTrainer: React.FC = () => {
     setUserMatrix(matrix);
   };
 
-  const handleProcessInputChange = (
-    index: number,
-    field: keyof Process,
-    value: string
-  ) => {
-    const updatedProcesses = [...processes];
-    updatedProcesses[index] = {
-      ...updatedProcesses[index],
-      [field]: parseFloat(value),
-    };
-    setProcesses(updatedProcesses);
-  };
-
   return (
     <div className={styles.container}>
       <AuthorizeView>
@@ -156,6 +190,8 @@ export const FcfsTrainer: React.FC = () => {
                 variant="outlined"
                 value={arrivalTimes}
                 onChange={(e) => setArrivalTimes(e.target.value)}
+                error={!!arrivalError}
+                helperText={arrivalError}
                 fullWidth
                 margin="normal"
               />
@@ -164,21 +200,11 @@ export const FcfsTrainer: React.FC = () => {
                 variant="outlined"
                 value={burstTimes}
                 onChange={(e) => setBurstTimes(e.target.value)}
+                error={!!burstError}
+                helperText={burstError}
                 fullWidth
                 margin="normal"
               />
-              <Box>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={showGanttChart}
-                      onChange={(e) => setShowGanttChart(e.target.checked)}
-                      color="primary"
-                    />
-                  }
-                  label="Show calculated Gantt Chart"
-                />
-              </Box>
               <Button
                 variant="contained"
                 color="primary"
@@ -187,89 +213,13 @@ export const FcfsTrainer: React.FC = () => {
                 Generate Gantt Chart
               </Button>
             </form>
-            <h2>Gantt Chart: Output</h2>
-            <TableContainer component={Paper}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Process</TableCell>
-                    <TableCell>Arrival Time</TableCell>
-                    <TableCell>Burst Time</TableCell>
-                    <TableCell>Completion Time</TableCell>
-                    <TableCell>Turnaround Time</TableCell>
-                    <TableCell>Waiting Time</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {processes.map((process, index) => (
-                    <TableRow key={process.id}>
-                      <TableCell>{process.id}</TableCell>
-                      <TableCell>
-                        <TextField
-                          value={process.arrivalTime || ""}
-                          onChange={(e) =>
-                            handleProcessInputChange(
-                              index,
-                              "arrivalTime",
-                              e.target.value
-                            )
-                          }
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <TextField
-                          value={process.burstTime || ""}
-                          onChange={(e) =>
-                            handleProcessInputChange(
-                              index,
-                              "burstTime",
-                              e.target.value
-                            )
-                          }
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <TextField
-                          value={process.completionTime ?? 0}
-                          onChange={(e) =>
-                            handleProcessInputChange(
-                              index,
-                              "completionTime",
-                              e.target.value
-                            )
-                          }
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <TextField
-                          value={process.turnaroundTime ?? 0}
-                          onChange={(e) =>
-                            handleProcessInputChange(
-                              index,
-                              "turnaroundTime",
-                              e.target.value
-                            )
-                          }
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <TextField
-                          value={process.waitingTime ?? 0}
-                          onChange={(e) =>
-                            handleProcessInputChange(
-                              index,
-                              "waitingTime",
-                              e.target.value
-                            )
-                          }
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-            <h2>Matrix of process status</h2>
+            <h2>Matrix of process statuses</h2>
+            <Typography variant="body1" style={{ margin: "20px 0" }}>
+              <strong>-</strong> : Not Started <br/>
+              <strong>e</strong> : Executed <br/>
+              <strong>w</strong> : Waiting <br/>
+              <strong>x</strong> : Completed <br/>
+            </Typography>
             <TableContainer component={Paper}>
               <Table>
                 <TableHead>
@@ -287,13 +237,12 @@ export const FcfsTrainer: React.FC = () => {
                         <TableCell
                           key={cellIndex}
                           style={{
-                            backgroundColor:
-                              colorMatrix[rowIndex + 1][
-                                cellIndex + 1
-                              ].toString() || "white",
+                            backgroundColor: colorMatrix[rowIndex + 1][
+                              cellIndex + 1
+                            ],
                           }}
                         >
-                          <TextField
+                          <input
                             value={userMatrix[rowIndex + 1][cellIndex + 1]}
                             onChange={(e) =>
                               handleUserInputChange(
@@ -302,6 +251,7 @@ export const FcfsTrainer: React.FC = () => {
                                 e.target.value
                               )
                             }
+                            style={{ width: "30px", textAlign: "center" }}
                           />
                         </TableCell>
                       ))}
@@ -310,27 +260,27 @@ export const FcfsTrainer: React.FC = () => {
                 </TableBody>
               </Table>
             </TableContainer>
+
             <Box mt={2}>
               <Button
                 variant="contained"
-                color="secondary"
+                color="primary"
                 onClick={handleVerify}
-                style={{ marginRight: "10px" }}
               >
                 Verify
               </Button>
               <Button
                 variant="contained"
-                color="primary"
+                color="secondary"
                 onClick={handleClearAll}
-                style={{ marginRight: "10px" }}
+                style={{ marginLeft: "10px" }}
               >
                 Clear all
               </Button>
               <Button
                 variant="contained"
-                color="primary"
                 onClick={handleFillCalculatedValues}
+                style={{ marginLeft: "10px" }}
               >
                 Fill with calculated values
               </Button>
