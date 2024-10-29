@@ -7,6 +7,7 @@ import Button from "@mui/material/Button";
 import MenuItem from "@mui/material/MenuItem";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { AlgorithmType } from "../../../common/AlgorithmType";
 
 export const links: SidePanelLink[] = [
   { label: "Dashboard", link: "/", active: false },
@@ -22,6 +23,8 @@ export const NewCourse = () => {
     algorithmType: "",
     arrivalTimes: "",
     burstTimes: "",
+    timeQuantum: "",
+    priorities: "",
   });
 
   const [error, setError] = useState<string | null>(null);
@@ -34,11 +37,32 @@ export const NewCourse = () => {
     }));
   };
 
+  const validateFields = () => {
+    if (
+      courseData.algorithmType === AlgorithmType.RR &&
+      (!courseData.timeQuantum || isNaN(Number(courseData.timeQuantum)) || Number(courseData.timeQuantum) <= 0)
+    ) {
+      setError("Time Quantum must be a positive number.");
+      return false;
+    }
+    if (
+      (courseData.algorithmType === AlgorithmType.PRIORITY_NON_PREEMPTIVE ||
+        courseData.algorithmType === AlgorithmType.PRIORITY_PREEMPTIVE) &&
+      !/^(\d+,)*\d+$/.test(courseData.priorities)
+    ) {
+      setError("Priorities must be a comma-separated list of integers.");
+      return false;
+    }
+    setError(null);
+    return true;
+  };
+
   const handleSubmit = async () => {
+    if (!validateFields()) return;
     try {
       const response = await axios.post("/api/course/create", courseData);
       if (response.status === 200) {
-        navigate("/");  // Redirect to dashboard after successful creation
+        navigate("/"); // Redirect to dashboard after successful creation
       }
     } catch (err) {
       setError("Failed to create course.");
@@ -84,10 +108,39 @@ export const NewCourse = () => {
             onChange={handleChange}
             fullWidth
           >
-            <MenuItem value="FCFS">FCFS</MenuItem>
-            <MenuItem value="SJF">SJF</MenuItem>
-            <MenuItem value="RR">RR</MenuItem>
+            {Object.values(AlgorithmType).map((type) => (
+              <MenuItem key={type} value={type}>
+                {type}
+              </MenuItem>
+            ))}
           </TextField>
+          {courseData.algorithmType === AlgorithmType.RR && (
+            <TextField
+              label="Time Quantum"
+              name="timeQuantum"
+              value={courseData.timeQuantum}
+              onChange={handleChange}
+              fullWidth
+              type="number"
+              inputProps={{ min: 1 }}
+              error={!!error && courseData.algorithmType === AlgorithmType.RR}
+              helperText={error && courseData.algorithmType === AlgorithmType.RR ? error : ""}
+            />
+          )}
+          {(courseData.algorithmType === AlgorithmType.PRIORITY_NON_PREEMPTIVE ||
+            courseData.algorithmType === AlgorithmType.PRIORITY_PREEMPTIVE) && (
+            <TextField
+              label="Priorities (comma-separated)"
+              name="priorities"
+              value={courseData.priorities}
+              onChange={handleChange}
+              fullWidth
+              error={!!error && (courseData.algorithmType === AlgorithmType.PRIORITY_NON_PREEMPTIVE || courseData.algorithmType === AlgorithmType.PRIORITY_PREEMPTIVE)}
+              helperText={
+                error && (courseData.algorithmType === AlgorithmType.PRIORITY_NON_PREEMPTIVE || courseData.algorithmType === AlgorithmType.PRIORITY_PREEMPTIVE) ? error : ""
+              }
+            />
+          )}
           <TextField
             label="Arrival Times (comma-separated)"
             name="arrivalTimes"
