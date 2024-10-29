@@ -1,13 +1,30 @@
-import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useState } from "react";
+import { useParams } from "react-router-dom";
 import axios from "axios";
+import { LoggedInView } from "../../../common/LoggedInView/LoggedInView";
+import { SidePanelLink } from "../../../Components/SidePanel/SidePanel";
+import {
+  Container,
+  Paper,
+  Typography,
+  Button,
+  Box,
+} from "@mui/material";
 
 interface TestQuestion {
   Id: number;
-  QuestionText: string;
-  Options: string[];
-  CorrectOptionIndex: number;
+  questionText: string;
+  options: string[];
+  correctOptionIndex: number;
 }
+
+export const links: SidePanelLink[] = [
+  { label: "Dashboard", link: "/" },
+  { label: "Scheduling", link: "/scheduling" },
+  { label: "Page Replacement", link: "/" },
+  { label: "Avoiding Deadlocks", link: "/" },
+  { label: "Assignments", link: "/" },
+];
 
 const SelfTest = () => {
   const { algorithmId } = useParams<{ algorithmId: string }>();
@@ -20,17 +37,23 @@ const SelfTest = () => {
       const response = await axios.get<TestQuestion[]>("/api/assignment/getrandomtests", {
         params: { algorithmId },
       });
-      
+
       const testQuestions = response.data.tests.$values || [];
       setQuestions(testQuestions);
       setSelectedAnswers(Array(testQuestions.length).fill(-1));
       setResult(null);
     } catch (error) {
-      console.error('Error fetching questions:', error);
+      console.error("Error fetching questions:", error);
     }
   };
 
+  const startTestAgain = () => {
+    setSelectedAnswers(Array(questions.length).fill(-1)); // Reset selected answers for the same questions
+    setResult(null); // Reset result state
+  };
+
   const handleAnswerChange = (index: number, answerIndex: number) => {
+    if (result) return; // Prevent changes after result submission
     const newSelectedAnswers = [...selectedAnswers];
     newSelectedAnswers[index] = answerIndex;
     setSelectedAnswers(newSelectedAnswers);
@@ -44,10 +67,9 @@ const SelfTest = () => {
   };
 
   const renderQuestions = () => {
-    console.log(questions[0])
     return questions.map((question, index) => (
-      <div key={question.Id} style={{ marginBottom: '15px' }}>
-        <h4>{question.questionText}</h4>
+      <Box key={question.Id} mb={2}>
+        <Typography variant="h6">{question.questionText}</Typography>
         {question.options.$values.map((option, optionIndex) => (
           <div key={optionIndex}>
             <label>
@@ -56,35 +78,60 @@ const SelfTest = () => {
                 name={`question-${index}`}
                 checked={selectedAnswers[index] === optionIndex}
                 onChange={() => handleAnswerChange(index, optionIndex)}
+                disabled={result !== null}
               />
               {option}
             </label>
           </div>
         ))}
         {result && (
-          <div style={{ marginTop: '5px', color: selectedAnswers[index] === question.correctOptionIndex ? 'green' : 'red' }}>
-            {selectedAnswers[index] === question.correctOptionIndex ? 'Правильно' : 'Неправильно'}
-          </div>
+          <Typography
+            mt={1}
+            color={selectedAnswers[index] === question.correctOptionIndex ? "green" : "red"}
+          >
+            {selectedAnswers[index] === question.correctOptionIndex ? "Правильно" : "Неправильно"}
+          </Typography>
         )}
-      </div>
+      </Box>
     ));
   };
 
   return (
-    <div>
-      <h2>Самостійне тестування</h2>
-      <button onClick={fetchRandomQuestions}>Отримати 5 рандомних питань</button>
-      {questions.length > 0 && renderQuestions()}
-      <div style={{ marginTop: '20px' }}>
-        <button onClick={checkResults}>Перевірити результати</button>
-        <button onClick={fetchRandomQuestions} style={{ marginLeft: '10px' }}>Перегенерувати тести</button>
-      </div>
-      {result && (
-        <div style={{ marginTop: '20px' }}>
-          <h3>Результати: {result.correct} з {result.total} правильних</h3>
-        </div>
-      )}
-    </div>
+    <LoggedInView links={links}>
+      <Container sx={{ mt: 4, mb: 4 }}>
+        <Typography variant="h4" gutterBottom>
+          Самостійне тестування
+        </Typography>
+        <Button variant="contained" color="primary" onClick={fetchRandomQuestions}>
+          Отримати 5 випадкових питань
+        </Button>
+
+        {questions.length > 0 && (
+          <Paper elevation={3} sx={{ maxHeight: "400px", overflowY: "auto", mt: 3, p: 2 }}>
+            {renderQuestions()}
+          </Paper>
+        )}
+        <Box mt={3}>
+          {result ? (
+            <Typography variant="h6" mt={2}>
+              Результати: {result.correct} з {result.total} правильних
+            </Typography>
+          ) : (
+            <Button variant="contained" color="success" onClick={checkResults}>
+              Перевірити результати
+            </Button>
+          )}
+          <Button
+            variant="outlined"
+            color="primary"
+            onClick={result ? startTestAgain : fetchRandomQuestions}
+            sx={{ ml: 2 }}
+          >
+            {result ? "Почати тестування наново" : "Перегенерувати тести"}
+          </Button>
+        </Box>
+      </Container>
+    </LoggedInView>
   );
 };
 

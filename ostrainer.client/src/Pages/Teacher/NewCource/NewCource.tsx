@@ -62,7 +62,7 @@ export const NewCourse = () => {
     try {
       const response = await axios.post("/api/course/create", courseData);
       if (response.status === 200) {
-        navigate("/"); // Redirect to dashboard after successful creation
+        navigate("/");
       }
     } catch (err) {
       setError("Failed to create course.");
