@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using OsTrainer.Server.Data;
 using Microsoft.EntityFrameworkCore;
-using System.Net.Mail;
+using OsTrainer.Server.Models.TestGeneration;
 
 namespace OsTrainer.Server.Controllers
 {
@@ -160,6 +160,25 @@ namespace OsTrainer.Server.Controllers
             await _dbContext.SaveChangesAsync();
 
             return Ok("Assignment removed successfully.");
+        }
+
+        [HttpGet("getRandomTests")]
+        public async Task<IActionResult> GetRandomTests([FromQuery] int algorithmId)
+        {
+            List<TestQuestion> testQuestions = new List<TestQuestion>();
+
+            testQuestions = await _dbContext.TestQuestions
+                .Where(q => q.AlgorithmId == algorithmId)
+                .OrderBy(q => Guid.NewGuid())
+                .Take(5)
+                .ToListAsync();
+
+            if (testQuestions == null || !testQuestions.Any())
+            {
+                return NotFound(new { Message = "No questions found for the specified algorithm." });
+            }
+
+            return Ok(new { Tests = testQuestions });
         }
 
     }

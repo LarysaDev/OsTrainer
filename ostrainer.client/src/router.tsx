@@ -11,6 +11,7 @@ import { NonpreemptiveSjfTrainer } from "./Pages/AlgorithmTrainerPage/Nonpreempt
 import { PreemptiveSjfTrainer } from "./Pages/AlgorithmTrainerPage/PreemptiveSjf.tsx";
 import { PreemptivePriorityTrainer } from "./Pages/AlgorithmTrainerPage/PreemptivePriorityTrainer.tsx";
 import { NonpreemptivePriorityTrainer } from "./Pages/AlgorithmTrainerPage/NonpreemptivePriorityTrainer.tsx";
+import SelfTest from "./Pages/Student/DashboardLearn/SelfTesting.tsx";
 
 const router = createBrowserRouter([
   {
@@ -64,6 +65,10 @@ const router = createBrowserRouter([
   {
     path: "/newCourse",
     element: <NewCourse />,
+  },
+  {
+    path: "/test/:algorithmId",
+    element: <SelfTest />,
   }
 ]);
 

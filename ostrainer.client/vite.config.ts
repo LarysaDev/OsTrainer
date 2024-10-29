@@ -115,6 +115,10 @@ export default defineConfig({
                 target: 'https://localhost:7111/',
                 secure: false
             },
+            '^/api/assignment/getrandomtests': {
+                target: 'https://localhost:7111/',
+                secure: false
+            },
         },
         port: 5173,
         https: {
