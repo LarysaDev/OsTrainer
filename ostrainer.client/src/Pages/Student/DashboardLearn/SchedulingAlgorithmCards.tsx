@@ -54,6 +54,13 @@ export const SchedulingAlgorithmCards = () => {
                   >
                     Practice
                   </Button>
+                  <Button
+                    size="small"
+                    href={algorithm.testsLink}
+                    target="_blank"
+                  >
+                    Tests
+                  </Button>
                 </CardActions>
               </Card>
             ))}
@@ -68,6 +75,7 @@ type Algorithm = {
   name: string;
   theoryLink: string;
   practiceLink: string;
+  testsLink: string;
   category: string;
 };
 
@@ -77,35 +85,41 @@ const algorithms: Algorithm[] = [
     theoryLink: "https://www.tutorialspoint.com/fcfs-scheduling",
     practiceLink: "/practice/fcfs",
     category: "Thread Scheduling",
+    testsLink: "/test/1"
   },
   {
     name: "Round-Robin Scheduling",
     theoryLink: "https://www.javatpoint.com/os-round-robin-scheduling-algorithm",
     practiceLink: "/practice/rr",
     category: "Thread Scheduling",
+    testsLink: "/test/2"
   },
   {
     name: "SJF (Non-preemptive)",
     theoryLink: "https://www.guru99.com/shortest-job-first-sjf-scheduling.html",
     practiceLink: "/practice/nonpreemptive_sjf",
     category: "Thread Scheduling",
+    testsLink: "/test/3"
   },
   {
     name: "SJF (Preemptive)",
     theoryLink: "https://www.guru99.com/shortest-job-first-sjf-scheduling.html",
     practiceLink: "/practice/preemptive_sjf",
     category: "Thread Scheduling",
+    testsLink: "/test/4"
   },
   {
     name: "Priority (Non-preemptive)",
     theoryLink: "https://www.guru99.com/priority-scheduling-program.html",
     practiceLink: "/practice/nonpreemptive_priority",
     category: "Thread Scheduling",
+    testsLink: "/test/5"
   },
   {
     name: "Priority (Preemptive)",
     theoryLink: "https://www.guru99.com/priority-scheduling-program.html",
     practiceLink: "/practice/preemptive_priority",
     category: "Thread Scheduling",
+    testsLink: "/test/6"
   },
 ];
