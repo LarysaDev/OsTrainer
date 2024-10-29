@@ -6,21 +6,25 @@
         {
             int pageFaults = 0;
             Queue<int> frames = new Queue<int>();
-            List<int> finalFrames = new List<int>();
 
             foreach (int page in data.Pages)
             {
+                // Якщо сторінки немає у фреймах
                 if (!frames.Contains(page))
                 {
-                    if (frames.Count == data.FrameCount)
-                    {
-                        frames.Dequeue();
-                    }
-                    frames.Enqueue(page);
                     pageFaults++;
+
+                    // Якщо досягнуто максимальну кількість фреймів
+                    if (frames.Count >= data.FrameCount)
+                    {
+                        frames.Dequeue();  // Видаляємо найстарішу сторінку
+                    }
+
+                    frames.Enqueue(page);  // Додаємо нову сторінку
                 }
-                finalFrames = new List<int>(frames);
             }
+
+            List<int> finalFrames = new List<int>(frames);
 
             return new PageReplacementResults
             {
