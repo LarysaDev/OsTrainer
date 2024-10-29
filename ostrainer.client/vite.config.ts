@@ -119,6 +119,38 @@ export default defineConfig({
                 target: 'https://localhost:7111/',
                 secure: false
             },
+            '^/api/deadlockavoidance/bankers-algorithm': {
+                target: 'https://localhost:7111/',
+                secure: false
+            },
+            '^/api/deadlockavoidance/resource-allocation-graph': {
+                target: 'https://localhost:7111/',
+                secure: false
+            },
+            '^/api/pagereplacement/fifo': {
+                target: 'https://localhost:7111/',
+                secure: false
+            },
+            '^/api/pagereplacement/clock': {
+                target: 'https://localhost:7111/',
+                secure: false
+            },
+            '^/api/pagereplacement/lru': {
+                target: 'https://localhost:7111/',
+                secure: false
+            },
+            '^/api/pagereplacement/lru-stack': {
+                target: 'https://localhost:7111/',
+                secure: false
+            },
+            '^/api/pagereplacement/lfu': {
+                target: 'https://localhost:7111/',
+                secure: false
+            },
+            '^/api/pagereplacement/mfu': {
+                target: 'https://localhost:7111/',
+                secure: false
+            }
         },
         port: 5173,
         https: {

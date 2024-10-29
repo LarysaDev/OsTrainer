@@ -1,8 +1,8 @@
 import { useState } from "react";
 import axios from "axios";
-import styles from "./Trainer.module.less";
-import { SidePanel } from "../../Components/SidePanel/SidePanel";
-import AuthorizeView from "../../Components/AuthorizeView";
+import styles from "../Trainer.module.less";
+import { SidePanel, SidePanelLink } from "../../../Components/SidePanel/SidePanel";
+import AuthorizeView from "../../../Components/AuthorizeView";
 import {
   Button,
   Table,
@@ -16,17 +16,17 @@ import {
   Typography,
   TextField,
 } from "@mui/material";
-import { Process } from "../common";
+import { Process } from "../../common";
 
 export const links: SidePanelLink[] = [
   { label: "Dashboard", link: "/" },
   { label: "Scheduling", link: "/scheduling", active: true },
-  { label: "Page Replacement", link: "/" },
+  { label: "Page Replacement", link: "/page-replacement" },
   { label: "Avoiding Deadlocks", link: "/" },
   { label: "Assignments", link: "/" },
 ];
 
-export const FcfsTrainer: React.FC = () => {
+export const NonpreemptiveSjfTrainer: React.FC = () => {
   const [arrivalTimes, setArrivalTimes] = useState<string>("");
   const [burstTimes, setBurstTimes] = useState<string>("");
   const [arrivalError, setArrivalError] = useState<string | null>(null);
@@ -92,7 +92,7 @@ export const FcfsTrainer: React.FC = () => {
     }));
 
     try {
-      const response = await axios.post("/api/ganttchart/fcfs", processList);
+      const response = await axios.post("/api/ganttchart/nonpreemptive_sjf", processList);
       generateMatrixTable(response.data.$values);
     } catch (error) {
       console.error("Error generating Gantt chart", error);
@@ -118,12 +118,12 @@ export const FcfsTrainer: React.FC = () => {
           row.push("-");
         } else if (t >= process.arrivalTime && t < process.completionTime!) {
           if (t - process.arrivalTime < process.burstTime) {
-            row.push("e"); // Executing
+            row.push("e");
           } else {
-            row.push("w"); // Waiting
+            row.push("w");
           }
         } else {
-          row.push("x"); // Completed
+          row.push("x");
         }
       }
       matrix.push(row);
@@ -179,7 +179,7 @@ export const FcfsTrainer: React.FC = () => {
         </div>
         <div className={styles.main}>
           <div className={styles.chartContainer}>
-            <h1>Gantt Chart Generator: FCFS</h1>
+            <h1>Gantt Chart Generator: Non-Preemptive SJF</h1>
             <form>
               <TextField
                 label="Arrival Times (comma-separated)"

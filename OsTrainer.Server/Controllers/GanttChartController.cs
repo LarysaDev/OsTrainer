@@ -5,6 +5,9 @@ using OsTrainer.Server.Services.Scheduling;
 
 namespace OsTrainer.Server.Controllers
 {
+    /// <summary>
+    /// Controller for calculation matrix of processes statuses in scheduling algorithms
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class GanttChartController : ControllerBase

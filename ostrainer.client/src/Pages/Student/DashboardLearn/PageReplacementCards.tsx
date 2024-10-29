@@ -13,13 +13,13 @@ import AuthorizeView from "../../../Components/AuthorizeView";
 
 export const links: SidePanelLink[] = [
   { label: "Dashboard", link: "/" },
-  { label: "Scheduling", link: "/scheduling", active: true },
-  { label: "Page Replacement", link: "/page-replacement" },
+  { label: "Scheduling", link: "/scheduling" },
+  { label: "Page Replacement", link: "/page-replacement", active: true },
   { label: "Avoiding Deadlocks", link: "/" },
   { label: "Assignments", link: "/" },
 ];
 
-export const SchedulingAlgorithmCards = () => {
+export const PageReplacementAlgorithmCards = () => {
   return (
     <AuthorizeView>
       <div className={styles.container}>
@@ -81,45 +81,45 @@ type Algorithm = {
 
 const algorithms: Algorithm[] = [
   {
-    name: "FCFS",
-    theoryLink: "https://www.tutorialspoint.com/fcfs-scheduling",
-    practiceLink: "/practice/fcfs",
-    category: "Thread Scheduling",
-    testsLink: "/test/1"
+    name: "FIFO",
+    theoryLink: "",
+    practiceLink: "/practice/fifo",
+    category: "Page Replacement",
+    testsLink: ""
   },
   {
-    name: "Round-Robin Scheduling",
-    theoryLink: "https://www.javatpoint.com/os-round-robin-scheduling-algorithm",
-    practiceLink: "/practice/rr",
-    category: "Thread Scheduling",
-    testsLink: "/test/2"
+    name: "Clock",
+    theoryLink: "",
+    practiceLink: "",
+    category: "Page Replacement",
+    testsLink: ""
   },
   {
-    name: "SJF (Non-preemptive)",
-    theoryLink: "https://www.guru99.com/shortest-job-first-sjf-scheduling.html",
-    practiceLink: "/practice/nonpreemptive_sjf",
-    category: "Thread Scheduling",
-    testsLink: "/test/3"
+    name: "LRU",
+    theoryLink: "",
+    practiceLink: "",
+    category: "Page Replacement",
+    testsLink: ""
   },
   {
-    name: "SJF (Preemptive)",
-    theoryLink: "https://www.guru99.com/shortest-job-first-sjf-scheduling.html",
-    practiceLink: "/practice/preemptive_sjf",
-    category: "Thread Scheduling",
-    testsLink: "/test/4"
+    name: "LRU (stack)",
+    theoryLink: "",
+    practiceLink: "",
+    category: "Page Replacement",
+    testsLink: ""
   },
   {
-    name: "Priority (Non-preemptive)",
-    theoryLink: "https://www.guru99.com/priority-scheduling-program.html",
-    practiceLink: "/practice/nonpreemptive_priority",
-    category: "Thread Scheduling",
-    testsLink: "/test/5"
+    name: "LFU",
+    theoryLink: "",
+    practiceLink: "",
+    category: "Page Replacement",
+    testsLink: ""
   },
   {
-    name: "Priority (Preemptive)",
-    theoryLink: "https://www.guru99.com/priority-scheduling-program.html",
-    practiceLink: "/practice/preemptive_priority",
-    category: "Thread Scheduling",
-    testsLink: "/test/6"
+    name: "MFU",
+    theoryLink: "",
+    practiceLink: "",
+    category: "Page Replacement",
+    testsLink: ""
   },
 ];

@@ -22,7 +22,7 @@ import { courses } from "../AssignedCourses/dump.ts";
 export const links: SidePanelLink[] = [
   { label: "Dashboard", link: "/", active: true },
   { label: "Scheduling", link: "/scheduling" },
-  { label: "Page Replacement", link: "/" },
+  { label: "Page Replacement", link: "/page-replacement" },
   { label: "Avoiding Deadlocks", link: "/" },
   { label: "Assignments", link: "/" },
 ];

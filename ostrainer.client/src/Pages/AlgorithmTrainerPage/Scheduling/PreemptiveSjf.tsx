@@ -1,8 +1,8 @@
 import { useState } from "react";
 import axios from "axios";
-import styles from "./Trainer.module.less";
-import { SidePanel } from "../../Components/SidePanel/SidePanel";
-import AuthorizeView from "../../Components/AuthorizeView";
+import styles from "../Trainer.module.less";
+import { SidePanel, SidePanelLink } from "../../../Components/SidePanel/SidePanel";
+import AuthorizeView from "../../../Components/AuthorizeView";
 import {
   Button,
   Table,
@@ -16,23 +16,21 @@ import {
   Typography,
   TextField,
 } from "@mui/material";
-import { Process } from "../common";
+import { Process } from "../../common";
 
 export const links: SidePanelLink[] = [
   { label: "Dashboard", link: "/" },
   { label: "Scheduling", link: "/scheduling", active: true },
-  { label: "Page Replacement", link: "/" },
+  { label: "Page Replacement", link: "/page-replacement" },
   { label: "Avoiding Deadlocks", link: "/" },
   { label: "Assignments", link: "/" },
 ];
 
-export const PreemptivePriorityTrainer: React.FC = () => {
+export const PreemptiveSjfTrainer: React.FC = () => {
   const [arrivalTimes, setArrivalTimes] = useState<string>("");
   const [burstTimes, setBurstTimes] = useState<string>("");
-  const [priorities, setPriorities] = useState<string>("");
   const [arrivalError, setArrivalError] = useState<string | null>(null);
   const [burstError, setBurstError] = useState<string | null>(null);
-  const [prioritiesError, setPrioritiesError] = useState<string | null>(null);
   const [matrix, setMatrix] = useState<(string | number)[][]>([]);
   const [userMatrix, setUserMatrix] = useState<(string | number)[][]>([]);
   const [colorMatrix, setColorMatrix] = useState<(string | number)[][]>([]);
@@ -40,27 +38,19 @@ export const PreemptivePriorityTrainer: React.FC = () => {
   const validateInputs = () => {
     const trimmedArrivalTimes = arrivalTimes.replace(/\s+/g, "");
     const trimmedBurstTimes = burstTimes.replace(/\s+/g, "");
-    const trimmedPriorities = priorities.replace(/\s+/g, "");
 
     const arrivalArray = trimmedArrivalTimes.split(",");
     const burstArray = trimmedBurstTimes.split(",");
-    const priorityArray = trimmedPriorities.split(",");
 
     let valid = true;
 
-    if (arrivalArray.length !== burstArray.length ) {
+    if (arrivalArray.length !== burstArray.length) {
       setArrivalError("Arrival Times and Burst Times must have the same number of values.");
       setBurstError("Arrival Times and Burst Times must have the same number of values.");
       valid = false;
-    } 
-    else if(arrivalArray.length !== priorityArray.length){
-        setPrioritiesError("Arrival Times, Burst Times, and Priorities must have the same");
-        valid = false;
-    }
-    else {
+    } else {
       setArrivalError(null);
       setBurstError(null);
-      setPrioritiesError(null);
     }
 
     const arrivalInvalid = arrivalArray.some(
@@ -69,9 +59,6 @@ export const PreemptivePriorityTrainer: React.FC = () => {
     const burstInvalid = burstArray.some(
       (value) => isNaN(Number(value)) || value === ""
     );
-    const priorityInvalid = priorityArray.some(
-        (value) => isNaN(Number(value)) || value === ""
-      );
 
     if (arrivalInvalid) {
       setArrivalError("Arrival Times must contain only valid numbers.");
@@ -87,13 +74,6 @@ export const PreemptivePriorityTrainer: React.FC = () => {
       setBurstError(null);
     }
 
-    if (priorityInvalid) {
-        setPrioritiesError("Priority values must contain only valid numbers.");
-        valid = false;
-      } else if (!prioritiesError) {
-        setPrioritiesError(null);
-      }
-
     return valid;
   };
 
@@ -104,13 +84,11 @@ export const PreemptivePriorityTrainer: React.FC = () => {
 
     const arrivalArray = arrivalTimes.replace(/\s+/g, "").split(",").map(Number);
     const burstArray = burstTimes.replace(/\s+/g, "").split(",").map(Number);
-    const priorityArray = priorities.replace(/\s+/g, "").split(",").map(Number);
 
     const processList = arrivalArray.map((arrival, index) => ({
       id: index + 1,
       arrivalTime: arrival,
       burstTime: burstArray[index],
-      priority: priorityArray[index],
     }));
 
     try {
@@ -201,7 +179,7 @@ export const PreemptivePriorityTrainer: React.FC = () => {
         </div>
         <div className={styles.main}>
           <div className={styles.chartContainer}>
-            <h1>Gantt Chart Generator: Preemptive Priority</h1>
+            <h1>Gantt Chart Generator: Preemptive SJF</h1>
             <form>
               <TextField
                 label="Arrival Times (comma-separated)"
@@ -220,16 +198,6 @@ export const PreemptivePriorityTrainer: React.FC = () => {
                 onChange={(e) => setBurstTimes(e.target.value)}
                 error={!!burstError}
                 helperText={burstError}
-                fullWidth
-                margin="normal"
-              />
-              <TextField
-                label="Priorities (comma-separated)"
-                variant="outlined"
-                value={priorities}
-                onChange={(e) => setPriorities(e.target.value)}
-                error={!!prioritiesError}
-                helperText={prioritiesError}
                 fullWidth
                 margin="normal"
               />

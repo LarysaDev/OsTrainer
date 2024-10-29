@@ -1,8 +1,8 @@
 import { useState } from "react";
 import axios from "axios";
-import styles from "./Trainer.module.less";
-import { SidePanel } from "../../Components/SidePanel/SidePanel";
-import AuthorizeView from "../../Components/AuthorizeView";
+import styles from "../Trainer.module.less";
+import { SidePanel, SidePanelLink } from "../../../Components/SidePanel/SidePanel";
+import AuthorizeView from "../../../Components/AuthorizeView";
 import {
   Button,
   Table,
@@ -16,21 +16,23 @@ import {
   Typography,
   TextField,
 } from "@mui/material";
-import { Process } from "../common";
+import { Process } from "../../common";
 
 export const links: SidePanelLink[] = [
   { label: "Dashboard", link: "/" },
   { label: "Scheduling", link: "/scheduling", active: true },
-  { label: "Page Replacement", link: "/" },
+  { label: "Page Replacement", link: "/page-replacement" },
   { label: "Avoiding Deadlocks", link: "/" },
   { label: "Assignments", link: "/" },
 ];
 
-export const NonpreemptiveSjfTrainer: React.FC = () => {
+export const PreemptivePriorityTrainer: React.FC = () => {
   const [arrivalTimes, setArrivalTimes] = useState<string>("");
   const [burstTimes, setBurstTimes] = useState<string>("");
+  const [priorities, setPriorities] = useState<string>("");
   const [arrivalError, setArrivalError] = useState<string | null>(null);
   const [burstError, setBurstError] = useState<string | null>(null);
+  const [prioritiesError, setPrioritiesError] = useState<string | null>(null);
   const [matrix, setMatrix] = useState<(string | number)[][]>([]);
   const [userMatrix, setUserMatrix] = useState<(string | number)[][]>([]);
   const [colorMatrix, setColorMatrix] = useState<(string | number)[][]>([]);
@@ -38,19 +40,27 @@ export const NonpreemptiveSjfTrainer: React.FC = () => {
   const validateInputs = () => {
     const trimmedArrivalTimes = arrivalTimes.replace(/\s+/g, "");
     const trimmedBurstTimes = burstTimes.replace(/\s+/g, "");
+    const trimmedPriorities = priorities.replace(/\s+/g, "");
 
     const arrivalArray = trimmedArrivalTimes.split(",");
     const burstArray = trimmedBurstTimes.split(",");
+    const priorityArray = trimmedPriorities.split(",");
 
     let valid = true;
 
-    if (arrivalArray.length !== burstArray.length) {
+    if (arrivalArray.length !== burstArray.length ) {
       setArrivalError("Arrival Times and Burst Times must have the same number of values.");
       setBurstError("Arrival Times and Burst Times must have the same number of values.");
       valid = false;
-    } else {
+    } 
+    else if(arrivalArray.length !== priorityArray.length){
+        setPrioritiesError("Arrival Times, Burst Times, and Priorities must have the same");
+        valid = false;
+    }
+    else {
       setArrivalError(null);
       setBurstError(null);
+      setPrioritiesError(null);
     }
 
     const arrivalInvalid = arrivalArray.some(
@@ -59,6 +69,9 @@ export const NonpreemptiveSjfTrainer: React.FC = () => {
     const burstInvalid = burstArray.some(
       (value) => isNaN(Number(value)) || value === ""
     );
+    const priorityInvalid = priorityArray.some(
+        (value) => isNaN(Number(value)) || value === ""
+      );
 
     if (arrivalInvalid) {
       setArrivalError("Arrival Times must contain only valid numbers.");
@@ -74,6 +87,13 @@ export const NonpreemptiveSjfTrainer: React.FC = () => {
       setBurstError(null);
     }
 
+    if (priorityInvalid) {
+        setPrioritiesError("Priority values must contain only valid numbers.");
+        valid = false;
+      } else if (!prioritiesError) {
+        setPrioritiesError(null);
+      }
+
     return valid;
   };
 
@@ -84,15 +104,17 @@ export const NonpreemptiveSjfTrainer: React.FC = () => {
 
     const arrivalArray = arrivalTimes.replace(/\s+/g, "").split(",").map(Number);
     const burstArray = burstTimes.replace(/\s+/g, "").split(",").map(Number);
+    const priorityArray = priorities.replace(/\s+/g, "").split(",").map(Number);
 
     const processList = arrivalArray.map((arrival, index) => ({
       id: index + 1,
       arrivalTime: arrival,
       burstTime: burstArray[index],
+      priority: priorityArray[index],
     }));
 
     try {
-      const response = await axios.post("/api/ganttchart/nonpreemptive_sjf", processList);
+      const response = await axios.post("/api/ganttchart/preemptive_sjf", processList);
       generateMatrixTable(response.data.$values);
     } catch (error) {
       console.error("Error generating Gantt chart", error);
@@ -118,12 +140,12 @@ export const NonpreemptiveSjfTrainer: React.FC = () => {
           row.push("-");
         } else if (t >= process.arrivalTime && t < process.completionTime!) {
           if (t - process.arrivalTime < process.burstTime) {
-            row.push("e");
+            row.push("e"); // Executing
           } else {
-            row.push("w");
+            row.push("w"); // Waiting
           }
         } else {
-          row.push("x");
+          row.push("x"); // Completed
         }
       }
       matrix.push(row);
@@ -179,7 +201,7 @@ export const NonpreemptiveSjfTrainer: React.FC = () => {
         </div>
         <div className={styles.main}>
           <div className={styles.chartContainer}>
-            <h1>Gantt Chart Generator: Non-Preemptive SJF</h1>
+            <h1>Gantt Chart Generator: Preemptive Priority</h1>
             <form>
               <TextField
                 label="Arrival Times (comma-separated)"
@@ -198,6 +220,16 @@ export const NonpreemptiveSjfTrainer: React.FC = () => {
                 onChange={(e) => setBurstTimes(e.target.value)}
                 error={!!burstError}
                 helperText={burstError}
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="Priorities (comma-separated)"
+                variant="outlined"
+                value={priorities}
+                onChange={(e) => setPriorities(e.target.value)}
+                error={!!prioritiesError}
+                helperText={prioritiesError}
                 fullWidth
                 margin="normal"
               />

@@ -3,15 +3,18 @@ import Home from "./Pages/Home";
 import Login from "./Pages/Login/Login.tsx";
 import Register from "./Pages/Register/Register.tsx";
 import Landing from "../src/Pages/Landing/Landing.tsx";
-import { FcfsTrainer } from "./Pages/AlgorithmTrainerPage/FcfsTrainer.tsx";
+import { FcfsTrainer } from "./Pages/AlgorithmTrainerPage/Scheduling/FcfsTrainer.tsx";
 import { SchedulingAlgorithmCards } from "./Pages/Student/DashboardLearn/SchedulingAlgorithmCards.tsx";
+import { PageReplacementAlgorithmCards } from "./Pages/Student/DashboardLearn/PageReplacementCards.tsx";
 import { NewCourse } from "./Pages/Teacher/NewCource/NewCource.tsx";
-import { RrTrainer } from "./Pages/AlgorithmTrainerPage/RrTrainer.tsx";
-import { NonpreemptiveSjfTrainer } from "./Pages/AlgorithmTrainerPage/NonpreemptiveSjf.tsx";
-import { PreemptiveSjfTrainer } from "./Pages/AlgorithmTrainerPage/PreemptiveSjf.tsx";
-import { PreemptivePriorityTrainer } from "./Pages/AlgorithmTrainerPage/PreemptivePriorityTrainer.tsx";
-import { NonpreemptivePriorityTrainer } from "./Pages/AlgorithmTrainerPage/NonpreemptivePriorityTrainer.tsx";
+import { RrTrainer } from "./Pages/AlgorithmTrainerPage/Scheduling/RrTrainer.tsx";
+import { NonpreemptiveSjfTrainer } from "./Pages/AlgorithmTrainerPage/Scheduling/NonpreemptiveSjf.tsx";
+import { PreemptiveSjfTrainer } from "./Pages/AlgorithmTrainerPage/Scheduling/PreemptiveSjf.tsx";
+import { PreemptivePriorityTrainer } from "./Pages/AlgorithmTrainerPage/Scheduling/PreemptivePriorityTrainer.tsx";
+import { NonpreemptivePriorityTrainer } from "./Pages/AlgorithmTrainerPage/Scheduling/NonpreemptivePriorityTrainer.tsx";
 import SelfTest from "./Pages/Student/DashboardLearn/SelfTesting.tsx";
+
+import { FifoTrainer } from "./Pages/AlgorithmTrainerPage/PR/FifoTrainer.tsx";
 
 const router = createBrowserRouter([
   {
@@ -59,8 +62,16 @@ const router = createBrowserRouter([
     element: <NonpreemptivePriorityTrainer />,
   },
   {
+    path: "/practice/fifo",
+    element: <FifoTrainer />,
+  },
+  {
     path: "/scheduling",
     element: <SchedulingAlgorithmCards />,
+  },
+  {
+    path: "/page-replacement",
+    element: <PageReplacementAlgorithmCards />,
   },
   {
     path: "/newCourse",

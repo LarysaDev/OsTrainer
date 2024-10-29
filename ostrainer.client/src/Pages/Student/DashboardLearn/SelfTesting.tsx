@@ -15,7 +15,7 @@ interface TestQuestion {
 export const links: SidePanelLink[] = [
   { label: "Dashboard", link: "/" },
   { label: "Scheduling", link: "/scheduling" },
-  { label: "Page Replacement", link: "/" },
+  { label: "Page Replacement", link: "/page-replacement" },
   { label: "Avoiding Deadlocks", link: "/" },
   { label: "Assignments", link: "/" },
 ];

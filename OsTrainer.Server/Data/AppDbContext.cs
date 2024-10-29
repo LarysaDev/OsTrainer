@@ -23,14 +23,14 @@ namespace OsTrainer.Server.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-            //builder.Entity<Algorithm>().HasData(
-            //    new Algorithm { Id = 1, Name = "FCFS" },
-            //    new Algorithm {Id = 2, Name = "Round Robin" },
-            //    new Algorithm {Id = 3, Name = "SJF (Non-preemptive)" },
-            //    new Algorithm {Id = 4, Name = "SJF (Preemptive)" },
-            //    new Algorithm {Id = 5, Name = "Priority (Non-preemptive)" },
-            //    new Algorithm {Id = 6, Name = "Priority (Preemptive)" }
-            //);
+            builder.Entity<Algorithm>().HasData(
+                new Algorithm { Id = 1, Name = "FCFS" },
+                new Algorithm { Id = 2, Name = "Round Robin" },
+                new Algorithm { Id = 3, Name = "SJF (Non-preemptive)" },
+                new Algorithm { Id = 4, Name = "SJF (Preemptive)" },
+                new Algorithm { Id = 5, Name = "Priority (Non-preemptive)" },
+                new Algorithm { Id = 6, Name = "Priority (Preemptive)" }
+            );
 
             builder.Entity<Assignment>()
              .HasOne(a => a.Student)
@@ -44,7 +44,7 @@ namespace OsTrainer.Server.Data
                 .HasForeignKey(a => a.TeacherId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            //builder.Entity<TestQuestion>().HasData(new TestData().Questions);
+            builder.Entity<TestQuestion>().HasData(new TestData().Questions);
         }
     }
 }
