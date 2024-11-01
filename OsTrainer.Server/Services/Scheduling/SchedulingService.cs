@@ -8,7 +8,12 @@ namespace OsTrainer.Server.Services.Scheduling
         {
             int currentTime = 0;
 
-            foreach (var process in processes.OrderBy(p => p.ArrivalTime))
+            var orderedProcesses = processes
+                .OrderBy(p => p.ArrivalTime)
+                .ThenBy(p => processes.IndexOf(p))
+                .ToList();
+
+            foreach (var process in orderedProcesses)
             {
                 if (currentTime < process.ArrivalTime)
                 {
@@ -22,7 +27,7 @@ namespace OsTrainer.Server.Services.Scheduling
                 currentTime = process.CompletionTime;
             }
 
-            return processes;
+            return orderedProcesses;
         }
 
         public List<Process> PerformRoundRobin(RoundRobinInput roundRobinInput)

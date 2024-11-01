@@ -1,7 +1,10 @@
 import { useState } from "react";
 import axios from "axios";
 import styles from "../Trainer.module.less";
-import { SidePanel, SidePanelLink } from "../../../Components/SidePanel/SidePanel";
+import {
+  SidePanel,
+  SidePanelLink,
+} from "../../../Components/SidePanel/SidePanel";
 import AuthorizeView from "../../../Components/AuthorizeView";
 import {
   Button,
@@ -45,8 +48,12 @@ export const FcfsTrainer: React.FC = () => {
     let valid = true;
 
     if (arrivalArray.length !== burstArray.length) {
-      setArrivalError("Arrival Times and Burst Times must have the same number of values.");
-      setBurstError("Arrival Times and Burst Times must have the same number of values.");
+      setArrivalError(
+        "Arrival Times and Burst Times must have the same number of values."
+      );
+      setBurstError(
+        "Arrival Times and Burst Times must have the same number of values."
+      );
       valid = false;
     } else {
       setArrivalError(null);
@@ -82,7 +89,10 @@ export const FcfsTrainer: React.FC = () => {
       return;
     }
 
-    const arrivalArray = arrivalTimes.replace(/\s+/g, "").split(",").map(Number);
+    const arrivalArray = arrivalTimes
+      .replace(/\s+/g, "")
+      .split(",")
+      .map(Number);
     const burstArray = burstTimes.replace(/\s+/g, "").split(",").map(Number);
 
     const processList = arrivalArray.map((arrival, index) => ({
@@ -99,35 +109,52 @@ export const FcfsTrainer: React.FC = () => {
     }
   };
 
-  const generateMatrixTable = (processes: Process[]) => {
-    const completionTimes = (processes as Process[]).map(
-      (p) => p.completionTime || 0
-    );
+  function generateMatrixTable(processes) {
+    const n = processes.length;
+    const matrix = [];
+    const completionTimes = new Array(n).fill(0);
+    const waitingTimes = new Array(n).fill(0);
+    const turnaroundTimes = new Array(n).fill(0);
+
+    // Calculate completion, waiting, and turnaround times
+    let currentTime = 0;
+    for (let i = 0; i < n; i++) {
+      if (currentTime < processes[i].arrivalTime) {
+        currentTime = processes[i].arrivalTime;
+      }
+      currentTime += processes[i].burstTime;
+      completionTimes[i] = currentTime;
+      turnaroundTimes[i] = completionTimes[i] - processes[i].arrivalTime;
+      waitingTimes[i] = turnaroundTimes[i] - processes[i].burstTime;
+    }
+
+    // Create the header row
+    const headerRow = ["Process\\Time"];
     const maxTime = Math.max(...completionTimes);
-    const matrix: (string | number)[][] = [];
-    const headerRow: (string | number)[] = ["Process\\Time"];
     for (let t = 0; t <= maxTime; t++) {
       headerRow.push(t);
     }
     matrix.push(headerRow);
 
-    (processes as Process[]).forEach((process, index) => {
-      const row: (string | number)[] = [`P${index + 1}`];
+    // Fill rows for each process in FCFS order
+    for (let i = 0; i < n; i++) {
+      const row = [`P${i + 1}`];
+      let startTime = completionTimes[i] - processes[i].burstTime; // When this process starts
+      let endTime = completionTimes[i]; // When this process completes
+
       for (let t = 0; t <= maxTime; t++) {
-        if (t < process.arrivalTime) {
-          row.push("-");
-        } else if (t >= process.arrivalTime && t < process.completionTime!) {
-          if (t - process.arrivalTime < process.burstTime) {
-            row.push("e"); // Executing
-          } else {
-            row.push("w"); // Waiting
-          }
+        if (t < processes[i].arrivalTime) {
+          row.push("-"); // Process not yet arrived
+        } else if (t >= startTime && t < endTime) {
+          row.push("e"); // Process executing
+        } else if (t >= endTime) {
+          row.push(""); // Process completed
         } else {
-          row.push("x"); // Completed
+          row.push("w"); // Waiting
         }
       }
       matrix.push(row);
-    });
+    }
 
     setMatrix(matrix);
     setUserMatrix(
@@ -136,7 +163,7 @@ export const FcfsTrainer: React.FC = () => {
       )
     );
     setColorMatrix(matrix.map((row) => row.map(() => "")));
-  };
+  }
 
   const handleUserInputChange = (
     rowIndex: number,
@@ -211,13 +238,16 @@ export const FcfsTrainer: React.FC = () => {
             </form>
             <h2>Matrix of process statuses</h2>
             <Typography variant="body1" style={{ margin: "20px 0" }}>
-              <strong>-</strong> : Not Started <br/>
-              <strong>e</strong> : Executed <br/>
-              <strong>w</strong> : Waiting <br/>
-              <strong>x</strong> : Completed <br/>
+              <strong>-</strong> : Not Started <br />
+              <strong>e</strong> : Executed <br />
+              <strong>w</strong> : Waiting <br />
+              <strong>x</strong> : Completed <br />
             </Typography>
-            <TableContainer component={Paper} style={{ maxWidth: '1000px', overflowX: 'auto' }}>
-            <Table>
+            <TableContainer
+              component={Paper}
+              style={{ maxWidth: "1000px", overflowX: "auto" }}
+            >
+              <Table>
                 <TableHead>
                   <TableRow>
                     {matrix[0]?.map((header, index) => (
@@ -233,9 +263,8 @@ export const FcfsTrainer: React.FC = () => {
                         <TableCell
                           key={cellIndex}
                           style={{
-                            backgroundColor: colorMatrix[rowIndex + 1][
-                              cellIndex + 1
-                            ],
+                            backgroundColor:
+                              colorMatrix[rowIndex + 1][cellIndex + 1],
                           }}
                         >
                           <input
