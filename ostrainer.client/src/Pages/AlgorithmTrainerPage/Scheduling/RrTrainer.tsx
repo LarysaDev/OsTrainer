@@ -1,7 +1,10 @@
 import { useState } from "react";
 import axios from "axios";
 import styles from "../Trainer.module.less";
-import { SidePanel, SidePanelLink } from "../../../Components/SidePanel/SidePanel";
+import {
+  SidePanel,
+  SidePanelLink,
+} from "../../../Components/SidePanel/SidePanel";
 import AuthorizeView from "../../../Components/AuthorizeView";
 import {
   Button,
@@ -19,12 +22,12 @@ import {
 import { Process } from "../../common";
 
 export const links: SidePanelLink[] = [
-    { label: "Dashboard", link: "/" },
-    { label: "Scheduling", link: "/scheduling", active: true },
-    { label: "Page Replacement", link: "/page-replacement" },
-    { label: "Avoiding Deadlocks", link: "/" },
-    { label: "Assignments", link: "/" },
-  ];
+  { label: "Dashboard", link: "/" },
+  { label: "Scheduling", link: "/scheduling", active: true },
+  { label: "Page Replacement", link: "/page-replacement" },
+  { label: "Avoiding Deadlocks", link: "/" },
+  { label: "Assignments", link: "/" },
+];
 
 export const RrTrainer: React.FC = () => {
   const [timeQuantum, setTimeQuantum] = useState<number>(0);
@@ -105,49 +108,22 @@ export const RrTrainer: React.FC = () => {
         timeQuantum: timeQuantum,
       };
       const response = await axios.post("/api/ganttchart/rr", requestData);
-      generateMatrixTable(response.data.$values);
+      generateMatrixTable(arrivalArray, burstArray, timeQuantum);
     } catch (error) {
       console.error("Error generating Gantt chart", error);
     }
   };
 
-  const generateMatrixTable = (processes: Process[]) => {
-    const completionTimes = (processes as Process[]).map(
-      (p) => p.completionTime || 0
-    );
-    const maxTime = Math.max(...completionTimes);
-    const matrix: (string | number)[][] = [];
-    const headerRow: (string | number)[] = ["Process\\Time"];
-    for (let t = 0; t <= maxTime; t++) {
-      headerRow.push(t);
-    }
-    matrix.push(headerRow);
+  const generateMatrixTable = (arrivalTime: number[], burstArray: number[],  timeQuantum: number) => {
+    let statesMatrix = roundRobinScheduler(arrivalTime, burstArray, timeQuantum);
 
-    (processes as Process[]).forEach((process, index) => {
-      const row: (string | number)[] = [`P${index + 1}`];
-      for (let t = 0; t <= maxTime; t++) {
-        if (t < process.arrivalTime) {
-          row.push("-");
-        } else if (t >= process.arrivalTime && t < process.completionTime!) {
-          if (t - process.arrivalTime < process.burstTime) {
-            row.push("e"); // Executing
-          } else {
-            row.push("w"); // Waiting
-          }
-        } else {
-          row.push("x"); // Completed
-        }
-      }
-      matrix.push(row);
-    });
-
-    setMatrix(matrix);
+    setMatrix(statesMatrix);
     setUserMatrix(
-      matrix.map((row) =>
+      statesMatrix.map((row) =>
         row.map((cell) => (typeof cell === "number" ? cell : ""))
       )
     );
-    setColorMatrix(matrix.map((row) => row.map(() => "")));
+    setColorMatrix(statesMatrix.map((row) => row.map(() => "")));
   };
 
   const handleUserInputChange = (
@@ -309,3 +285,102 @@ export const RrTrainer: React.FC = () => {
     </div>
   );
 };
+
+function roundRobinScheduler(arrivalTimes, burstTimes, timeQuantum) {
+  // Створюємо масив процесів
+  const processes = arrivalTimes.map((at, index) => ({
+      id: index + 1,
+      arrivalTime: at,
+      burstTime: burstTimes[index],
+      remainingTime: burstTimes[index],
+      states: []
+  }));
+
+  let currentTime = 0;
+  let completed = 0;
+  let queue = [];
+  let statesMatrix = [["Process\\Time"]];
+  // Ініціалізуємо початкові стани для всіх процесів
+  processes.forEach((process, index) => {
+      statesMatrix.push([`P${index + 1}`]); // Add process row headers
+  });
+
+  // Продовжуємо поки всі процеси не завершаться
+  while (completed < processes.length) {
+      // Додаємо нові процеси в чергу
+      for (let i = 0; i < processes.length; i++) {
+          if (processes[i].arrivalTime <= currentTime &&
+              processes[i].remainingTime > 0 &&
+              !queue.includes(processes[i]) &&
+              !processes[i].inQueue) {
+              queue.push(processes[i]);
+              processes[i].inQueue = true;
+          }
+      }
+
+      // Якщо в черзі немає процесів, просто очікуємо
+      if (queue.length === 0) {
+          processes.forEach((process, index) => {
+              statesMatrix[index + 1].push("-");
+          });
+          currentTime++;
+          continue;
+      }
+
+      // Беремо перший процес з черги
+      let currentProcess = queue.shift();
+      currentProcess.inQueue = false;
+
+      // Визначаємо час виконання
+      const executeTime = Math.min(timeQuantum, currentProcess.remainingTime);
+
+      // Оновлюємо стани для всіх процесів протягом виконання
+      for (let t = 0; t < executeTime; t++) {
+          processes.forEach((process, index) => {
+              let state;
+              if (process.id === currentProcess.id) {
+                  state = "e"; // Executing
+              } else if (process.remainingTime === 0) {
+                  state = ""; // Completed
+              } else if (process.arrivalTime <= currentTime + t && process.remainingTime > 0) {
+                  state = "w"; // Waiting
+              } else {
+                  state = "-"; // Not arrived
+              }
+              statesMatrix[index + 1].push(state);
+          });
+      }
+
+      // Оновлюємо час виконання процесу
+      currentProcess.remainingTime -= executeTime;
+      currentTime += executeTime;
+
+      // Якщо процес завершено
+      if (currentProcess.remainingTime === 0) {
+          completed++;
+          // Заповнюємо стани X для завершеного процесу
+          const processIndex = currentProcess.id - 1;
+          while (statesMatrix[processIndex + 1].length < statesMatrix[0].length) {
+              statesMatrix[processIndex + 1].push("X");
+          }
+      } else {
+          // Повертаємо процес в кінець черги
+          queue.push(currentProcess);
+          currentProcess.inQueue = true;
+      }
+  }
+
+  // Заповнюємо перший рядок всіма значеннями від 0 до currentTime
+  const timeHeader = Array.from({ length: currentTime + 1 }, (_, i) => i);
+  statesMatrix[0] = [...statesMatrix[0], ...timeHeader];
+
+  // Вирівнюємо довжини всіх рядків до максимальної
+  const maxLength = statesMatrix[0].length;
+  for (let i = 1; i < statesMatrix.length; i++) {
+      while (statesMatrix[i].length < maxLength) {
+          statesMatrix[i].push("");
+      }
+  }
+
+  return statesMatrix;
+}
