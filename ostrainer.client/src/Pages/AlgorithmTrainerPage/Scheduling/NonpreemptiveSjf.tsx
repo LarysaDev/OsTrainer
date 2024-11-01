@@ -1,7 +1,10 @@
 import { useState } from "react";
 import axios from "axios";
 import styles from "../Trainer.module.less";
-import { SidePanel, SidePanelLink } from "../../../Components/SidePanel/SidePanel";
+import {
+  SidePanel,
+  SidePanelLink,
+} from "../../../Components/SidePanel/SidePanel";
 import AuthorizeView from "../../../Components/AuthorizeView";
 import {
   Button,
@@ -45,8 +48,12 @@ export const NonpreemptiveSjfTrainer: React.FC = () => {
     let valid = true;
 
     if (arrivalArray.length !== burstArray.length) {
-      setArrivalError("Arrival Times and Burst Times must have the same number of values.");
-      setBurstError("Arrival Times and Burst Times must have the same number of values.");
+      setArrivalError(
+        "Arrival Times and Burst Times must have the same number of values."
+      );
+      setBurstError(
+        "Arrival Times and Burst Times must have the same number of values."
+      );
       valid = false;
     } else {
       setArrivalError(null);
@@ -82,7 +89,10 @@ export const NonpreemptiveSjfTrainer: React.FC = () => {
       return;
     }
 
-    const arrivalArray = arrivalTimes.replace(/\s+/g, "").split(",").map(Number);
+    const arrivalArray = arrivalTimes
+      .replace(/\s+/g, "")
+      .split(",")
+      .map(Number);
     const burstArray = burstTimes.replace(/\s+/g, "").split(",").map(Number);
 
     const processList = arrivalArray.map((arrival, index) => ({
@@ -92,36 +102,92 @@ export const NonpreemptiveSjfTrainer: React.FC = () => {
     }));
 
     try {
-      const response = await axios.post("/api/ganttchart/nonpreemptive_sjf", processList);
-      generateMatrixTable(response.data.$values);
+      const response = await axios.post(
+        "/api/ganttchart/nonpreemptive_sjf",
+        processList
+      );
+      generateMatrixTable(arrivalArray, burstArray);
     } catch (error) {
       console.error("Error generating Gantt chart", error);
     }
   };
 
-  const generateMatrixTable = (processes: Process[]) => {
-    const completionTimes = (processes as Process[]).map(
-      (p) => p.completionTime || 0
-    );
+  const generateMatrixTable = (arrivalTime: number[], burstTime: number[]) => {
+    const processes: Process[] = arrivalTime.map((arrival, index) => ({
+      arrivalTime: arrival,
+      burstTime: burstTime[index],
+    }));
+
+    // Сортуємо процеси за часом прибуття, а потім за тривалістю виконання (SJF)
+    processes.sort((a, b) => {
+      if (a.arrivalTime === b.arrivalTime) {
+        return a.burstTime - b.burstTime; // Менший burstTime має пріоритет
+      }
+      return a.arrivalTime - b.arrivalTime;
+    });
+
+    const n = processes.length;
+    const completionTimes: number[] = new Array(n).fill(0);
+    const startTimes: number[] = new Array(n).fill(0);
+    const waitingTimes: number[] = new Array(n).fill(0);
+    const turnaroundTimes: number[] = new Array(n).fill(0);
+
+    let currentTime = 0;
+    const readyQueue: Process[] = [];
+
+    let completedProcesses = 0;
+
+    while (completedProcesses < n) {
+      // Додаємо процеси, які прибули до поточного часу в чергу
+      processes.forEach((process) => {
+        if (
+          process.arrivalTime <= currentTime &&
+          !readyQueue.includes(process)
+        ) {
+          readyQueue.push(process);
+        }
+      });
+
+      // Сортуємо чергу за тривалістю виконання (SJF)
+      readyQueue.sort((a, b) => a.burstTime - b.burstTime);
+
+      if (readyQueue.length > 0) {
+        // Виконуємо процес з найменшим burst time
+        const currentProcess = readyQueue.shift()!;
+        startTimes[processes.indexOf(currentProcess)] = currentTime;
+        currentTime += currentProcess.burstTime;
+        completionTimes[processes.indexOf(currentProcess)] = currentTime;
+        completedProcesses++;
+      } else {
+        // Якщо немає готових процесів, пересуваємося в часі
+        currentTime++;
+      }
+    }
+
+    // Обчислюємо час очікування і час обробки
+    for (let i = 0; i < n; i++) {
+      turnaroundTimes[i] = completionTimes[i] - processes[i].arrivalTime;
+      waitingTimes[i] = turnaroundTimes[i] - processes[i].burstTime;
+    }
+
+    // Генеруємо таблицю станів
     const maxTime = Math.max(...completionTimes);
     const matrix: (string | number)[][] = [];
     const headerRow: (string | number)[] = ["Process\\Time"];
+
+    // Заповнюємо заголовок
     for (let t = 0; t <= maxTime; t++) {
       headerRow.push(t);
     }
     matrix.push(headerRow);
 
-    (processes as Process[]).forEach((process, index) => {
+    processes.forEach((process, index) => {
       const row: (string | number)[] = [`P${index + 1}`];
       for (let t = 0; t <= maxTime; t++) {
         if (t < process.arrivalTime) {
           row.push("-");
-        } else if (t >= process.arrivalTime && t < process.completionTime!) {
-          if (t - process.arrivalTime < process.burstTime) {
-            row.push("e");
-          } else {
-            row.push("w");
-          }
+        } else if (t >= process.arrivalTime && t < completionTimes[index]) {
+          row.push("e");
         } else {
           row.push("x");
         }
@@ -129,6 +195,7 @@ export const NonpreemptiveSjfTrainer: React.FC = () => {
       matrix.push(row);
     });
 
+    // Ви можете замінити ці функції на ваші методи для відображення таблиці
     setMatrix(matrix);
     setUserMatrix(
       matrix.map((row) =>
@@ -211,13 +278,16 @@ export const NonpreemptiveSjfTrainer: React.FC = () => {
             </form>
             <h2>Matrix of process statuses</h2>
             <Typography variant="body1" style={{ margin: "20px 0" }}>
-              <strong>-</strong> : Not Started <br/>
-              <strong>e</strong> : Executed <br/>
-              <strong>w</strong> : Waiting <br/>
-              <strong>x</strong> : Completed <br/>
+              <strong>-</strong> : Not Started <br />
+              <strong>e</strong> : Executed <br />
+              <strong>w</strong> : Waiting <br />
+              <strong>x</strong> : Completed <br />
             </Typography>
-            <TableContainer component={Paper} style={{ maxWidth: '1000px', overflowX: 'auto' }}>
-            <Table>
+            <TableContainer
+              component={Paper}
+              style={{ maxWidth: "1000px", overflowX: "auto" }}
+            >
+              <Table>
                 <TableHead>
                   <TableRow>
                     {matrix[0]?.map((header, index) => (
@@ -233,9 +303,8 @@ export const NonpreemptiveSjfTrainer: React.FC = () => {
                         <TableCell
                           key={cellIndex}
                           style={{
-                            backgroundColor: colorMatrix[rowIndex + 1][
-                              cellIndex + 1
-                            ],
+                            backgroundColor:
+                              colorMatrix[rowIndex + 1][cellIndex + 1],
                           }}
                         >
                           <input
