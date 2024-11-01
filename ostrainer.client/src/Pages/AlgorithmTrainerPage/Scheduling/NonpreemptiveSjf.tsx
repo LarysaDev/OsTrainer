@@ -112,19 +112,19 @@ export const NonpreemptiveSjfTrainer: React.FC = () => {
     }
   };
 
-  const generateMatrixTable = (arrivalTime: number[], burstTime: number[]) => {
-    const processes: Process[] = arrivalTime.map((arrival, index) => ({
-      arrivalTime: arrival,
-      burstTime: burstTime[index],
-    }));
+  interface Process {
+    arrivalTime: number;
+    burstTime: number;
+    completed?: boolean;
+}
 
-    // Сортуємо процеси за часом прибуття, а потім за тривалістю виконання (SJF)
-    processes.sort((a, b) => {
-      if (a.arrivalTime === b.arrivalTime) {
-        return a.burstTime - b.burstTime; // Менший burstTime має пріоритет
-      }
-      return a.arrivalTime - b.arrivalTime;
-    });
+const generateMatrixTable = (arrivalTime: number[], burstTime: number[]) => {
+    // Створюємо масив процесів
+    const processes: Process[] = arrivalTime.map((arrival, index) => ({
+        arrivalTime: arrival,
+        burstTime: burstTime[index],
+        completed: false
+    }));
 
     const n = processes.length;
     const completionTimes: number[] = new Array(n).fill(0);
@@ -132,78 +132,84 @@ export const NonpreemptiveSjfTrainer: React.FC = () => {
     const waitingTimes: number[] = new Array(n).fill(0);
     const turnaroundTimes: number[] = new Array(n).fill(0);
 
-    let currentTime = 0;
-    const readyQueue: Process[] = [];
-
+    let currentTime = Math.min(...arrivalTime); // Починаємо з найранішого часу прибуття
     let completedProcesses = 0;
 
     while (completedProcesses < n) {
-      // Додаємо процеси, які прибули до поточного часу в чергу
-      processes.forEach((process) => {
-        if (
-          process.arrivalTime <= currentTime &&
-          !readyQueue.includes(process)
-        ) {
-          readyQueue.push(process);
+        let selectedProcess: number = -1;
+        let shortestBurst = Number.MAX_VALUE;
+
+        // Знаходимо процес з найменшим burst time серед доступних
+        for (let i = 0; i < n; i++) {
+            if (!processes[i].completed && 
+                processes[i].arrivalTime <= currentTime && 
+                processes[i].burstTime < shortestBurst) {
+                selectedProcess = i;
+                shortestBurst = processes[i].burstTime;
+            }
         }
-      });
 
-      // Сортуємо чергу за тривалістю виконання (SJF)
-      readyQueue.sort((a, b) => a.burstTime - b.burstTime);
-
-      if (readyQueue.length > 0) {
-        // Виконуємо процес з найменшим burst time
-        const currentProcess = readyQueue.shift()!;
-        startTimes[processes.indexOf(currentProcess)] = currentTime;
-        currentTime += currentProcess.burstTime;
-        completionTimes[processes.indexOf(currentProcess)] = currentTime;
-        completedProcesses++;
-      } else {
-        // Якщо немає готових процесів, пересуваємося в часі
-        currentTime++;
-      }
+        if (selectedProcess !== -1) {
+            // Записуємо час початку виконання
+            startTimes[selectedProcess] = currentTime;
+            // Обчислюємо час завершення
+            completionTimes[selectedProcess] = currentTime + processes[selectedProcess].burstTime;
+            // Оновлюємо поточний час
+            currentTime = completionTimes[selectedProcess];
+            // Позначаємо процес як завершений
+            processes[selectedProcess].completed = true;
+            completedProcesses++;
+        } else {
+            // Якщо немає доступних процесів, переходимо до наступного часу прибуття
+            let nextArrival = Number.MAX_VALUE;
+            for (let i = 0; i < n; i++) {
+                if (!processes[i].completed && processes[i].arrivalTime > currentTime) {
+                    nextArrival = Math.min(nextArrival, processes[i].arrivalTime);
+                }
+            }
+            currentTime = nextArrival;
+        }
     }
 
-    // Обчислюємо час очікування і час обробки
+    // Обчислюємо waiting time та turnaround time
     for (let i = 0; i < n; i++) {
-      turnaroundTimes[i] = completionTimes[i] - processes[i].arrivalTime;
-      waitingTimes[i] = turnaroundTimes[i] - processes[i].burstTime;
+        turnaroundTimes[i] = completionTimes[i] - processes[i].arrivalTime;
+        waitingTimes[i] = turnaroundTimes[i] - processes[i].burstTime;
     }
 
-    // Генеруємо таблицю станів
+    // Генеруємо матрицю станів
     const maxTime = Math.max(...completionTimes);
     const matrix: (string | number)[][] = [];
+    
+    // Заголовок
     const headerRow: (string | number)[] = ["Process\\Time"];
-
-    // Заповнюємо заголовок
     for (let t = 0; t <= maxTime; t++) {
-      headerRow.push(t);
+        headerRow.push(t);
     }
     matrix.push(headerRow);
 
+    // Заповнюємо рядки для кожного процесу
     processes.forEach((process, index) => {
-      const row: (string | number)[] = [`P${index + 1}`];
-      for (let t = 0; t <= maxTime; t++) {
-        if (t < process.arrivalTime) {
-          row.push("-");
-        } else if (t >= process.arrivalTime && t < completionTimes[index]) {
-          row.push("e");
-        } else {
-          row.push("x");
+        const row: (string | number)[] = [`P${index + 1}`];
+        for (let t = 0; t <= maxTime; t++) {
+            if (t < process.arrivalTime) {
+                row.push("-"); // Процес ще не прибув
+            } else if (t >= startTimes[index] && t < completionTimes[index]) {
+                row.push("e"); // Процес виконується
+            } else if (t >= process.arrivalTime && t < startTimes[index]) {
+                row.push("w"); // Процес очікує
+            } else {
+                row.push(""); // Процес завершено
+            }
         }
-      }
-      matrix.push(row);
+        matrix.push(row);
     });
 
-    // Ви можете замінити ці функції на ваші методи для відображення таблиці
+    // Встановлюємо матриці
     setMatrix(matrix);
-    setUserMatrix(
-      matrix.map((row) =>
-        row.map((cell) => (typeof cell === "number" ? cell : ""))
-      )
-    );
-    setColorMatrix(matrix.map((row) => row.map(() => "")));
-  };
+    setUserMatrix(matrix.map(row => row.map(cell => typeof cell === "number" ? cell : "")));
+    setColorMatrix(matrix.map(row => row.map(() => "")));
+};
 
   const handleUserInputChange = (
     rowIndex: number,
@@ -283,6 +289,7 @@ export const NonpreemptiveSjfTrainer: React.FC = () => {
               <strong>w</strong> : Waiting <br />
               <strong>x</strong> : Completed <br />
             </Typography>
+            <Typography>Розташуйте процеси в порядку найшвидшого виконання</Typography><br/>
             <TableContainer
               component={Paper}
               style={{ maxWidth: "1000px", overflowX: "auto" }}

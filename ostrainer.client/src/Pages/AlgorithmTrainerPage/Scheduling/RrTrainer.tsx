@@ -19,7 +19,6 @@ import {
   Typography,
   TextField,
 } from "@mui/material";
-import { Process } from "../../common";
 
 export const links: SidePanelLink[] = [
   { label: "Dashboard", link: "/" },
@@ -212,6 +211,7 @@ export const RrTrainer: React.FC = () => {
               <strong>w</strong> : Waiting <br />
               <strong>x</strong> : Completed <br />
             </Typography>
+            <Typography>Розташуйте процеси в порядку найшвидшого виконання</Typography><br/>
             <TableContainer
               component={Paper}
               style={{ maxWidth: "1000px", overflowX: "auto" }}
