@@ -115,50 +115,130 @@ export const PreemptivePriorityTrainer: React.FC = () => {
 
     try {
       const response = await axios.post("/api/ganttchart/preemptive_sjf", processList);
-      generateMatrixTable(response.data.$values);
+      generateMatrixTable(arrivalArray, burstArray, priorityArray);
     } catch (error) {
       console.error("Error generating Gantt chart", error);
     }
   };
 
-  const generateMatrixTable = (processes: Process[]) => {
-    const completionTimes = (processes as Process[]).map(
-      (p) => p.completionTime || 0
-    );
-    const maxTime = Math.max(...completionTimes);
+  const generateMatrixTable = (
+    arrivalTimes: number[], 
+    burstTimes: number[], 
+    priorities: number[]
+) => {
+    // Ініціалізуємо процеси
+    let processes: Process[] = arrivalTimes.map((arrival, index) => ({
+        id: index + 1,
+        arrivalTime: arrival,
+        burstTime: burstTimes[index],
+        priority: priorities[index],
+        remainingTime: burstTimes[index],
+        completionTime: undefined,
+        startTime: undefined,
+        currentStartTime: undefined
+    }));
+
+    let currentTime = Math.min(...arrivalTimes);
+    let completedProcesses = 0;
+    let executionHistory: { time: number; processId: number }[] = [];
+    let currentProcess: Process | null = null;
+
+    while (completedProcesses < processes.length) {
+        // Знаходимо всі доступні процеси на поточний момент часу
+        let availableProcesses = processes.filter(
+            p => p.arrivalTime <= currentTime && p.remainingTime > 0
+        );
+
+        if (availableProcesses.length === 0) {
+            // Якщо немає доступних процесів, переходимо до наступного часу прибуття
+            let nextArrival = Math.min(
+                ...processes
+                    .filter(p => p.remainingTime > 0)
+                    .map(p => p.arrivalTime)
+            );
+            currentTime = nextArrival;
+            continue;
+        }
+
+        // Знаходимо процес з найвищим пріоритетом (найменшим числовим значенням)
+        let highestPriorityProcess = availableProcesses.reduce((prev, current) => 
+            prev.priority <= current.priority ? prev : current
+        );
+
+        // Перевіряємо необхідність витіснення
+        if (currentProcess && currentProcess.remainingTime > 0) {
+            if (highestPriorityProcess.priority < currentProcess.priority) {
+                // Витіснення: новий процес має вищий пріоритет
+                currentProcess = highestPriorityProcess;
+            }
+        } else {
+            currentProcess = highestPriorityProcess;
+        }
+
+        // Записуємо час початку, якщо це перший старт процесу
+        if (processes[currentProcess.id - 1].startTime === undefined) {
+            processes[currentProcess.id - 1].startTime = currentTime;
+        }
+        processes[currentProcess.id - 1].currentStartTime = currentTime;
+
+        // Додаємо запис в історію виконання
+        executionHistory.push({ 
+            time: currentTime, 
+            processId: currentProcess.id 
+        });
+
+        // Виконуємо процес одну одиницю часу
+        currentProcess.remainingTime--;
+        currentTime++;
+
+        // Перевіряємо завершення процесу
+        if (currentProcess.remainingTime === 0) {
+            processes[currentProcess.id - 1].completionTime = currentTime;
+            completedProcesses++;
+            currentProcess = null;
+        }
+    }
+
+    // Генеруємо матрицю станів
+    const maxTime = Math.max(...processes.map(p => p.completionTime!));
     const matrix: (string | number)[][] = [];
+    
+    // Заголовок
     const headerRow: (string | number)[] = ["Process\\Time"];
     for (let t = 0; t <= maxTime; t++) {
-      headerRow.push(t);
+        headerRow.push(t);
     }
     matrix.push(headerRow);
 
-    (processes as Process[]).forEach((process, index) => {
-      const row: (string | number)[] = [`P${index + 1}`];
-      for (let t = 0; t <= maxTime; t++) {
-        if (t < process.arrivalTime) {
-          row.push("-");
-        } else if (t >= process.arrivalTime && t < process.completionTime!) {
-          if (t - process.arrivalTime < process.burstTime) {
-            row.push("e"); // Executing
-          } else {
-            row.push("w"); // Waiting
-          }
-        } else {
-          row.push("x"); // Completed
+    // Заповнюємо рядки для кожного процесу
+    processes.forEach(process => {
+        const row: (string | number)[] = [`P${process.id}`];
+        for (let t = 0; t <= maxTime; t++) {
+            if (t < process.arrivalTime) {
+                row.push("-"); // Ще не прибув
+            } else if (t >= process.completionTime!) {
+                row.push(""); // Завершено
+            } else {
+                // Перевіряємо чи виконується процес в цей момент
+                const isExecuting = executionHistory.find(
+                    h => h.time === t && h.processId === process.id
+                );
+                if (isExecuting) {
+                    row.push("e"); // Виконується
+                } else {
+                    row.push("w"); // Очікує
+                }
+            }
         }
-      }
-      matrix.push(row);
+        matrix.push(row);
     });
 
     setMatrix(matrix);
     setUserMatrix(
-      matrix.map((row) =>
-        row.map((cell) => (typeof cell === "number" ? cell : ""))
-      )
+        matrix.map(row => row.map(cell => typeof cell === "number" ? cell : ""))
     );
-    setColorMatrix(matrix.map((row) => row.map(() => "")));
-  };
+    setColorMatrix(matrix.map(row => row.map(() => "")));
+};
 
   const handleUserInputChange = (
     rowIndex: number,
