@@ -1,7 +1,10 @@
 import { useState } from "react";
 import axios from "axios";
 import styles from "../Trainer.module.less";
-import { SidePanel, SidePanelLink } from "../../../Components/SidePanel/SidePanel";
+import {
+  SidePanel,
+  SidePanelLink,
+} from "../../../Components/SidePanel/SidePanel";
 import AuthorizeView from "../../../Components/AuthorizeView";
 import {
   Button,
@@ -45,8 +48,12 @@ export const PreemptiveSjfTrainer: React.FC = () => {
     let valid = true;
 
     if (arrivalArray.length !== burstArray.length) {
-      setArrivalError("Arrival Times and Burst Times must have the same number of values.");
-      setBurstError("Arrival Times and Burst Times must have the same number of values.");
+      setArrivalError(
+        "Arrival Times and Burst Times must have the same number of values."
+      );
+      setBurstError(
+        "Arrival Times and Burst Times must have the same number of values."
+      );
       valid = false;
     } else {
       setArrivalError(null);
@@ -82,7 +89,10 @@ export const PreemptiveSjfTrainer: React.FC = () => {
       return;
     }
 
-    const arrivalArray = arrivalTimes.replace(/\s+/g, "").split(",").map(Number);
+    const arrivalArray = arrivalTimes
+      .replace(/\s+/g, "")
+      .split(",")
+      .map(Number);
     const burstArray = burstTimes.replace(/\s+/g, "").split(",").map(Number);
 
     const processList = arrivalArray.map((arrival, index) => ({
@@ -92,38 +102,121 @@ export const PreemptiveSjfTrainer: React.FC = () => {
     }));
 
     try {
-      const response = await axios.post("/api/ganttchart/preemptive_sjf", processList);
-      generateMatrixTable(response.data.$values);
+      const response = await axios.post(
+        "/api/ganttchart/preemptive_sjf",
+        processList
+      );
+      generateMatrixTable(arrivalArray, burstArray);
     } catch (error) {
       console.error("Error generating Gantt chart", error);
     }
   };
 
-  const generateMatrixTable = (processes: Process[]) => {
-    const completionTimes = (processes as Process[]).map(
-      (p) => p.completionTime || 0
-    );
-    const maxTime = Math.max(...completionTimes);
+  const generateMatrixTable = (
+    arrivalTimes: number[],
+    burstTimes: number[]
+  ) => {
+    // Створюємо масив процесів з початковими даними
+    let processes: Process[] = arrivalTimes.map((arrival, index) => ({
+      id: index + 1,
+      arrivalTime: arrival,
+      burstTime: burstTimes[index],
+      remainingTime: burstTimes[index],
+      startTime: undefined,
+      completionTime: undefined,
+      currentStartTime: undefined,
+    }));
+
+    let currentTime = Math.min(...arrivalTimes);
+    let completedProcesses = 0;
+    let executionHistory: { time: number; processId: number }[] = [];
+    let currentProcess: Process | null = null;
+
+    // Виконуємо планування поки всі процеси не завершаться
+    while (completedProcesses < processes.length) {
+      // Знаходимо всі доступні процеси на поточний момент часу
+      let availableProcesses = processes.filter(
+        (p) => p.arrivalTime <= currentTime && p.remainingTime > 0
+      );
+
+      if (availableProcesses.length === 0) {
+        // Якщо немає доступних процесів, переходимо до наступного часу прибуття
+        currentTime = Math.min(
+          ...processes
+            .filter((p) => p.remainingTime > 0)
+            .map((p) => p.arrivalTime)
+        );
+        continue;
+      }
+
+      // Сортуємо за remainingTime
+      availableProcesses.sort((a, b) => a.remainingTime - b.remainingTime);
+
+      let nextProcess = availableProcesses[0];
+
+      // Перевіряємо умову витіснення
+      if (currentProcess && currentProcess.remainingTime > 0) {
+        // Витісняємо тільки якщо remaining time нового процесу строго менший
+        if (nextProcess.remainingTime < currentProcess.remainingTime) {
+          currentProcess = nextProcess;
+        }
+      } else {
+        currentProcess = nextProcess;
+      }
+
+      // Записуємо початок виконання, якщо це перший старт процесу
+      if (processes[currentProcess.id - 1].startTime === undefined) {
+        processes[currentProcess.id - 1].startTime = currentTime;
+      }
+      processes[currentProcess.id - 1].currentStartTime = currentTime;
+
+      // Додаємо запис в історію виконання
+      executionHistory.push({
+        time: currentTime,
+        processId: currentProcess.id,
+      });
+
+      // Виконуємо процес одну одиницю часу
+      currentProcess.remainingTime--;
+      currentTime++;
+
+      // Перевіряємо, чи завершився процес
+      if (currentProcess.remainingTime === 0) {
+        processes[currentProcess.id - 1].completionTime = currentTime;
+        completedProcesses++;
+        currentProcess = null;
+      }
+    }
+
+    // Генеруємо матрицю станів
+    const maxTime = Math.max(...processes.map((p) => p.completionTime!));
     const matrix: (string | number)[][] = [];
+
+    // Заголовок
     const headerRow: (string | number)[] = ["Process\\Time"];
     for (let t = 0; t <= maxTime; t++) {
       headerRow.push(t);
     }
     matrix.push(headerRow);
 
-    (processes as Process[]).forEach((process, index) => {
-      const row: (string | number)[] = [`P${index + 1}`];
+    // Заповнюємо рядки для кожного процесу
+    processes.forEach((process) => {
+      const row: (string | number)[] = [`P${process.id}`];
       for (let t = 0; t <= maxTime; t++) {
         if (t < process.arrivalTime) {
-          row.push("-");
-        } else if (t >= process.arrivalTime && t < process.completionTime!) {
-          if (t - process.arrivalTime < process.burstTime) {
-            row.push("e"); // Executing
-          } else {
-            row.push("w"); // Waiting
-          }
+          row.push("-"); // Ще не прибув
+        } else if (t >= process.completionTime!) {
+          row.push(""); // Завершено
         } else {
-          row.push("x"); // Completed
+          // Перевіряємо, чи виконується процес в цей момент
+          const isExecuting = executionHistory.find(
+            (h) => h.time === t && h.processId === process.id
+          );
+          if (isExecuting) {
+            row.push("e"); // Виконується
+          } else {
+            row.push("w"); // Очікує
+          }
         }
       }
       matrix.push(row);
@@ -211,13 +304,17 @@ export const PreemptiveSjfTrainer: React.FC = () => {
             </form>
             <h2>Matrix of process statuses</h2>
             <Typography variant="body1" style={{ margin: "20px 0" }}>
-              <strong>-</strong> : Not Started <br/>
-              <strong>e</strong> : Executed <br/>
-              <strong>w</strong> : Waiting <br/>
-              <strong>x</strong> : Completed <br/>
+              <strong>-</strong> : Not Started <br />
+              <strong>e</strong> : Executed <br />
+              <strong>w</strong> : Waiting <br />
+              <strong>x</strong> : Completed <br />
             </Typography>
-            <TableContainer component={Paper} style={{ maxWidth: '1000px', overflowX: 'auto' }}>
-            <Table>
+            <Typography>Розташуйте процеси в порядку найшвидшого виконання</Typography><br/>
+            <TableContainer
+              component={Paper}
+              style={{ maxWidth: "1000px", overflowX: "auto" }}
+            >
+              <Table>
                 <TableHead>
                   <TableRow>
                     {matrix[0]?.map((header, index) => (
@@ -233,9 +330,8 @@ export const PreemptiveSjfTrainer: React.FC = () => {
                         <TableCell
                           key={cellIndex}
                           style={{
-                            backgroundColor: colorMatrix[rowIndex + 1][
-                              cellIndex + 1
-                            ],
+                            backgroundColor:
+                              colorMatrix[rowIndex + 1][cellIndex + 1],
                           }}
                         >
                           <input
