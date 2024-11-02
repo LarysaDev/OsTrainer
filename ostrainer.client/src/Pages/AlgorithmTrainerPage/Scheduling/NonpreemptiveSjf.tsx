@@ -3,7 +3,7 @@ import axios from "axios";
 import styles from "../Trainer.module.less";
 import {
   SidePanel,
-  SidePanelLink,
+  updateActiveLinkByIndex,
 } from "../../../Components/SidePanel/SidePanel";
 import AuthorizeView from "../../../Components/AuthorizeView";
 import {
@@ -19,15 +19,6 @@ import {
   Typography,
   TextField,
 } from "@mui/material";
-import { Process } from "../../common";
-
-export const links: SidePanelLink[] = [
-  { label: "Dashboard", link: "/" },
-  { label: "Scheduling", link: "/scheduling", active: true },
-  { label: "Page Replacement", link: "/page-replacement" },
-  { label: "Avoiding Deadlocks", link: "/" },
-  { label: "Assignments", link: "/" },
-];
 
 export const NonpreemptiveSjfTrainer: React.FC = () => {
   const [arrivalTimes, setArrivalTimes] = useState<string>("");
@@ -248,7 +239,7 @@ const generateMatrixTable = (arrivalTime: number[], burstTime: number[]) => {
     <div className={styles.container}>
       <AuthorizeView>
         <div className={styles.sidePanel}>
-          <SidePanel links={links} />
+          <SidePanel links={updateActiveLinkByIndex(1)} />
         </div>
         <div className={styles.main}>
           <div className={styles.chartContainer}>

@@ -7,24 +7,16 @@ import Typography from "@mui/material/Typography";
 import styles from "./LearnAlgorithms.module.less";
 import {
   SidePanel,
-  SidePanelLink,
+  updateActiveLinkByIndex,
 } from "../../../Components/SidePanel/SidePanel";
 import AuthorizeView from "../../../Components/AuthorizeView";
-
-export const links: SidePanelLink[] = [
-  { label: "Dashboard", link: "/" },
-  { label: "Scheduling", link: "/scheduling", active: true },
-  { label: "Page Replacement", link: "/page-replacement" },
-  { label: "Avoiding Deadlocks", link: "/" },
-  { label: "Assignments", link: "/" },
-];
 
 export const SchedulingAlgorithmCards = () => {
   return (
     <AuthorizeView>
       <div className={styles.container}>
         <div style={{ width: "20%" }}>
-          <SidePanel links={links} />
+          <SidePanel links={updateActiveLinkByIndex(1)} />
         </div>
         <div className={styles.main}>
           <p className={styles.headerText}>LEARN ALGORITHMS</p>

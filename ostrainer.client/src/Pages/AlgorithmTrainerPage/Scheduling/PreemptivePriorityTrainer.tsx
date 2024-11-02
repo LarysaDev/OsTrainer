@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import styles from "../Trainer.module.less";
-import { SidePanel, SidePanelLink } from "../../../Components/SidePanel/SidePanel";
+import { SidePanel, updateActiveLinkByIndex } from "../../../Components/SidePanel/SidePanel";
 import AuthorizeView from "../../../Components/AuthorizeView";
 import {
   Button,
@@ -17,14 +17,6 @@ import {
   TextField,
 } from "@mui/material";
 import { Process } from "../../common";
-
-export const links: SidePanelLink[] = [
-  { label: "Dashboard", link: "/" },
-  { label: "Scheduling", link: "/scheduling", active: true },
-  { label: "Page Replacement", link: "/page-replacement" },
-  { label: "Avoiding Deadlocks", link: "/" },
-  { label: "Assignments", link: "/" },
-];
 
 export const PreemptivePriorityTrainer: React.FC = () => {
   const [arrivalTimes, setArrivalTimes] = useState<string>("");
@@ -277,7 +269,7 @@ export const PreemptivePriorityTrainer: React.FC = () => {
     <div className={styles.container}>
       <AuthorizeView>
         <div className={styles.sidePanel}>
-          <SidePanel links={links} />
+          <SidePanel links={updateActiveLinkByIndex(1)} />
         </div>
         <div className={styles.main}>
           <div className={styles.chartContainer}>

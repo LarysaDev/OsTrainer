@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { LoggedInView } from "../../../common/LoggedInView/LoggedInView";
-import { SidePanelLink } from "../../../Components/SidePanel/SidePanel";
+import { updateActiveLinkByIndex } from "../../../Components/SidePanel/SidePanel";
 import { Container, Paper, Typography, Button, Box } from "@mui/material";
 
 interface TestQuestion {
@@ -11,14 +11,6 @@ interface TestQuestion {
   options: string[];
   correctOptionIndex: number;
 }
-
-export const links: SidePanelLink[] = [
-  { label: "Dashboard", link: "/" },
-  { label: "Scheduling", link: "/scheduling" },
-  { label: "Page Replacement", link: "/page-replacement" },
-  { label: "Avoiding Deadlocks", link: "/" },
-  { label: "Assignments", link: "/" },
-];
 
 const SelfTest = () => {
   const { algorithmId } = useParams<{ algorithmId: string }>();
@@ -107,7 +99,7 @@ const SelfTest = () => {
   };
 
   return (
-    <LoggedInView links={links}>
+    <LoggedInView links={updateActiveLinkByIndex(-1)}>
       <Container sx={{ mt: 4, mb: 4 }}>
         <Typography variant="h4" gutterBottom>
           Самостійне тестування

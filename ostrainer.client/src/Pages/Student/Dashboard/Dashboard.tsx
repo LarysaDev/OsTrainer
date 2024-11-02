@@ -6,7 +6,7 @@ import AuthorizeView, {
 import styles from "./Dashboard.module.less";
 import {
   SidePanel,
-  SidePanelLink,
+  updateActiveLinkByIndex,
 } from "../../../Components/SidePanel/SidePanel";
 import Button from "@mui/material/Button";
 import ClickAwayListener from "@mui/material/ClickAwayListener";
@@ -18,14 +18,6 @@ import MenuList from "@mui/material/MenuList";
 import Stack from "@mui/material/Stack";
 import { AssignedCourses } from "../AssignedCourses/AssignedCourses.tsx";
 import { courses } from "../AssignedCourses/dump.ts";
-
-export const links: SidePanelLink[] = [
-  { label: "Dashboard", link: "/", active: true },
-  { label: "Scheduling", link: "/scheduling" },
-  { label: "Page Replacement", link: "/page-replacement" },
-  { label: "Avoiding Deadlocks", link: "/" },
-  { label: "Assignments", link: "/" },
-];
 
 const studentName = "MY ACCOUNT";
 
@@ -71,7 +63,7 @@ export function StudentDashboard() {
     <AuthorizeView>
       <div className={styles.container}>
         <div style={{ width: "20%" }}>
-          <SidePanel links={links} />
+          <SidePanel links={updateActiveLinkByIndex(0)} />
         </div>
         <div className={styles.main}>
           {/* Profile icon */}

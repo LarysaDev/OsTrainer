@@ -2,7 +2,7 @@ import { useState } from "react";
 import styles from "../Trainer.module.less";
 import {
   SidePanel,
-  SidePanelLink,
+  updateActiveLinkByIndex,
 } from "../../../Components/SidePanel/SidePanel";
 import AuthorizeView from "../../../Components/AuthorizeView";
 import { useParams } from "react-router-dom";
@@ -28,14 +28,6 @@ const generateMatrix = (
     ? generateLRUStackMatrix(pageRequests, frameCount)
     : generateLRUMatrix(pageRequests, frameCount);
 };
-
-export const links: SidePanelLink[] = [
-  { label: "Dashboard", link: "/" },
-  { label: "Scheduling", link: "/scheduling" },
-  { label: "Page Replacement", link: "/page-replacement", active: true },
-  { label: "Avoiding Deadlocks", link: "/" },
-  { label: "Assignments", link: "/" },
-];
 
 export const LruTrainer: React.FC = () => {
   const { isStack } = useParams<{ isStack: string }>();
@@ -202,7 +194,7 @@ export const LruTrainer: React.FC = () => {
     <div className={styles.container}>
       <AuthorizeView>
         <div className={styles.sidePanel}>
-          <SidePanel links={links} />
+          <SidePanel links={updateActiveLinkByIndex(2)} />
         </div>
         <div className={styles.main}>
           <div className={styles.chartContainer}>

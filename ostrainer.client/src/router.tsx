@@ -15,7 +15,9 @@ import { NonpreemptivePriorityTrainer } from "./Pages/AlgorithmTrainerPage/Sched
 import SelfTest from "./Pages/Student/DashboardLearn/SelfTesting.tsx";
 import { LruTrainer } from "./Pages/AlgorithmTrainerPage/PR/LruTrainer.tsx";
 import { FifoTrainer } from "./Pages/AlgorithmTrainerPage/PR/FifoTrainer.tsx";
-import { PageReplacementTrainer } from "./Pages/AlgorithmTrainerPage/PR/PageReplacement.Trainer.tsx";
+import { AvoidDeadlocksAlgorithmCards } from "./Pages/Student/DashboardLearn/DeadlocksAvoidanceCards.tsx";
+import { PageReplacementTrainer } from './Pages/AlgorithmTrainerPage/PR/PageReplacement.Trainer.tsx';
+import { ResourceAllocationTrainer } from "./Pages/AlgorithmTrainerPage/DeadlocksAvoidance/ResourceAllocationTrainer.tsx";
 
 const router = createBrowserRouter([
   {
@@ -89,6 +91,14 @@ const router = createBrowserRouter([
   {
     path: "/practice/page-replacement/:algorithm",
     element: <PageReplacementTrainer />,
+  },
+  {
+    path: "/avoid-deadlocks",
+    element: <AvoidDeadlocksAlgorithmCards />,
+  },
+  {
+    path: "/practice/avoid-deadlocks/graph",
+    element: <ResourceAllocationTrainer />,
   }
 ]);
 

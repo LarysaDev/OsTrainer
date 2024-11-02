@@ -2,7 +2,7 @@ import { useState } from "react";
 import styles from "../Trainer.module.less";
 import {
   SidePanel,
-  SidePanelLink,
+  updateActiveLinkByIndex,
 } from "../../../Components/SidePanel/SidePanel";
 import AuthorizeView from "../../../Components/AuthorizeView";
 import {
@@ -20,19 +20,16 @@ import {
 import { useParams } from "react-router-dom";
 
 const generateMatrix = (pageRequests, frameCount, algorithm: string) => {
-    return algorithm == 'lfu' 
-        ? generateLFUMatrix(pageRequests, frameCount) 
-        : generateMFUMatrix(pageRequests, frameCount);
+    if(algorithm == 'lfu'){
+        return generateLFUMatrix(pageRequests, frameCount);
+    }
+    else if(algorithm == 'clock'){
+        return generateClockMatrix(pageRequests, frameCount);
+    }
+    else if(algorithm == 'mfu'){
+        return generateMFUMatrix(pageRequests, frameCount);
+    }
 };
-
-
-export const links: SidePanelLink[] = [
-  { label: "Dashboard", link: "/" },
-  { label: "Scheduling", link: "/scheduling" },
-  { label: "Page Replacement", link: "/page-replacement", active: true },
-  { label: "Avoiding Deadlocks", link: "/" },
-  { label: "Assignments", link: "/" },
-];
 
 export const PageReplacementTrainer: React.FC = () => {
   const { algorithm } = useParams<{ algorithm: string }>();
@@ -191,7 +188,7 @@ export const PageReplacementTrainer: React.FC = () => {
     <div className={styles.container}>
       <AuthorizeView>
         <div className={styles.sidePanel}>
-          <SidePanel links={links} />
+          <SidePanel links={updateActiveLinkByIndex(2)} />
         </div>
         <div className={styles.main}>
           <div className={styles.chartContainer}>
@@ -400,5 +397,60 @@ const generateMFUMatrix = (pageRequests, frameCount) => {
         }
     });
   
+    return { matrix, pageFaults };
+};
+
+const generateClockMatrix = (pageRequests, frameCount) => {
+    // Matrix contains frameCount rows for pages, 1 row for second chance bits
+    const matrix = Array.from({ length: frameCount }, () => 
+        new Array(pageRequests.length).fill(null)
+    );
+    const frames = new Array(frameCount).fill(null);
+    const secondChanceBits = new Array(frameCount).fill(0);
+    const pageFaults = [];
+    let pointer = 0;
+
+    pageRequests.forEach((page, columnIndex) => {
+        const frameIndex = frames.indexOf(page);
+        
+        if (frameIndex === -1) {
+            // Page fault occurs
+            pageFaults.push(true);
+            
+            if (frames.includes(null)) {
+                // Still have empty frames
+                const emptyIndex = frames.indexOf(null);
+                frames[emptyIndex] = page;
+                secondChanceBits[emptyIndex] = 0;
+            } else {
+                // Need to find a page to replace using clock algorithm
+                while (true) {
+                    if (secondChanceBits[pointer] === 1) {
+                        // Give second chance
+                        secondChanceBits[pointer] = 0;
+                        pointer = (pointer + 1) % frameCount;
+                    } else {
+                        // Replace page
+                        frames[pointer] = page;
+                        secondChanceBits[pointer] = 0;
+                        pointer = (pointer + 1) % frameCount;
+                        break;
+                    }
+                }
+            }
+        } else {
+            // Page hit - set second chance bit
+            pageFaults.push(false);
+            secondChanceBits[frameIndex] = 1;
+        }
+
+        // Fill matrix with current state
+        for (let i = 0; i < frameCount; i++) {
+            matrix[i][columnIndex] = frames[i];
+        }
+        // Add second chance bits state
+        //matrix[frameCount][columnIndex] = [...secondChanceBits];
+    });
+
     return { matrix, pageFaults };
 };

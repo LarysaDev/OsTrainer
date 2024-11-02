@@ -11,6 +11,21 @@ interface SidePanelProps {
   links: SidePanelLink[];
 }
 
+export const links: SidePanelLink[] = [
+  { label: "Dashboard", link: "/" },
+  { label: "Scheduling", link: "/scheduling" },
+  { label: "Page Replacement", link: "/page-replacement" },
+  { label: "Avoiding Deadlocks", link: "/avoid-deadlocks" },
+  { label: "Assignments", link: "/" },
+];
+
+export function updateActiveLinkByIndex(activeIndex: number): SidePanelLink[] {
+  return links.map((link, index) => ({
+    ...link,
+    active: index === activeIndex
+  }));
+}
+
 export const SidePanel: React.FC<SidePanelProps> = ({ links }) => {
   return (
     <div className={styles.continer}>

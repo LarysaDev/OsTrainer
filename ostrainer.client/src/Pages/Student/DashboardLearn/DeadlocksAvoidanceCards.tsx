@@ -11,12 +11,12 @@ import {
 } from "../../../Components/SidePanel/SidePanel";
 import AuthorizeView from "../../../Components/AuthorizeView";
 
-export const PageReplacementAlgorithmCards = () => {
+export const AvoidDeadlocksAlgorithmCards = () => {
   return (
     <AuthorizeView>
       <div className={styles.container}>
         <div style={{ width: "20%" }}>
-          <SidePanel links={updateActiveLinkByIndex(2)} />
+          <SidePanel links={updateActiveLinkByIndex(3)} />
         </div>
         <div className={styles.main}>
           <p className={styles.headerText}>LEARN ALGORITHMS</p>
@@ -73,45 +73,17 @@ type Algorithm = {
 
 const algorithms: Algorithm[] = [
   {
-    name: "FIFO",
+    name: "Граф розподілу ресурсів",
     theoryLink: "",
-    practiceLink: "/practice/fifo",
+    practiceLink: "/practice/avoid-deadlocks/graph",
     category: "Page Replacement",
     testsLink: ""
   },
   {
-    name: "Clock",
+    name: "Алгоритм Банкіра",
     theoryLink: "",
-    practiceLink: "/practice/page-replacement/clock",
+    practiceLink: "/practice/avoid-deadlock/bankir",
     category: "Page Replacement",
     testsLink: ""
-  },
-  {
-    name: "LRU",
-    theoryLink: "",
-    practiceLink: "/practice/lru/false",
-    category: "Page Replacement",
-    testsLink: ""
-  },
-  {
-    name: "LRU (stack)",
-    theoryLink: "",
-    practiceLink: "/practice/lru/true",
-    category: "Page Replacement",
-    testsLink: ""
-  },
-  {
-    name: "LFU",
-    theoryLink: "",
-    practiceLink: "/practice/page-replacement/lfu",
-    category: "Page Replacement",
-    testsLink: ""
-  },
-  {
-    name: "MFU",
-    theoryLink: "",
-    practiceLink: "/practice/page-replacement/mfu",
-    category: "Page Replacement",
-    testsLink: ""
-  },
+  }
 ];
