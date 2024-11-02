@@ -207,7 +207,7 @@ export const ResourceAllocationTrainer = () => {
   };
 
   return (
-    //<LoggedInView links={updateActiveLinkByIndex(3)}>
+    <LoggedInView links={updateActiveLinkByIndex(3)}>
       <Box sx={{ maxWidth: 1200, mx: "auto", p: 3, overflowY: "auto", maxHeight: "80vh" }}>
         <Card>
           <CardContent>
@@ -310,7 +310,7 @@ export const ResourceAllocationTrainer = () => {
           </CardContent>
         </Card>
       </Box>
-    //</LoggedInView>
+    </LoggedInView>
   );
 };
 
