@@ -5,7 +5,6 @@ import {
   SidePanelLink,
 } from "../../../Components/SidePanel/SidePanel";
 import AuthorizeView from "../../../Components/AuthorizeView";
-import { useParams } from "react-router-dom";
 import {
   Button,
   Table,
@@ -18,16 +17,14 @@ import {
   Box,
   TextField,
 } from "@mui/material";
+import { useParams } from "react-router-dom";
 
-const generateMatrix = (
-  pageRequests: number[],
-  frameCount: number,
-  isStack: string
-) => {
-  return isStack == "true"
-    ? generateLRUStackMatrix(pageRequests, frameCount)
-    : generateLRUMatrix(pageRequests, frameCount);
+const generateMatrix = (pageRequests, frameCount, algorithm: string) => {
+    return algorithm == 'lfu' 
+        ? generateLFUMatrix(pageRequests, frameCount) 
+        : generateMFUMatrix(pageRequests, frameCount);
 };
+
 
 export const links: SidePanelLink[] = [
   { label: "Dashboard", link: "/" },
@@ -37,8 +34,8 @@ export const links: SidePanelLink[] = [
   { label: "Assignments", link: "/" },
 ];
 
-export const LruTrainer: React.FC = () => {
-  const { isStack } = useParams<{ isStack: string }>();
+export const PageReplacementTrainer: React.FC = () => {
+  const { algorithm } = useParams<{ algorithm: string }>();
   const [pageRequests, setPageRequests] = useState<string>("");
   const [frameSize, setFrameSize] = useState<number>(0);
   const [pageError, setPageError] = useState<string | null>(null);
@@ -76,12 +73,8 @@ export const LruTrainer: React.FC = () => {
     return valid;
   };
 
-  const handleCellChange = (
-    rowIndex: number,
-    cellIndex: number,
-    value: string
-  ) => {
-    setUserMatrix((prev) => {
+  const handleCellChange = (rowIndex: number, cellIndex: number, value: string) => {
+    setUserMatrix(prev => {
       const newMatrix = [...prev];
       newMatrix[rowIndex + 1][cellIndex] = value;
       return newMatrix;
@@ -95,48 +88,43 @@ export const LruTrainer: React.FC = () => {
     const pageFaultValidations: boolean[] = [];
 
     for (let i = 1; i < userMatrix.length - 1; i++) {
-      validationMatrix[i - 1] = [];
+      validationMatrix[i-1] = [];
       for (let j = 1; j < userMatrix[i].length; j++) {
-        const userValue =
-          userMatrix[i][j] === "" ? null : Number(userMatrix[i][j]);
-        const correctValue = correctMatrix[i - 1][j - 1];
-        validationMatrix[i - 1][j - 1] = userValue === correctValue;
+        const userValue = userMatrix[i][j] === "" ? null : Number(userMatrix[i][j]);
+        const correctValue = correctMatrix[i-1][j-1];
+        validationMatrix[i-1][j-1] = userValue === correctValue;
       }
     }
 
     const lastRow = userMatrix[userMatrix.length - 1];
     for (let j = 1; j < lastRow.length; j++) {
       const userFault = lastRow[j] === "f";
-      const correctFault = correctPageFaults[j - 1];
-      pageFaultValidations[j - 1] = userFault === correctFault;
+      const correctFault = correctPageFaults[j-1];
+      pageFaultValidations[j-1] = userFault === correctFault;
     }
 
     setCellValidation(validationMatrix);
     setPageFaultValidation(pageFaultValidations);
   };
 
-  const getCellStyle = (
-    rowIndex: number,
-    cellIndex: number,
-    isPageFaultRow: boolean = false
-  ) => {
+  const getCellStyle = (rowIndex: number, cellIndex: number, isPageFaultRow: boolean = false) => {
     if (cellIndex === 0) return {};
-
+    
     if (isPageFaultRow) {
-      const isValid = pageFaultValidation[cellIndex - 1];
+      const isValid = pageFaultValidation[cellIndex-1];
       if (isValid === undefined) return {};
       return {
         backgroundColor: isValid ? "#e8f5e9" : "#ffebee",
-        borderRadius: "4px",
+        borderRadius: "4px"
       };
     }
-
-    const isValid = cellValidation[rowIndex]?.[cellIndex - 1];
+    
+    const isValid = cellValidation[rowIndex]?.[cellIndex-1];
     if (isValid === undefined) return {};
 
     return {
       backgroundColor: isValid ? "#e8f5e9" : "#ffebee",
-      borderRadius: "4px",
+      borderRadius: "4px"
     };
   };
 
@@ -148,11 +136,7 @@ export const LruTrainer: React.FC = () => {
       .split(",")
       .map(Number);
 
-    const { matrix: correctFrameMatrix, pageFaults } = generateMatrix(
-      requestArray,
-      frameSize,
-      isStack
-    );
+    const { matrix: correctFrameMatrix, pageFaults } = generateMatrix(requestArray, frameSize, algorithm);
     setCorrectMatrix(correctFrameMatrix);
     setCorrectPageFaults(pageFaults);
 
@@ -177,9 +161,12 @@ export const LruTrainer: React.FC = () => {
       userMatrix[0],
       ...correctMatrix.map((row, index) => [
         `frame ${index + 1}`,
-        ...row.map((val) => (val === null ? "" : val)),
+        ...row.map(val => val === null ? "" : val)
       ]),
-      ["Page Fault?", ...correctPageFaults.map((fault) => (fault ? "f" : ""))],
+      [
+        "Page Fault?",
+        ...correctPageFaults.map(fault => fault ? "f" : "")
+      ]
     ];
 
     setUserMatrix(filledMatrix);
@@ -187,12 +174,14 @@ export const LruTrainer: React.FC = () => {
 
   const handleClearMatrix = () => {
     if (!userMatrix.length) return;
-
+    
     const clearedMatrix = userMatrix.map((row, rowIndex) => {
       if (rowIndex === 0) return row;
-      return row.map((cell, cellIndex) => (cellIndex === 0 ? cell : ""));
+      return row.map((cell, cellIndex) => 
+        cellIndex === 0 ? cell : ""
+      );
     });
-
+    
     setUserMatrix(clearedMatrix);
     setCellValidation([]);
     setPageFaultValidation([]);
@@ -206,7 +195,7 @@ export const LruTrainer: React.FC = () => {
         </div>
         <div className={styles.main}>
           <div className={styles.chartContainer}>
-            <h1>Page Replacement Trainer: {isStack == 'true' ? 'LRU stack' : 'LRU'}</h1>
+            <h1>Page Replacement Trainer: {algorithm?.toUpperCase()}</h1>
             <form>
               <TextField
                 label="Page Requests (comma-separated)"
@@ -263,7 +252,7 @@ export const LruTrainer: React.FC = () => {
                 </Button>
               </Box>
             </form>
-
+            
             <TableContainer
               component={Paper}
               style={{ maxWidth: "1000px", overflowX: "auto" }}
@@ -286,24 +275,14 @@ export const LruTrainer: React.FC = () => {
                           ) : (
                             <input
                               value={cell}
-                              onChange={(e) =>
-                                handleCellChange(
-                                  rowIndex,
-                                  cellIndex,
-                                  e.target.value
-                                )
-                              }
+                              onChange={(e) => handleCellChange(rowIndex, cellIndex, e.target.value)}
                               style={{
                                 width: "50px",
                                 textAlign: "center",
                                 padding: "4px",
                                 border: "1px solid #ddd",
                                 borderRadius: "4px",
-                                ...getCellStyle(
-                                  rowIndex,
-                                  cellIndex,
-                                  rowIndex === userMatrix.length - 2
-                                ),
+                                ...getCellStyle(rowIndex, cellIndex, rowIndex === userMatrix.length - 2)
                               }}
                             />
                           )}
@@ -321,89 +300,105 @@ export const LruTrainer: React.FC = () => {
   );
 };
 
-// Стандартний LRU
-const generateLRUMatrix = (pageRequests, frameCount) => {
-  const matrix = Array.from({ length: frameCount }, () =>
-    new Array(pageRequests.length).fill(null)
-  );
-  const frames = [];
-  const pageFaults = [];
-  const lastUsed = new Map(); // Відслідковування останнього використання
-
-  pageRequests.forEach((page, columnIndex) => {
-    // Оновлюємо час останнього використання для поточної сторінки
-    lastUsed.set(page, columnIndex);
-
-    const isPagePresent = frames.includes(page);
-
-    if (!isPagePresent) {
-      pageFaults.push(true);
-
-      if (frames.length < frameCount) {
-        frames.push(page);
-      } else {
-        // Знаходимо сторінку, яка не використовувалась найдовше
-        let leastRecentlyUsed = frames[0];
-        let lruIndex = lastUsed.get(frames[0]);
-
-        for (const frame of frames) {
-          if (lastUsed.get(frame) < lruIndex) {
-            leastRecentlyUsed = frame;
-            lruIndex = lastUsed.get(frame);
-          }
+const generateLFUMatrix = (pageRequests, frameCount) => {
+    // Matrix size: frameCount + counter row
+    const matrix = Array.from({ length: frameCount }, () => 
+        new Array(pageRequests.length).fill(null)
+    );
+    const frames = [];
+    const pageFaults = [];
+    const counters = new Map(); // Зберігає лічильники для кожної сторінки
+  
+    pageRequests.forEach((page, columnIndex) => {
+        const isPagePresent = frames.includes(page);
+  
+        if (!isPagePresent) {
+            pageFaults.push(true); // Page fault
+            
+            if (frames.length < frameCount) {
+                frames.push(page);
+                counters.set(page, 1);
+            } else {
+                // Знаходимо сторінку з найменшим лічильником
+                let minCount = Infinity;
+                let leastFrequent = null;
+                
+                for (const frame of frames) {
+                    if (counters.get(frame) < minCount) {
+                        minCount = counters.get(frame);
+                        leastFrequent = frame;
+                    }
+                }
+                
+                // Замінюємо сторінку з найменшим лічильником
+                const replaceIndex = frames.indexOf(leastFrequent);
+                frames[replaceIndex] = page;
+                counters.delete(leastFrequent); // Видаляємо лічильник старої сторінки
+                counters.set(page, 1); // Встановлюємо лічильник для нової сторінки
+            }
+        } else {
+            pageFaults.push(false); // No page fault
+            counters.set(page, counters.get(page) + 1);
         }
-
-        // Замінюємо найдавніше використану сторінку
-        const replaceIndex = frames.indexOf(leastRecentlyUsed);
-        frames[replaceIndex] = page;
-      }
-    } else {
-      pageFaults.push(false);
-    }
-
-    // Заповнюємо матрицю поточним станом фреймів
-    for (let i = 0; i < frameCount; i++) {
-      matrix[i][columnIndex] = frames[i] ?? null;
-    }
-  });
-
-  return { matrix, pageFaults };
+  
+        // Заповнюємо матрицю поточним станом фреймів
+        for (let i = 0; i < frameCount; i++) {
+            matrix[i][columnIndex] = frames[i] ?? null;
+        }
+        
+        // Заповнюємо рядок лічильників
+        //matrix[frameCount][columnIndex] = frames.map(f => counters.get(f));
+    });
+  
+    return { matrix, pageFaults };
 };
 
-// LRU Stack варіант
-const generateLRUStackMatrix = (pageRequests, frameCount) => {
-  const matrix = Array.from({ length: frameCount }, () =>
-    new Array(pageRequests.length).fill(null)
-  );
-  const frames = [];
-  const pageFaults = [];
-
-  pageRequests.forEach((page, columnIndex) => {
-    const pageIndex = frames.indexOf(page);
-
-    if (pageIndex === -1) {
-      pageFaults.push(true);
-
-      if (frames.length < frameCount) {
-        // Якщо є вільні фрейми, додаємо нову сторінку на початок
-        frames.unshift(page);
-      } else {
-        // Видаляємо найстарішу сторінку (внизу стеку) і додаємо нову на початок
-        frames.pop();
-        frames.unshift(page);
-      }
-    } else {
-      // Якщо сторінка вже є, переміщуємо її на вершину стеку
-      pageFaults.push(false);
-      frames.splice(pageIndex, 1);
-      frames.unshift(page);
-    }
-
-    // Заповнюємо матрицю поточним станом фреймів
-    for (let i = 0; i < frameCount; i++) {
-      matrix[i][columnIndex] = frames[i] ?? null;
-    }
-  });
-
-  return { matrix, pageFaults };
+// MFU (Most Frequently Used)
+const generateMFUMatrix = (pageRequests, frameCount) => {
+    const matrix = Array.from({ length: frameCount }, () => 
+        new Array(pageRequests.length).fill(null)
+    );
+    const frames = [];
+    const pageFaults = [];
+    const counters = new Map(); // Зберігає лічильники для кожної сторінки
+  
+    pageRequests.forEach((page, columnIndex) => {
+        const isPagePresent = frames.includes(page);
+  
+        if (!isPagePresent) {
+            pageFaults.push(true); // Page fault
+            
+            if (frames.length < frameCount) {
+                frames.push(page);
+                counters.set(page, 1);
+            } else {
+                // Знаходимо сторінку з найбільшим лічильником
+                let maxCount = -1;
+                let mostFrequent = null;
+                
+                for (const frame of frames) {
+                    if (counters.get(frame) > maxCount) {
+                        maxCount = counters.get(frame);
+                        mostFrequent = frame;
+                    }
+                }
+                
+                // Замінюємо сторінку з найбільшим лічильником
+                const replaceIndex = frames.indexOf(mostFrequent);
+                frames[replaceIndex] = page;
+                counters.delete(mostFrequent); // Видаляємо лічильник старої сторінки
+                counters.set(page, 1); // Встановлюємо лічильник для нової сторінки
+            }
+        } else {
+            pageFaults.push(false); // No page fault
+            counters.set(page, counters.get(page) + 1);
+        }
+  
+        // Заповнюємо матрицю поточним станом фреймів
+        for (let i = 0; i < frameCount; i++) {
+            matrix[i][columnIndex] = frames[i] ?? null;
+        }
+    });
+  
+    return { matrix, pageFaults };
 };

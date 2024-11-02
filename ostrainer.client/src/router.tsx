@@ -13,8 +13,9 @@ import { PreemptiveSjfTrainer } from "./Pages/AlgorithmTrainerPage/Scheduling/Pr
 import { PreemptivePriorityTrainer } from "./Pages/AlgorithmTrainerPage/Scheduling/PreemptivePriorityTrainer.tsx";
 import { NonpreemptivePriorityTrainer } from "./Pages/AlgorithmTrainerPage/Scheduling/NonpreemptivePriorityTrainer.tsx";
 import SelfTest from "./Pages/Student/DashboardLearn/SelfTesting.tsx";
-
+import { LruTrainer } from "./Pages/AlgorithmTrainerPage/PR/LruTrainer.tsx";
 import { FifoTrainer } from "./Pages/AlgorithmTrainerPage/PR/FifoTrainer.tsx";
+import { PageReplacementTrainer } from "./Pages/AlgorithmTrainerPage/PR/PageReplacement.Trainer.tsx";
 
 const router = createBrowserRouter([
   {
@@ -80,6 +81,14 @@ const router = createBrowserRouter([
   {
     path: "/test/:algorithmId",
     element: <SelfTest />,
+  },
+  {
+    path: "/practice/lru/:isStack",
+    element: <LruTrainer />,
+  },
+  {
+    path: "/practice/page-replacement/:algorithm",
+    element: <PageReplacementTrainer />,
   }
 ]);
 

@@ -97,28 +97,28 @@ const algorithms: Algorithm[] = [
   {
     name: "LRU",
     theoryLink: "",
-    practiceLink: "",
+    practiceLink: "/practice/lru/false",
     category: "Page Replacement",
     testsLink: ""
   },
   {
     name: "LRU (stack)",
     theoryLink: "",
-    practiceLink: "",
+    practiceLink: "/practice/lru/true",
     category: "Page Replacement",
     testsLink: ""
   },
   {
     name: "LFU",
     theoryLink: "",
-    practiceLink: "",
+    practiceLink: "/practice/page-replacement/lfu",
     category: "Page Replacement",
     testsLink: ""
   },
   {
     name: "MFU",
     theoryLink: "",
-    practiceLink: "",
+    practiceLink: "/practice/page-replacement/mfu",
     category: "Page Replacement",
     testsLink: ""
   },
