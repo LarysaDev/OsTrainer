@@ -18,6 +18,7 @@ import { FifoTrainer } from "./Pages/AlgorithmTrainerPage/PR/FifoTrainer.tsx";
 import { AvoidDeadlocksAlgorithmCards } from "./Pages/Student/DashboardLearn/DeadlocksAvoidanceCards.tsx";
 import { PageReplacementTrainer } from './Pages/AlgorithmTrainerPage/PR/PageReplacement.Trainer.tsx';
 import { ResourceAllocationTrainer } from "./Pages/AlgorithmTrainerPage/DeadlocksAvoidance/ResourceAllocationTrainer.tsx";
+import BankersAlgorithmTrainer from "./Pages/AlgorithmTrainerPage/DeadlocksAvoidance/BankirTrainer.tsx";
 
 const router = createBrowserRouter([
   {
@@ -99,6 +100,10 @@ const router = createBrowserRouter([
   {
     path: "/practice/avoid-deadlocks/graph",
     element: <ResourceAllocationTrainer />,
+  },
+  {
+    path: "/practice/avoid-deadlock/bankir",
+    element: <BankersAlgorithmTrainer />,
   }
 ]);
 

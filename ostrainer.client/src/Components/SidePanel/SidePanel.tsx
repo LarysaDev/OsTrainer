@@ -12,11 +12,10 @@ interface SidePanelProps {
 }
 
 export const links: SidePanelLink[] = [
-  { label: "Dashboard", link: "/" },
-  { label: "Scheduling", link: "/scheduling" },
-  { label: "Page Replacement", link: "/page-replacement" },
-  { label: "Avoiding Deadlocks", link: "/avoid-deadlocks" },
-  { label: "Assignments", link: "/" },
+  { label: "Головна", link: "/" },
+  { label: "Планування потоків", link: "/scheduling" },
+  { label: "Заміщення сторінок", link: "/page-replacement" },
+  { label: "Уникнення дедлоків", link: "/avoid-deadlocks" },
 ];
 
 export function updateActiveLinkByIndex(activeIndex: number): SidePanelLink[] {
