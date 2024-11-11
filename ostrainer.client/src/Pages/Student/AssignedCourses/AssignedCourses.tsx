@@ -39,7 +39,7 @@ export const AssignedCourses = () => {
 
   return (
     <>
-      <p className={styles.headerText}>MY COURSES</p>
+      <p className={styles.headerText}>МОЇ КУРСИ</p>
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, p: 2 }}>
         {courses?.map((course) => (
           <Card key={course.id} variant="outlined" sx={{ minWidth: 275 }}>

@@ -41,10 +41,10 @@ export const RrTrainer: React.FC = () => {
 
     if (arrivalArray.length !== burstArray.length) {
       setArrivalError(
-        "Arrival Times and Burst Times must have the same number of values."
+        "Arrival Times та Burst Times повинні мати однакову кількість значень."
       );
       setBurstError(
-        "Arrival Times and Burst Times must have the same number of values."
+        "Arrival Times та Burst Times повинні мати однакову кількість значень."
       );
       valid = false;
     } else {
@@ -60,14 +60,14 @@ export const RrTrainer: React.FC = () => {
     );
 
     if (arrivalInvalid) {
-      setArrivalError("Arrival Times must contain only valid numbers.");
+      setArrivalError("Arrival Times повинні містити тільки коректні числові значення.");
       valid = false;
     } else if (!arrivalError) {
       setArrivalError(null);
     }
 
     if (burstInvalid) {
-      setBurstError("Burst Times must contain only valid numbers.");
+      setBurstError("Burst Times повинні містити тільки коректні числові значення.");
       valid = false;
     } else if (!burstError) {
       setBurstError(null);
@@ -158,10 +158,10 @@ export const RrTrainer: React.FC = () => {
         </div>
         <div className={styles.main}>
           <div className={styles.chartContainer}>
-            <h1>Gantt Chart Generator: RoundRobin</h1>
+            <h1>Round-Robin</h1>
             <form>
               <TextField
-                label="Arrival Times (comma-separated)"
+                label="Arrival Times (через кому)"
                 variant="outlined"
                 value={arrivalTimes}
                 onChange={(e) => setArrivalTimes(e.target.value)}
@@ -171,7 +171,7 @@ export const RrTrainer: React.FC = () => {
                 margin="normal"
               />
               <TextField
-                label="Burst Times (comma-separated)"
+                label="Burst Times (через кому)"
                 variant="outlined"
                 value={burstTimes}
                 onChange={(e) => setBurstTimes(e.target.value)}
@@ -193,17 +193,15 @@ export const RrTrainer: React.FC = () => {
                 color="primary"
                 onClick={handleGenerate}
               >
-                Generate Gantt Chart
+                Згенерувати матрицю
               </Button>
             </form>
-            <h2>Matrix of process statuses</h2>
+            <h2>Матриця статусу потоків відносно моментів часу</h2>
             <Typography variant="body1" style={{ margin: "20px 0" }}>
-              <strong>-</strong> : Not Started <br />
-              <strong>e</strong> : Executed <br />
-              <strong>w</strong> : Waiting <br />
-              <strong>x</strong> : Completed <br />
+              <strong>-</strong> : Виконання не розпочалось <br />
+              <strong>e</strong> : Виконується <br />
+              <strong>w</strong> : Очікує <br />
             </Typography>
-            <Typography>Розташуйте процеси в порядку найшвидшого виконання</Typography><br/>
             <TableContainer
               component={Paper}
               style={{ maxWidth: "1000px", overflowX: "auto" }}
@@ -253,7 +251,7 @@ export const RrTrainer: React.FC = () => {
                 color="primary"
                 onClick={handleVerify}
               >
-                Verify
+                Перевірити
               </Button>
               <Button
                 variant="contained"
@@ -261,14 +259,14 @@ export const RrTrainer: React.FC = () => {
                 onClick={handleClearAll}
                 style={{ marginLeft: "10px" }}
               >
-                Clear all
+                Очистити все
               </Button>
               <Button
                 variant="contained"
                 onClick={handleFillCalculatedValues}
                 style={{ marginLeft: "10px" }}
               >
-                Fill with calculated values
+                Заповнити правильними значеннями
               </Button>
             </Box>
           </div>

@@ -48,7 +48,7 @@ export const LruTrainer: React.FC = () => {
     let valid = true;
 
     if (isNaN(frameSize) || frameSize <= 0) {
-      setFrameError("Frame Size must be a valid positive number.");
+      setFrameError("Кількість кадрів має бути більше, ніж 0");
       valid = false;
     } else {
       setFrameError(null);
@@ -59,7 +59,9 @@ export const LruTrainer: React.FC = () => {
     );
 
     if (pageInvalid) {
-      setPageError("Page Requests must contain only valid numbers.");
+      setPageError(
+        "Сторінки для завантаження повинні містити тільки коректні значення"
+      );
       valid = false;
     } else {
       setPageError(null);
@@ -198,10 +200,10 @@ export const LruTrainer: React.FC = () => {
         </div>
         <div className={styles.main}>
           <div className={styles.chartContainer}>
-            <h1>Page Replacement Trainer: {isStack == 'true' ? 'LRU stack' : 'LRU'}</h1>
+            <h1>{isStack == "true" ? "LRU (стек)" : "LRU"}</h1>
             <form>
               <TextField
-                label="Page Requests (comma-separated)"
+                label="Сторінки для завантаження"
                 variant="outlined"
                 value={pageRequests}
                 onChange={(e) => setPageRequests(e.target.value)}
@@ -211,7 +213,7 @@ export const LruTrainer: React.FC = () => {
                 margin="normal"
               />
               <TextField
-                label="Frame Size"
+                label="Кількість кадрів"
                 variant="outlined"
                 type="number"
                 value={frameSize}
@@ -228,7 +230,7 @@ export const LruTrainer: React.FC = () => {
                   onClick={handleGenerate}
                   sx={{ mr: 1 }}
                 >
-                  Generate Matrix
+                  Згенерувати матрицю
                 </Button>
                 <Button
                   variant="contained"
@@ -236,7 +238,7 @@ export const LruTrainer: React.FC = () => {
                   onClick={handleFillMatrix}
                   sx={{ mr: 1 }}
                 >
-                  Fill Matrix
+                  Заповнити правильними значеннями
                 </Button>
                 <Button
                   variant="contained"
@@ -244,14 +246,14 @@ export const LruTrainer: React.FC = () => {
                   onClick={handleVerifyMatrix}
                   sx={{ mr: 1 }}
                 >
-                  Verify Matrix
+                  Перевірити
                 </Button>
                 <Button
                   variant="outlined"
                   color="error"
                   onClick={handleClearMatrix}
                 >
-                  Clear Matrix
+                  Очистити все
                 </Button>
               </Box>
             </form>

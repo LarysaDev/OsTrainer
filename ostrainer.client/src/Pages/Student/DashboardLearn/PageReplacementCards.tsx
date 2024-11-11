@@ -19,7 +19,7 @@ export const PageReplacementAlgorithmCards = () => {
           <SidePanel links={updateActiveLinkByIndex(2)} />
         </div>
         <div className={styles.main}>
-          <p className={styles.headerText}>LEARN ALGORITHMS</p>
+          <p className={styles.headerText}>ЗАМІЩЕННЯ СТОРІНОК</p>
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, p: 2 }}>
             {algorithms.map((algorithm, index) => (
               <Card key={index} variant="outlined" sx={{ minWidth: 275 }}>
@@ -28,7 +28,7 @@ export const PageReplacementAlgorithmCards = () => {
                     {algorithm.name}
                   </Typography>
                   <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                    Category: {algorithm.category}
+                    Категорія: {algorithm.category}
                   </Typography>
                 </CardContent>
                 <CardActions>
@@ -37,21 +37,21 @@ export const PageReplacementAlgorithmCards = () => {
                     href={algorithm.theoryLink}
                     target="_blank"
                   >
-                    Theory
+                    Теорія
                   </Button>
                   <Button
                     size="small"
                     href={algorithm.practiceLink}
                     target="_blank"
                   >
-                    Practice
+                    Практика
                   </Button>
                   <Button
                     size="small"
                     href={algorithm.testsLink}
                     target="_blank"
                   >
-                    Tests
+                    Тести
                   </Button>
                 </CardActions>
               </Card>
@@ -71,47 +71,49 @@ type Algorithm = {
   category: string;
 };
 
+const categoryName = "Заміщення сторінок";
+
 const algorithms: Algorithm[] = [
   {
     name: "FIFO",
     theoryLink: "",
     practiceLink: "/practice/fifo",
-    category: "Page Replacement",
+    category: categoryName,
     testsLink: ""
   },
   {
     name: "Clock",
     theoryLink: "",
     practiceLink: "/practice/page-replacement/clock",
-    category: "Page Replacement",
+    category: categoryName,
     testsLink: ""
   },
   {
     name: "LRU",
     theoryLink: "",
     practiceLink: "/practice/lru/false",
-    category: "Page Replacement",
+    category: categoryName,
     testsLink: ""
   },
   {
     name: "LRU (stack)",
     theoryLink: "",
     practiceLink: "/practice/lru/true",
-    category: "Page Replacement",
+    category: categoryName,
     testsLink: ""
   },
   {
     name: "LFU",
     theoryLink: "",
     practiceLink: "/practice/page-replacement/lfu",
-    category: "Page Replacement",
+    category: categoryName,
     testsLink: ""
   },
   {
     name: "MFU",
     theoryLink: "",
     practiceLink: "/practice/page-replacement/mfu",
-    category: "Page Replacement",
+    category: categoryName,
     testsLink: ""
   },
 ];

@@ -41,12 +41,12 @@ export const PreemptivePriorityTrainer: React.FC = () => {
     let valid = true;
 
     if (arrivalArray.length !== burstArray.length ) {
-      setArrivalError("Arrival Times and Burst Times must have the same number of values.");
-      setBurstError("Arrival Times and Burst Times must have the same number of values.");
+      setArrivalError("Arrival Times та Burst Times повинні мати однакову кількість значень.");
+      setBurstError("Arrival Times та Burst Times повинні мати однакову кількість значень.");
       valid = false;
     } 
     else if(arrivalArray.length !== priorityArray.length){
-        setPrioritiesError("Arrival Times, Burst Times, and Priorities must have the same");
+        setPrioritiesError("Arrival Times, Burst Times та Priorities повинні мати однакову кількість значень.");
         valid = false;
     }
     else {
@@ -66,21 +66,21 @@ export const PreemptivePriorityTrainer: React.FC = () => {
       );
 
     if (arrivalInvalid) {
-      setArrivalError("Arrival Times must contain only valid numbers.");
+      setArrivalError("Arrival Times повинні містити тільки коректні числові значення.");
       valid = false;
     } else if (!arrivalError) {
       setArrivalError(null);
     }
 
     if (burstInvalid) {
-      setBurstError("Burst Times must contain only valid numbers.");
+      setBurstError("Burst Times повинні містити тільки коректні числові значення.");
       valid = false;
     } else if (!burstError) {
       setBurstError(null);
     }
 
     if (priorityInvalid) {
-        setPrioritiesError("Priority values must contain only valid numbers.");
+        setPrioritiesError("Priority повинні містити тільки коректні числові значення.");
         valid = false;
       } else if (!prioritiesError) {
         setPrioritiesError(null);
@@ -273,10 +273,10 @@ export const PreemptivePriorityTrainer: React.FC = () => {
         </div>
         <div className={styles.main}>
           <div className={styles.chartContainer}>
-            <h1>Gantt Chart Generator: Preemptive Priority</h1>
+            <h1>Витісняюче планування з пріоритетом</h1>
             <form>
               <TextField
-                label="Arrival Times (comma-separated)"
+                label="Arrival Times (через кому)"
                 variant="outlined"
                 value={arrivalTimes}
                 onChange={(e) => setArrivalTimes(e.target.value)}
@@ -286,7 +286,7 @@ export const PreemptivePriorityTrainer: React.FC = () => {
                 margin="normal"
               />
               <TextField
-                label="Burst Times (comma-separated)"
+                label="Burst Times (через кому)"
                 variant="outlined"
                 value={burstTimes}
                 onChange={(e) => setBurstTimes(e.target.value)}
@@ -296,7 +296,7 @@ export const PreemptivePriorityTrainer: React.FC = () => {
                 margin="normal"
               />
               <TextField
-                label="Priorities (comma-separated)"
+                label="Priorities (через кому)"
                 variant="outlined"
                 value={priorities}
                 onChange={(e) => setPriorities(e.target.value)}
@@ -305,20 +305,19 @@ export const PreemptivePriorityTrainer: React.FC = () => {
                 fullWidth
                 margin="normal"
               />
-              <Button
+               <Button
                 variant="contained"
                 color="primary"
                 onClick={handleGenerate}
               >
-                Generate Gantt Chart
+                Згенерувати матрицю
               </Button>
             </form>
-            <h2>Matrix of process statuses</h2>
+            <h2>Матриця статусу потоків відносно моментів часу</h2>
             <Typography variant="body1" style={{ margin: "20px 0" }}>
-              <strong>-</strong> : Not Started <br/>
-              <strong>e</strong> : Executed <br/>
-              <strong>w</strong> : Waiting <br/>
-              <strong>x</strong> : Completed <br/>
+              <strong>-</strong> : Виконання не розпочалось <br />
+              <strong>e</strong> : Виконується <br />
+              <strong>w</strong> : Очікує <br />
             </Typography>
             <TableContainer component={Paper} style={{ maxWidth: '1000px', overflowX: 'auto' }}>
             <Table>
@@ -367,7 +366,7 @@ export const PreemptivePriorityTrainer: React.FC = () => {
                 color="primary"
                 onClick={handleVerify}
               >
-                Verify
+                Перевірити
               </Button>
               <Button
                 variant="contained"
@@ -375,14 +374,14 @@ export const PreemptivePriorityTrainer: React.FC = () => {
                 onClick={handleClearAll}
                 style={{ marginLeft: "10px" }}
               >
-                Clear all
+                Очистити все
               </Button>
               <Button
                 variant="contained"
                 onClick={handleFillCalculatedValues}
                 style={{ marginLeft: "10px" }}
               >
-                Fill with calculated values
+                Заповнити правильними значеннями
               </Button>
             </Box>
           </div>

@@ -19,7 +19,7 @@ import Stack from "@mui/material/Stack";
 import { AssignedCourses } from "../AssignedCourses/AssignedCourses.tsx";
 import { courses } from "../AssignedCourses/dump.ts";
 
-const studentName = "MY ACCOUNT";
+const studentName = "МІЙ ПРОФІЛЬ";
 
 export function StudentDashboard() {
   const [open, setOpen] = React.useState(false);
@@ -106,14 +106,11 @@ export function StudentDashboard() {
                             aria-labelledby="composition-button"
                             onKeyDown={handleListKeyDown}
                           >
-                            <MenuItem onClick={handleClose}>Profile</MenuItem>
-                            <MenuItem onClick={handleClose}>
-                              My account
-                            </MenuItem>
+                            <MenuItem onClick={handleClose}>Профіль</MenuItem>
                             <MenuItem onClick={handleClose}>
                               <span>
                                 <LogoutLink>
-                                  Logout <AuthorizedUser value="email" />
+                                  Вийти <AuthorizedUser value="email" />
                                 </LogoutLink>
                               </span>
                             </MenuItem>

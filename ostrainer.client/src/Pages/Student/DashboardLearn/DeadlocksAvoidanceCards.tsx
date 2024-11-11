@@ -19,7 +19,7 @@ export const AvoidDeadlocksAlgorithmCards = () => {
           <SidePanel links={updateActiveLinkByIndex(3)} />
         </div>
         <div className={styles.main}>
-          <p className={styles.headerText}>LEARN ALGORITHMS</p>
+          <p className={styles.headerText}>УНИКНЕННЯ ТУПИКОВИХ СИТУАЦІЙ</p>
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, p: 2 }}>
             {algorithms.map((algorithm, index) => (
               <Card key={index} variant="outlined" sx={{ minWidth: 275 }}>
@@ -28,7 +28,7 @@ export const AvoidDeadlocksAlgorithmCards = () => {
                     {algorithm.name}
                   </Typography>
                   <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                    Category: {algorithm.category}
+                    Категорія: {algorithm.category}
                   </Typography>
                 </CardContent>
                 <CardActions>
@@ -37,21 +37,21 @@ export const AvoidDeadlocksAlgorithmCards = () => {
                     href={algorithm.theoryLink}
                     target="_blank"
                   >
-                    Theory
+                    Теорія
                   </Button>
                   <Button
                     size="small"
                     href={algorithm.practiceLink}
                     target="_blank"
                   >
-                    Practice
+                    Практика
                   </Button>
                   <Button
                     size="small"
                     href={algorithm.testsLink}
                     target="_blank"
                   >
-                    Tests
+                    Тести
                   </Button>
                 </CardActions>
               </Card>
@@ -71,19 +71,21 @@ type Algorithm = {
   category: string;
 };
 
+const categoryName = "Униклення дедлоків"
+
 const algorithms: Algorithm[] = [
   {
     name: "Граф розподілу ресурсів",
     theoryLink: "",
     practiceLink: "/practice/avoid-deadlocks/graph",
-    category: "Page Replacement",
+    category: categoryName,
     testsLink: ""
   },
   {
     name: "Алгоритм Банкіра",
     theoryLink: "",
     practiceLink: "/practice/avoid-deadlock/bankir",
-    category: "Page Replacement",
+    category: categoryName,
     testsLink: ""
   }
 ];

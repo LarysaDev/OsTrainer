@@ -106,12 +106,12 @@ export function LoggedInView(props: LoggedInFrameProps) {
                             >
                               <MenuItem onClick={handleClose}>Profile</MenuItem>
                               <MenuItem onClick={handleClose}>
-                                My account
+                                Мій акаунт
                               </MenuItem>
                               <MenuItem onClick={handleClose}>
                                 <span>
                                   <LogoutLink>
-                                    Logout <AuthorizedUser value="email" />
+                                    Вийти <AuthorizedUser value="email" />
                                   </LogoutLink>
                                 </span>
                               </MenuItem>

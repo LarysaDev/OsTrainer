@@ -19,7 +19,7 @@ export const SchedulingAlgorithmCards = () => {
           <SidePanel links={updateActiveLinkByIndex(1)} />
         </div>
         <div className={styles.main}>
-          <p className={styles.headerText}>LEARN ALGORITHMS</p>
+          <p className={styles.headerText}>ПЛАНУВАННЯ ПОТОКІВ</p>
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, p: 2 }}>
             {algorithms.map((algorithm, index) => (
               <Card key={index} variant="outlined" sx={{ minWidth: 275 }}>
@@ -28,7 +28,7 @@ export const SchedulingAlgorithmCards = () => {
                     {algorithm.name}
                   </Typography>
                   <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                    Category: {algorithm.category}
+                    Категорія: {algorithm.category}
                   </Typography>
                 </CardContent>
                 <CardActions>
@@ -37,21 +37,21 @@ export const SchedulingAlgorithmCards = () => {
                     href={algorithm.theoryLink}
                     target="_blank"
                   >
-                    Theory
+                    Теорія
                   </Button>
                   <Button
                     size="small"
                     href={algorithm.practiceLink}
                     target="_blank"
                   >
-                    Practice
+                    Практика
                   </Button>
                   <Button
                     size="small"
                     href={algorithm.testsLink}
                     target="_blank"
                   >
-                    Tests
+                    Тести
                   </Button>
                 </CardActions>
               </Card>
@@ -71,47 +71,49 @@ type Algorithm = {
   category: string;
 };
 
+const categoryName = "Планування потоків";
+
 const algorithms: Algorithm[] = [
   {
     name: "FCFS",
     theoryLink: "https://www.tutorialspoint.com/fcfs-scheduling",
     practiceLink: "/practice/fcfs",
-    category: "Thread Scheduling",
+    category: categoryName,
     testsLink: "/test/1"
   },
   {
-    name: "Round-Robin Scheduling",
+    name: "Round-Robin",
     theoryLink: "https://www.javatpoint.com/os-round-robin-scheduling-algorithm",
     practiceLink: "/practice/rr",
-    category: "Thread Scheduling",
+    category: categoryName,
     testsLink: "/test/2"
   },
   {
-    name: "SJF (Non-preemptive)",
+    name: "SJF (невитісняючий)",
     theoryLink: "https://www.guru99.com/shortest-job-first-sjf-scheduling.html",
     practiceLink: "/practice/nonpreemptive_sjf",
-    category: "Thread Scheduling",
+    category: categoryName,
     testsLink: "/test/3"
   },
   {
-    name: "SJF (Preemptive)",
+    name: "SJF (витісняючий)",
     theoryLink: "https://www.guru99.com/shortest-job-first-sjf-scheduling.html",
     practiceLink: "/practice/preemptive_sjf",
-    category: "Thread Scheduling",
+    category: categoryName,
     testsLink: "/test/4"
   },
   {
-    name: "Priority (Non-preemptive)",
+    name: "Priority (невитісняючий)",
     theoryLink: "https://www.guru99.com/priority-scheduling-program.html",
     practiceLink: "/practice/nonpreemptive_priority",
-    category: "Thread Scheduling",
+    category: categoryName,
     testsLink: "/test/5"
   },
   {
-    name: "Priority (Preemptive)",
+    name: "Priority (витісняючий)",
     theoryLink: "https://www.guru99.com/priority-scheduling-program.html",
     practiceLink: "/practice/preemptive_priority",
-    category: "Thread Scheduling",
+    category: categoryName,
     testsLink: "/test/6"
   },
 ];

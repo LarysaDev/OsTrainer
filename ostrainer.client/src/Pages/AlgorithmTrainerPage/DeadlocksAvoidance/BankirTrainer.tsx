@@ -207,7 +207,7 @@ const BankersAlgorithmTrainer: React.FC = () => {
       >
         {" "}
         <Typography variant="h4" gutterBottom>
-          Banker's Algorithm Trainer
+          Алгоритм Банкіра
         </Typography>
         {inputError && (
           <Alert severity="error" sx={{ mb: 2 }}>
@@ -216,14 +216,14 @@ const BankersAlgorithmTrainer: React.FC = () => {
         )}
         <Box sx={{ mb: 3 }}>
           <TextField
-            label="Number of Resources"
+            label="Кількість ресурсів"
             type="number"
             value={numResources}
             onChange={(e) => setNumResources(parseInt(e.target.value) || 0)}
             sx={{ mr: 2 }}
           />
           <TextField
-            label="Number of Processes"
+            label="Кількість процесів"
             type="number"
             value={numProcesses}
             onChange={(e) => setNumProcesses(parseInt(e.target.value) || 0)}
@@ -234,14 +234,14 @@ const BankersAlgorithmTrainer: React.FC = () => {
             onClick={initializeMatrices}
             sx={{ mt: 1 }}
           >
-            Initialize Matrices
+            Почати ініціалізацію
           </Button>
         </Box>
         {allocation.length > 0 && (
           <>
             <Box sx={{ mb: 3 }}>
               <Typography variant="h6" gutterBottom>
-                Available Resources
+                Доступні ресурси
               </Typography>
               <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
                 {available.map((val, idx) => (
@@ -257,7 +257,7 @@ const BankersAlgorithmTrainer: React.FC = () => {
               </Box>
 
               <Typography variant="h6" gutterBottom>
-                Allocation Matrix
+                Виділені ресурси
               </Typography>
               <TableContainer component={Paper} sx={{ mb: 2 }}>
                 <Table size="small">
@@ -300,7 +300,7 @@ const BankersAlgorithmTrainer: React.FC = () => {
               </TableContainer>
 
               <Typography variant="h6" gutterBottom>
-                Maximum Matrix
+                Маскимальні потреби
               </Typography>
               <TableContainer component={Paper} sx={{ mb: 2 }}>
                 <Table size="small">
@@ -343,7 +343,7 @@ const BankersAlgorithmTrainer: React.FC = () => {
               </TableContainer>
 
               <Typography variant="h6" gutterBottom>
-                Need Matrix (Fill in your calculations)
+                Залишкові потреби (введіть самостійно)
               </Typography>
               <TableContainer component={Paper} sx={{ mb: 2 }}>
                 <Table size="small">
@@ -417,7 +417,7 @@ const BankersAlgorithmTrainer: React.FC = () => {
                       }}
                     />
                   }
-                  label="System is in Safe State"
+                  label="Система в безпечному стані"
                 />
                 <Button
                   variant="contained"
@@ -465,14 +465,14 @@ const BankersAlgorithmTrainer: React.FC = () => {
                 onClick={verifyAll}
                 sx={{ mr: 2 }}
               >
-                Verify
+                Перевірити
               </Button>
               <Button
                 variant="contained"
                 color="success"
                 onClick={fillCalculatedValues}
               >
-                Fill with Calculated Values
+                Заповнити правильними значеннями
               </Button>
             </Box>
           </>

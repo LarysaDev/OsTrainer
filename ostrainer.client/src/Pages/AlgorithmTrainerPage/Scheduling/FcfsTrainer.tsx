@@ -40,10 +40,10 @@ export const FcfsTrainer: React.FC = () => {
 
     if (arrivalArray.length !== burstArray.length) {
       setArrivalError(
-        "Arrival Times and Burst Times must have the same number of values."
+        "Arrival Times та Burst Times повинні мати однакову кількість значень."
       );
       setBurstError(
-        "Arrival Times and Burst Times must have the same number of values."
+        "Arrival Times та Burst Times повинні мати однакову кількість значень."
       );
       valid = false;
     } else {
@@ -59,14 +59,18 @@ export const FcfsTrainer: React.FC = () => {
     );
 
     if (arrivalInvalid) {
-      setArrivalError("Arrival Times must contain only valid numbers.");
+      setArrivalError(
+        "Arrival Times  повинні містити тільки коректні числові значення."
+      );
       valid = false;
     } else if (!arrivalError) {
       setArrivalError(null);
     }
 
     if (burstInvalid) {
-      setBurstError("Burst Times must contain only valid numbers.");
+      setBurstError(
+        "Burst Times  повинні містити тільки коректні числові значення."
+      );
       valid = false;
     } else if (!burstError) {
       setBurstError(null);
@@ -107,54 +111,64 @@ export const FcfsTrainer: React.FC = () => {
     const waitingTimes = new Array(n).fill(0);
     const turnaroundTimes = new Array(n).fill(0);
 
-    // Calculate completion, waiting, and turnaround times
+    // Додаємо оригінальні індекси, щоб зберегти початковий порядок
+    const processesWithIndex = processes.map((process, index) => ({
+        ...process,
+        originalIndex: index
+    }));
+
+    // Сортуємо процеси за arrivalTime для коректного виконання в порядку прибуття
+    processesWithIndex.sort((a, b) => a.arrivalTime - b.arrivalTime);
+
+    // Розраховуємо час завершення, очікування та виконання для кожного процесу
     let currentTime = 0;
     for (let i = 0; i < n; i++) {
-      if (currentTime < processes[i].arrivalTime) {
-        currentTime = processes[i].arrivalTime;
-      }
-      currentTime += processes[i].burstTime;
-      completionTimes[i] = currentTime;
-      turnaroundTimes[i] = completionTimes[i] - processes[i].arrivalTime;
-      waitingTimes[i] = turnaroundTimes[i] - processes[i].burstTime;
+        if (currentTime < processesWithIndex[i].arrivalTime) {
+            currentTime = processesWithIndex[i].arrivalTime;
+        }
+        currentTime += processesWithIndex[i].burstTime;
+        completionTimes[processesWithIndex[i].originalIndex] = currentTime;
+        turnaroundTimes[processesWithIndex[i].originalIndex] = currentTime - processesWithIndex[i].arrivalTime;
+        waitingTimes[processesWithIndex[i].originalIndex] = turnaroundTimes[processesWithIndex[i].originalIndex] - processesWithIndex[i].burstTime;
     }
 
-    // Create the header row
+    // Створюємо заголовок таблиці
     const headerRow = ["Process\\Time"];
     const maxTime = Math.max(...completionTimes);
     for (let t = 0; t <= maxTime; t++) {
-      headerRow.push(t);
+        headerRow.push(t);
     }
     matrix.push(headerRow);
 
-    // Fill rows for each process in FCFS order
+    // Заповнюємо рядки для кожного процесу у початковому порядку
     for (let i = 0; i < n; i++) {
-      const row = [`P${i + 1}`];
-      let startTime = completionTimes[i] - processes[i].burstTime; // When this process starts
-      let endTime = completionTimes[i]; // When this process completes
+        const row = [`P${i + 1}`];
+        let startTime = completionTimes[i] - processes[i].burstTime;
+        let endTime = completionTimes[i];
 
-      for (let t = 0; t <= maxTime; t++) {
-        if (t < processes[i].arrivalTime) {
-          row.push("-"); // Process not yet arrived
-        } else if (t >= startTime && t < endTime) {
-          row.push("e"); // Process executing
-        } else if (t >= endTime) {
-          row.push(""); // Process completed
-        } else {
-          row.push("w"); // Waiting
+        for (let t = 0; t <= maxTime; t++) {
+            if (t < processes[i].arrivalTime) {
+                row.push("-"); // Процес ще не прибув
+            } else if (t >= startTime && t < endTime) {
+                row.push("e"); // Процес виконується
+            } else if (t >= endTime) {
+                row.push(""); // Процес завершено
+            } else {
+                row.push("w"); // Очікування
+            }
         }
-      }
-      matrix.push(row);
+        matrix.push(row);
     }
 
     setMatrix(matrix);
     setUserMatrix(
-      matrix.map((row) =>
-        row.map((cell) => (typeof cell === "number" ? cell : ""))
-      )
+        matrix.map((row) =>
+            row.map((cell) => (typeof cell === "number" ? cell : ""))
+        )
     );
     setColorMatrix(matrix.map((row) => row.map(() => "")));
-  }
+}
+
 
   const handleUserInputChange = (
     rowIndex: number,
@@ -197,10 +211,10 @@ export const FcfsTrainer: React.FC = () => {
         </div>
         <div className={styles.main}>
           <div className={styles.chartContainer}>
-            <h1>Gantt Chart Generator: FCFS</h1>
+            <h1>FCFS</h1>
             <form>
               <TextField
-                label="Arrival Times (comma-separated)"
+                label="Arrival Times (через кому)"
                 variant="outlined"
                 value={arrivalTimes}
                 onChange={(e) => setArrivalTimes(e.target.value)}
@@ -210,7 +224,7 @@ export const FcfsTrainer: React.FC = () => {
                 margin="normal"
               />
               <TextField
-                label="Burst Times (comma-separated)"
+                label="Burst Times (через кому)"
                 variant="outlined"
                 value={burstTimes}
                 onChange={(e) => setBurstTimes(e.target.value)}
@@ -224,17 +238,18 @@ export const FcfsTrainer: React.FC = () => {
                 color="primary"
                 onClick={handleGenerate}
               >
-                Generate Gantt Chart
+                Згенерувати матрицю
               </Button>
             </form>
-            <h2>Matrix of process statuses</h2>
+            <h2>Матриця статусу потоків відносно моментів часу</h2>
             <Typography variant="body1" style={{ margin: "20px 0" }}>
-              <strong>-</strong> : Not Started <br />
-              <strong>e</strong> : Executed <br />
-              <strong>w</strong> : Waiting <br />
-              <strong>x</strong> : Completed <br />
+              <strong>-</strong> : Виконання не розпочалось <br />
+              <strong>e</strong> : Виконується <br />
+              <strong>w</strong> : Очікує <br />
             </Typography>
-            <Typography>Розташуйте процеси в порядку найшвидшого виконання</Typography><br/>
+            <Typography>
+              Розташуйте процеси у порядку найшвидшого виконання
+            </Typography> <br></br>
             <TableContainer
               component={Paper}
               style={{ maxWidth: "1000px", overflowX: "auto" }}
@@ -284,7 +299,7 @@ export const FcfsTrainer: React.FC = () => {
                 color="primary"
                 onClick={handleVerify}
               >
-                Verify
+                Перевірити
               </Button>
               <Button
                 variant="contained"
@@ -292,14 +307,14 @@ export const FcfsTrainer: React.FC = () => {
                 onClick={handleClearAll}
                 style={{ marginLeft: "10px" }}
               >
-                Clear all
+                Очистити все
               </Button>
               <Button
                 variant="contained"
                 onClick={handleFillCalculatedValues}
                 style={{ marginLeft: "10px" }}
               >
-                Fill with calculated values
+                Заповнити правильними значеннями
               </Button>
             </Box>
           </div>
