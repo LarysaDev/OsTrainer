@@ -20,6 +20,7 @@ import {
   TextField,
 } from "@mui/material";
 import { Process } from "../../common";
+import { generatePrioritySchedulingData } from "../../../common/RandomGenerators/AlgorithmRandomDataGenerator";
 
 export const NonpreemptivePriorityTrainer: React.FC = () => {
   const [arrivalTimes, setArrivalTimes] = useState<string>("");
@@ -96,6 +97,13 @@ export const NonpreemptivePriorityTrainer: React.FC = () => {
     return valid;
   };
 
+  const handleAutocompleteInput = () => {
+    const [ arrivalTimes, burstTimes, priorities ] = generatePrioritySchedulingData();
+    setArrivalTimes(arrivalTimes.join(','));
+    setBurstTimes(burstTimes.join(','));
+    setPriorities(priorities.join(','));
+  }
+
   const handleGenerate = async () => {
     if (!validateInputs()) {
       return;
@@ -131,7 +139,6 @@ export const NonpreemptivePriorityTrainer: React.FC = () => {
     burstTimes: number[],
     priorities: number[]
   ) => {
-    // Ініціалізуємо процеси
     let processes: Process[] = arrivalTimes.map((arrival, index) => ({
       id: index + 1,
       arrivalTime: arrival,
@@ -146,13 +153,11 @@ export const NonpreemptivePriorityTrainer: React.FC = () => {
     let executionHistory: { time: number; processId: number }[] = [];
 
     while (completedProcesses < n) {
-      // Знаходимо всі доступні процеси на поточний момент часу
       let availableProcesses = processes.filter(
         (p) => p.arrivalTime <= currentTime && p.remainingTime! > 0
       );
 
       if (availableProcesses.length === 0) {
-        // Якщо немає доступних процесів, переходимо до наступного часу прибуття
         let nextArrival = Math.min(
           ...processes
             .filter((p) => p.remainingTime! > 0)
@@ -162,17 +167,14 @@ export const NonpreemptivePriorityTrainer: React.FC = () => {
         continue;
       }
 
-      // Вибираємо процес з найвищим пріоритетом (найменше числове значення)
       let selectedProcess = availableProcesses.reduce((prev, current) =>
         prev.priority <= current.priority ? prev : current
       );
 
-      // Записуємо час початку, якщо це перший старт процесу
       if (!processes[selectedProcess.id - 1].startTime) {
         processes[selectedProcess.id - 1].startTime = currentTime;
       }
 
-      // Записуємо історію виконання для всього часу виконання процесу
       for (
         let t = currentTime;
         t < currentTime + selectedProcess.remainingTime!;
@@ -181,41 +183,36 @@ export const NonpreemptivePriorityTrainer: React.FC = () => {
         executionHistory.push({ time: t, processId: selectedProcess.id });
       }
 
-      // Оновлюємо час завершення та remaining time
       currentTime += selectedProcess.remainingTime!;
       processes[selectedProcess.id - 1].completionTime = currentTime;
       processes[selectedProcess.id - 1].remainingTime = 0;
       completedProcesses++;
     }
 
-    // Генеруємо матрицю станів
     const maxTime = Math.max(...processes.map((p) => p.completionTime!));
     const matrix: (string | number)[][] = [];
 
-    // Заголовок
     const headerRow: (string | number)[] = ["Process\\Time"];
     for (let t = 0; t <= maxTime; t++) {
       headerRow.push(t);
     }
     matrix.push(headerRow);
 
-    // Заповнюємо рядки для кожного процесу
     processes.forEach((process) => {
       const row: (string | number)[] = [`P${process.id}`];
       for (let t = 0; t <= maxTime; t++) {
         if (t < process.arrivalTime) {
-          row.push("-"); // Ще не прибув
+          row.push("-");
         } else if (t >= process.completionTime!) {
-          row.push(""); // Завершено
+          row.push("");
         } else {
-          // Перевіряємо чи процес виконується в цей момент
           const isExecuting = executionHistory.find(
             (h) => h.time === t && h.processId === process.id
           );
           if (isExecuting) {
-            row.push("e"); // Виконується
+            row.push("e");
           } else {
-            row.push("w"); // Очікує
+            row.push("w");
           }
         }
       }
@@ -310,6 +307,14 @@ export const NonpreemptivePriorityTrainer: React.FC = () => {
                 onClick={handleGenerate}
               >
                 Згенерувати матрицю
+              </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleAutocompleteInput}
+                sx={{marginLeft: '10px'}}
+              >
+                Автозаповнити вхідні дані
               </Button>
             </form>
             <h2>Матриця статусу потоків відносно моментів часу</h2>

@@ -19,6 +19,7 @@ import {
   Typography,
   TextField,
 } from "@mui/material";
+import { generateRandomData } from "../../../common/RandomGenerators/AlgorithmRandomDataGenerator";
 
 export const NonpreemptiveSjfTrainer: React.FC = () => {
   const [arrivalTimes, setArrivalTimes] = useState<string>("");
@@ -75,6 +76,12 @@ export const NonpreemptiveSjfTrainer: React.FC = () => {
     return valid;
   };
 
+  const handleAutocompleteInput = () => {
+    const [ arrivalTimes, burstTimes ] = generateRandomData();
+    setArrivalTimes(arrivalTimes.join(','));
+    setBurstTimes(burstTimes.join(','));
+  }
+
   const handleGenerate = async () => {
     if (!validateInputs()) {
       return;
@@ -110,7 +117,6 @@ export const NonpreemptiveSjfTrainer: React.FC = () => {
 }
 
 const generateMatrixTable = (arrivalTime: number[], burstTime: number[]) => {
-    // Створюємо масив процесів
     const processes: Process[] = arrivalTime.map((arrival, index) => ({
         arrivalTime: arrival,
         burstTime: burstTime[index],
@@ -123,14 +129,13 @@ const generateMatrixTable = (arrivalTime: number[], burstTime: number[]) => {
     const waitingTimes: number[] = new Array(n).fill(0);
     const turnaroundTimes: number[] = new Array(n).fill(0);
 
-    let currentTime = Math.min(...arrivalTime); // Починаємо з найранішого часу прибуття
+    let currentTime = Math.min(...arrivalTime);
     let completedProcesses = 0;
 
     while (completedProcesses < n) {
         let selectedProcess: number = -1;
         let shortestBurst = Number.MAX_VALUE;
 
-        // Знаходимо процес з найменшим burst time серед доступних
         for (let i = 0; i < n; i++) {
             if (!processes[i].completed && 
                 processes[i].arrivalTime <= currentTime && 
@@ -141,17 +146,12 @@ const generateMatrixTable = (arrivalTime: number[], burstTime: number[]) => {
         }
 
         if (selectedProcess !== -1) {
-            // Записуємо час початку виконання
             startTimes[selectedProcess] = currentTime;
-            // Обчислюємо час завершення
             completionTimes[selectedProcess] = currentTime + processes[selectedProcess].burstTime;
-            // Оновлюємо поточний час
             currentTime = completionTimes[selectedProcess];
-            // Позначаємо процес як завершений
             processes[selectedProcess].completed = true;
             completedProcesses++;
         } else {
-            // Якщо немає доступних процесів, переходимо до наступного часу прибуття
             let nextArrival = Number.MAX_VALUE;
             for (let i = 0; i < n; i++) {
                 if (!processes[i].completed && processes[i].arrivalTime > currentTime) {
@@ -162,41 +162,36 @@ const generateMatrixTable = (arrivalTime: number[], burstTime: number[]) => {
         }
     }
 
-    // Обчислюємо waiting time та turnaround time
     for (let i = 0; i < n; i++) {
         turnaroundTimes[i] = completionTimes[i] - processes[i].arrivalTime;
         waitingTimes[i] = turnaroundTimes[i] - processes[i].burstTime;
     }
 
-    // Генеруємо матрицю станів
     const maxTime = Math.max(...completionTimes);
     const matrix: (string | number)[][] = [];
     
-    // Заголовок
     const headerRow: (string | number)[] = ["Process\\Time"];
     for (let t = 0; t <= maxTime; t++) {
         headerRow.push(t);
     }
     matrix.push(headerRow);
 
-    // Заповнюємо рядки для кожного процесу
     processes.forEach((process, index) => {
         const row: (string | number)[] = [`P${index + 1}`];
         for (let t = 0; t <= maxTime; t++) {
             if (t < process.arrivalTime) {
-                row.push("-"); // Процес ще не прибув
+                row.push("-");
             } else if (t >= startTimes[index] && t < completionTimes[index]) {
-                row.push("e"); // Процес виконується
+                row.push("e");
             } else if (t >= process.arrivalTime && t < startTimes[index]) {
-                row.push("w"); // Процес очікує
+                row.push("w");
             } else {
-                row.push(""); // Процес завершено
+                row.push("");
             }
         }
         matrix.push(row);
     });
 
-    // Встановлюємо матриці
     setMatrix(matrix);
     setUserMatrix(matrix.map(row => row.map(cell => typeof cell === "number" ? cell : "")));
     setColorMatrix(matrix.map(row => row.map(() => "")));
@@ -271,6 +266,14 @@ const generateMatrixTable = (arrivalTime: number[], burstTime: number[]) => {
                 onClick={handleGenerate}
               >
                 Згенерувати матрицю
+              </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleAutocompleteInput}
+                sx={{marginLeft: '10px'}}
+              >
+                Автозаповнити вхідні дані
               </Button>
             </form>
             <h2>Матриця статусу потоків відносно моментів часу</h2>

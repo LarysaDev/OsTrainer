@@ -19,6 +19,7 @@ import {
   Typography,
   TextField,
 } from "@mui/material";
+import { generateRoundRobinData } from "../../../common/RandomGenerators/AlgorithmRandomDataGenerator";
 
 export const RrTrainer: React.FC = () => {
   const [timeQuantum, setTimeQuantum] = useState<number>(0);
@@ -75,6 +76,13 @@ export const RrTrainer: React.FC = () => {
 
     return valid;
   };
+
+  const handleAutocompleteInput = () => {
+    const [ arrivalTimes, burstTimes, timeQuantum ] = generateRoundRobinData();
+    setArrivalTimes(arrivalTimes.join(','));
+    setBurstTimes(burstTimes.join(','));
+    setTimeQuantum(timeQuantum);
+  }
 
   const handleGenerate = async () => {
     if (!validateInputs()) {
@@ -194,6 +202,14 @@ export const RrTrainer: React.FC = () => {
                 onClick={handleGenerate}
               >
                 Згенерувати матрицю
+              </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleAutocompleteInput}
+                sx={{marginLeft: '10px'}}
+              >
+                Автозаповнити вхідні дані
               </Button>
             </form>
             <h2>Матриця статусу потоків відносно моментів часу</h2>

@@ -2,8 +2,7 @@ import { useState } from "react";
 import styles from "../Trainer.module.less";
 import {
   SidePanel,
-  SidePanelLink,
-  updateActiveLinkByIndex
+  updateActiveLinkByIndex,
 } from "../../../Components/SidePanel/SidePanel";
 import AuthorizeView from "../../../Components/AuthorizeView";
 import {
@@ -17,12 +16,16 @@ import {
   Paper,
   Box,
   TextField,
+  Typography,
 } from "@mui/material";
+import { generatePageReplacementData } from "../../../common/RandomGenerators/AlgorithmRandomDataGenerator";
 
-const generateMatrix = (pageRequests, frameCount) => {
-  const matrix = Array.from({ length: frameCount }, () => new Array(pageRequests.length).fill(null));
-  const frames = [];
-  const pageFaults = [];
+const generateMatrix = (pageRequests: number[], frameCount: number) => {
+  const matrix = Array.from({ length: frameCount }, () =>
+    new Array(pageRequests.length).fill(null)
+  );
+  const frames: number[] = [];
+  const pageFaults: boolean[] = [];
 
   pageRequests.forEach((page, columnIndex) => {
     const isPagePresent = frames.includes(page);
@@ -78,7 +81,9 @@ export const FifoTrainer: React.FC = () => {
     );
 
     if (pageInvalid) {
-      setPageError("Сторінки для завантаження повинні містити тільки коректні значення");
+      setPageError(
+        "Сторінки для завантаження повинні містити тільки коректні значення"
+      );
       valid = false;
     } else {
       setPageError(null);
@@ -87,8 +92,12 @@ export const FifoTrainer: React.FC = () => {
     return valid;
   };
 
-  const handleCellChange = (rowIndex: number, cellIndex: number, value: string) => {
-    setUserMatrix(prev => {
+  const handleCellChange = (
+    rowIndex: number,
+    cellIndex: number,
+    value: string
+  ) => {
+    setUserMatrix((prev) => {
       const newMatrix = [...prev];
       newMatrix[rowIndex + 1][cellIndex] = value;
       return newMatrix;
@@ -102,44 +111,55 @@ export const FifoTrainer: React.FC = () => {
     const pageFaultValidations: boolean[] = [];
 
     for (let i = 1; i < userMatrix.length - 1; i++) {
-      validationMatrix[i-1] = [];
+      validationMatrix[i - 1] = [];
       for (let j = 1; j < userMatrix[i].length; j++) {
-        const userValue = userMatrix[i][j] === "" ? null : Number(userMatrix[i][j]);
-        const correctValue = correctMatrix[i-1][j-1];
-        validationMatrix[i-1][j-1] = userValue === correctValue;
+        const userValue =
+          userMatrix[i][j] === "" ? null : Number(userMatrix[i][j]);
+        const correctValue = correctMatrix[i - 1][j - 1];
+        validationMatrix[i - 1][j - 1] = userValue === correctValue;
       }
     }
 
     const lastRow = userMatrix[userMatrix.length - 1];
     for (let j = 1; j < lastRow.length; j++) {
       const userFault = lastRow[j] === "f";
-      const correctFault = correctPageFaults[j-1];
-      pageFaultValidations[j-1] = userFault === correctFault;
+      const correctFault = correctPageFaults[j - 1];
+      pageFaultValidations[j - 1] = userFault === correctFault;
     }
 
     setCellValidation(validationMatrix);
     setPageFaultValidation(pageFaultValidations);
   };
 
-  const getCellStyle = (rowIndex: number, cellIndex: number, isPageFaultRow: boolean = false) => {
+  const getCellStyle = (
+    rowIndex: number,
+    cellIndex: number,
+    isPageFaultRow: boolean = false
+  ) => {
     if (cellIndex === 0) return {};
-    
+
     if (isPageFaultRow) {
-      const isValid = pageFaultValidation[cellIndex-1];
+      const isValid = pageFaultValidation[cellIndex - 1];
       if (isValid === undefined) return {};
       return {
         backgroundColor: isValid ? "#e8f5e9" : "#ffebee",
-        borderRadius: "4px"
+        borderRadius: "4px",
       };
     }
-    
-    const isValid = cellValidation[rowIndex]?.[cellIndex-1];
+
+    const isValid = cellValidation[rowIndex]?.[cellIndex - 1];
     if (isValid === undefined) return {};
 
     return {
       backgroundColor: isValid ? "#e8f5e9" : "#ffebee",
-      borderRadius: "4px"
+      borderRadius: "4px",
     };
+  };
+
+  const handleAutocompleteInput = () => {
+    const [pages, frameSize] = generatePageReplacementData();
+    setPageRequests(pages.join(","));
+    setFrameSize(frameSize);
   };
 
   const handleGenerate = () => {
@@ -150,7 +170,10 @@ export const FifoTrainer: React.FC = () => {
       .split(",")
       .map(Number);
 
-    const { matrix: correctFrameMatrix, pageFaults } = generateMatrix(requestArray, frameSize);
+    const { matrix: correctFrameMatrix, pageFaults } = generateMatrix(
+      requestArray,
+      frameSize
+    );
     setCorrectMatrix(correctFrameMatrix);
     setCorrectPageFaults(pageFaults);
 
@@ -175,12 +198,9 @@ export const FifoTrainer: React.FC = () => {
       userMatrix[0],
       ...correctMatrix.map((row, index) => [
         `frame ${index + 1}`,
-        ...row.map(val => val === null ? "" : val)
+        ...row.map((val) => (val === null ? "" : val)),
       ]),
-      [
-        "Page Fault?",
-        ...correctPageFaults.map(fault => fault ? "f" : "")
-      ]
+      ["Page Fault?", ...correctPageFaults.map((fault) => (fault ? "f" : ""))],
     ];
 
     setUserMatrix(filledMatrix);
@@ -188,14 +208,12 @@ export const FifoTrainer: React.FC = () => {
 
   const handleClearMatrix = () => {
     if (!userMatrix.length) return;
-    
+
     const clearedMatrix = userMatrix.map((row, rowIndex) => {
       if (rowIndex === 0) return row;
-      return row.map((cell, cellIndex) => 
-        cellIndex === 0 ? cell : ""
-      );
+      return row.map((cell, cellIndex) => (cellIndex === 0 ? cell : ""));
     });
-    
+
     setUserMatrix(clearedMatrix);
     setCellValidation([]);
     setPageFaultValidation([]);
@@ -243,30 +261,40 @@ export const FifoTrainer: React.FC = () => {
                 </Button>
                 <Button
                   variant="contained"
-                  color="secondary"
-                  onClick={handleFillMatrix}
-                  sx={{ mr: 1 }}
+                  color="primary"
+                  onClick={handleAutocompleteInput}
+                  sx={{ marginLeft: "10px" }}
                 >
-                  Заповнити правильними значеннями
+                  Автозаповнити вхідні дані
                 </Button>
-                <Button
-                  variant="contained"
-                  color="info"
-                  onClick={handleVerifyMatrix}
-                  sx={{ mr: 1 }}
-                >
-                  Перевірити
-                </Button>
-                <Button
-                  variant="outlined"
-                  color="error"
-                  onClick={handleClearMatrix}
-                >
-                  Очистити все
-                </Button>
+                <Typography sx={{marginTop: '15px'}}>
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={handleFillMatrix}
+                    sx={{ mr: 1 }}
+                  >
+                    Заповнити правильними значеннями
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="info"
+                    onClick={handleVerifyMatrix}
+                    sx={{ mr: 1 }}
+                  >
+                    Перевірити
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    onClick={handleClearMatrix}
+                  >
+                    Очистити все
+                  </Button>
+                </Typography>
               </Box>
             </form>
-            
+
             <TableContainer
               component={Paper}
               style={{ maxWidth: "1000px", overflowX: "auto" }}
@@ -289,14 +317,24 @@ export const FifoTrainer: React.FC = () => {
                           ) : (
                             <input
                               value={cell}
-                              onChange={(e) => handleCellChange(rowIndex, cellIndex, e.target.value)}
+                              onChange={(e) =>
+                                handleCellChange(
+                                  rowIndex,
+                                  cellIndex,
+                                  e.target.value
+                                )
+                              }
                               style={{
                                 width: "50px",
                                 textAlign: "center",
                                 padding: "4px",
                                 border: "1px solid #ddd",
                                 borderRadius: "4px",
-                                ...getCellStyle(rowIndex, cellIndex, rowIndex === userMatrix.length - 2)
+                                ...getCellStyle(
+                                  rowIndex,
+                                  cellIndex,
+                                  rowIndex === userMatrix.length - 2
+                                ),
                               }}
                             />
                           )}

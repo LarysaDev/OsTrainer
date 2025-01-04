@@ -19,6 +19,7 @@ import {
   Typography,
   TextField,
 } from "@mui/material";
+import { generateRandomData } from '../../../common/RandomGenerators/AlgorithmRandomDataGenerator';
 
 export const FcfsTrainer: React.FC = () => {
   const [arrivalTimes, setArrivalTimes] = useState<string>("");
@@ -103,6 +104,12 @@ export const FcfsTrainer: React.FC = () => {
       console.error("Error generating Gantt chart", error);
     }
   };
+  
+  const handleAutocompleteInput = () => {
+    const [ arrivalTimes, burstTimes ] = generateRandomData();
+    setArrivalTimes(arrivalTimes.join(','));
+    setBurstTimes(burstTimes.join(','));
+  }
 
   function generateMatrixTable(processes) {
     const n = processes.length;
@@ -111,16 +118,13 @@ export const FcfsTrainer: React.FC = () => {
     const waitingTimes = new Array(n).fill(0);
     const turnaroundTimes = new Array(n).fill(0);
 
-    // Додаємо оригінальні індекси, щоб зберегти початковий порядок
     const processesWithIndex = processes.map((process, index) => ({
         ...process,
         originalIndex: index
     }));
 
-    // Сортуємо процеси за arrivalTime для коректного виконання в порядку прибуття
     processesWithIndex.sort((a, b) => a.arrivalTime - b.arrivalTime);
 
-    // Розраховуємо час завершення, очікування та виконання для кожного процесу
     let currentTime = 0;
     for (let i = 0; i < n; i++) {
         if (currentTime < processesWithIndex[i].arrivalTime) {
@@ -132,7 +136,6 @@ export const FcfsTrainer: React.FC = () => {
         waitingTimes[processesWithIndex[i].originalIndex] = turnaroundTimes[processesWithIndex[i].originalIndex] - processesWithIndex[i].burstTime;
     }
 
-    // Створюємо заголовок таблиці
     const headerRow = ["Process\\Time"];
     const maxTime = Math.max(...completionTimes);
     for (let t = 0; t <= maxTime; t++) {
@@ -140,7 +143,6 @@ export const FcfsTrainer: React.FC = () => {
     }
     matrix.push(headerRow);
 
-    // Заповнюємо рядки для кожного процесу у початковому порядку
     for (let i = 0; i < n; i++) {
         const row = [`P${i + 1}`];
         let startTime = completionTimes[i] - processes[i].burstTime;
@@ -148,13 +150,13 @@ export const FcfsTrainer: React.FC = () => {
 
         for (let t = 0; t <= maxTime; t++) {
             if (t < processes[i].arrivalTime) {
-                row.push("-"); // Процес ще не прибув
+                row.push("-");
             } else if (t >= startTime && t < endTime) {
-                row.push("e"); // Процес виконується
+                row.push("e");
             } else if (t >= endTime) {
-                row.push(""); // Процес завершено
+                row.push("");
             } else {
-                row.push("w"); // Очікування
+                row.push("w");
             }
         }
         matrix.push(row);
@@ -240,6 +242,14 @@ export const FcfsTrainer: React.FC = () => {
               >
                 Згенерувати матрицю
               </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleAutocompleteInput}
+                sx={{marginLeft: '10px'}}
+              >
+                Автозаповнити вхідні дані
+              </Button>
             </form>
             <h2>Матриця статусу потоків відносно моментів часу</h2>
             <Typography variant="body1" style={{ margin: "20px 0" }}>
@@ -247,9 +257,6 @@ export const FcfsTrainer: React.FC = () => {
               <strong>e</strong> : Виконується <br />
               <strong>w</strong> : Очікує <br />
             </Typography>
-            <Typography>
-              Розташуйте процеси у порядку найшвидшого виконання
-            </Typography> <br></br>
             <TableContainer
               component={Paper}
               style={{ maxWidth: "1000px", overflowX: "auto" }}

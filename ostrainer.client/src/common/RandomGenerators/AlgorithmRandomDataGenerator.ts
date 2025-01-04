@@ -1,4 +1,4 @@
-export function generateRandomData(processCount: number = 5, maxArrivalTime: number = 10, maxBurstTime: number = 10): [number[], number[]] {
+export function generateRandomData(processCount: number = 4, maxArrivalTime: number = 8, maxBurstTime: number = 8): [number[], number[]] {
     const arrivalTimes: number[] = [];
     const burstTimes: number[] = [];
 
@@ -15,7 +15,7 @@ export function generateRandomData(processCount: number = 5, maxArrivalTime: num
     return [arrivalTimes, burstTimes];
 }
 
-export function generateRoundRobinData(processCount: number = 5, maxArrivalTime: number = 10, maxBurstTime: number = 10): [number[], number[], number] {
+export function generateRoundRobinData(processCount: number = 4, maxArrivalTime: number = 8, maxBurstTime: number = 8): [number[], number[], number] {
     const arrivalTimes: number[] = [];
     const burstTimes: number[] = [];
 
@@ -33,7 +33,7 @@ export function generateRoundRobinData(processCount: number = 5, maxArrivalTime:
     return [arrivalTimes, burstTimes, timeQuantum];
 }
 
-export function generatePrioritySchedulingData(processCount: number = 5, maxArrivalTime: number = 10, maxBurstTime: number = 10, maxPriority: number = 6): [number[], number[], number[]] {
+export function generatePrioritySchedulingData(processCount: number = 4, maxArrivalTime: number = 8, maxBurstTime: number = 8, maxPriority: number = 6): [number[], number[], number[]] {
     const arrivalTimes: number[] = [];
     const burstTimes: number[] = [];
     const priorities: number[] = [];

@@ -42,12 +42,12 @@ const SelfTest = () => {
   };
 
   const startTestAgain = () => {
-    setSelectedAnswers(Array(questions.length).fill(-1)); // Reset selected answers for the same questions
-    setResult(null); // Reset result state
+    setSelectedAnswers(Array(questions.length).fill(-1));
+    setResult(null);
   };
 
   const handleAnswerChange = (index: number, answerIndex: number) => {
-    if (result) return; // Prevent changes after result submission
+    if (result) return;
     const newSelectedAnswers = [...selectedAnswers];
     newSelectedAnswers[index] = answerIndex;
     setSelectedAnswers(newSelectedAnswers);

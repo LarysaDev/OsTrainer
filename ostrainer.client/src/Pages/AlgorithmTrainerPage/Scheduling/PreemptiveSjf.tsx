@@ -20,6 +20,7 @@ import {
   TextField,
 } from "@mui/material";
 import { Process } from "../../common";
+import { generateRandomData } from "../../../common/RandomGenerators/AlgorithmRandomDataGenerator";
 
 export const PreemptiveSjfTrainer: React.FC = () => {
   const [arrivalTimes, setArrivalTimes] = useState<string>("");
@@ -76,6 +77,12 @@ export const PreemptiveSjfTrainer: React.FC = () => {
     return valid;
   };
 
+  const handleAutocompleteInput = () => {
+    const [ arrivalTimes, burstTimes ] = generateRandomData();
+    setArrivalTimes(arrivalTimes.join(','));
+    setBurstTimes(burstTimes.join(','));
+  }
+
   const handleGenerate = async () => {
     if (!validateInputs()) {
       return;
@@ -108,7 +115,6 @@ export const PreemptiveSjfTrainer: React.FC = () => {
     arrivalTimes: number[],
     burstTimes: number[]
   ) => {
-    // Створюємо масив процесів з початковими даними
     let processes: Process[] = arrivalTimes.map((arrival, index) => ({
       id: index + 1,
       arrivalTime: arrival,
@@ -124,15 +130,12 @@ export const PreemptiveSjfTrainer: React.FC = () => {
     let executionHistory: { time: number; processId: number }[] = [];
     let currentProcess: Process | null = null;
 
-    // Виконуємо планування поки всі процеси не завершаться
     while (completedProcesses < processes.length) {
-      // Знаходимо всі доступні процеси на поточний момент часу
       let availableProcesses = processes.filter(
         (p) => p.arrivalTime <= currentTime && p.remainingTime > 0
       );
 
       if (availableProcesses.length === 0) {
-        // Якщо немає доступних процесів, переходимо до наступного часу прибуття
         currentTime = Math.min(
           ...processes
             .filter((p) => p.remainingTime > 0)
@@ -141,14 +144,11 @@ export const PreemptiveSjfTrainer: React.FC = () => {
         continue;
       }
 
-      // Сортуємо за remainingTime
       availableProcesses.sort((a, b) => a.remainingTime - b.remainingTime);
 
       let nextProcess = availableProcesses[0];
 
-      // Перевіряємо умову витіснення
       if (currentProcess && currentProcess.remainingTime > 0) {
-        // Витісняємо тільки якщо remaining time нового процесу строго менший
         if (nextProcess.remainingTime < currentProcess.remainingTime) {
           currentProcess = nextProcess;
         }
@@ -156,23 +156,19 @@ export const PreemptiveSjfTrainer: React.FC = () => {
         currentProcess = nextProcess;
       }
 
-      // Записуємо початок виконання, якщо це перший старт процесу
       if (processes[currentProcess.id - 1].startTime === undefined) {
         processes[currentProcess.id - 1].startTime = currentTime;
       }
       processes[currentProcess.id - 1].currentStartTime = currentTime;
 
-      // Додаємо запис в історію виконання
       executionHistory.push({
         time: currentTime,
         processId: currentProcess.id,
       });
 
-      // Виконуємо процес одну одиницю часу
       currentProcess.remainingTime--;
       currentTime++;
 
-      // Перевіряємо, чи завершився процес
       if (currentProcess.remainingTime === 0) {
         processes[currentProcess.id - 1].completionTime = currentTime;
         completedProcesses++;
@@ -180,34 +176,30 @@ export const PreemptiveSjfTrainer: React.FC = () => {
       }
     }
 
-    // Генеруємо матрицю станів
     const maxTime = Math.max(...processes.map((p) => p.completionTime!));
     const matrix: (string | number)[][] = [];
 
-    // Заголовок
     const headerRow: (string | number)[] = ["Process\\Time"];
     for (let t = 0; t <= maxTime; t++) {
       headerRow.push(t);
     }
     matrix.push(headerRow);
 
-    // Заповнюємо рядки для кожного процесу
     processes.forEach((process) => {
       const row: (string | number)[] = [`P${process.id}`];
       for (let t = 0; t <= maxTime; t++) {
         if (t < process.arrivalTime) {
-          row.push("-"); // Ще не прибув
+          row.push("-");
         } else if (t >= process.completionTime!) {
-          row.push(""); // Завершено
+          row.push("");
         } else {
-          // Перевіряємо, чи виконується процес в цей момент
           const isExecuting = executionHistory.find(
             (h) => h.time === t && h.processId === process.id
           );
           if (isExecuting) {
-            row.push("e"); // Виконується
+            row.push("e");
           } else {
-            row.push("w"); // Очікує
+            row.push("w");
           }
         }
       }
@@ -292,6 +284,14 @@ export const PreemptiveSjfTrainer: React.FC = () => {
                 onClick={handleGenerate}
               >
                 Згенерувати матрицю
+              </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleAutocompleteInput}
+                sx={{marginLeft: '10px'}}
+              >
+                Автозаповнити вхідні дані
               </Button>
             </form>
             <h2>Матриця статусу потоків відносно моментів часу</h2>
