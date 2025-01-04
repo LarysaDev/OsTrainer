@@ -29,7 +29,14 @@ namespace OsTrainer.Server.Data
                 new Algorithm { Id = 3, Name = "SJF (Non-preemptive)" },
                 new Algorithm { Id = 4, Name = "SJF (Preemptive)" },
                 new Algorithm { Id = 5, Name = "Priority (Non-preemptive)" },
-                new Algorithm { Id = 6, Name = "Priority (Preemptive)" }
+                new Algorithm { Id = 6, Name = "Priority (Preemptive)" },
+                new Algorithm { Id = 7, Name = "FIFO" },
+                new Algorithm { Id = 8, Name = "Clock" },
+                new Algorithm { Id = 9, Name = "LRU" },
+                new Algorithm { Id = 10, Name = "LRU (stack)" },
+                new Algorithm { Id = 11, Name = "LFU" },
+                new Algorithm { Id = 12, Name = "MFU" },
+                new Algorithm { Id = 13, Name = "Banker" }
             );
 
             builder.Entity<Assignment>()

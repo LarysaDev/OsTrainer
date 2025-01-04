@@ -75,17 +75,10 @@ const categoryName = "Униклення дедлоків"
 
 const algorithms: Algorithm[] = [
   {
-    name: "Граф розподілу ресурсів",
-    theoryLink: "",
-    practiceLink: "/practice/avoid-deadlocks/graph",
-    category: categoryName,
-    testsLink: ""
-  },
-  {
     name: "Алгоритм Банкіра",
     theoryLink: "",
     practiceLink: "/practice/avoid-deadlock/bankir",
     category: categoryName,
-    testsLink: ""
+    testsLink: "/test/13"
   }
 ];

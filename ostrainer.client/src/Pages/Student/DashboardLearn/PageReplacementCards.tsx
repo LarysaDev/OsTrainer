@@ -79,41 +79,41 @@ const algorithms: Algorithm[] = [
     theoryLink: "",
     practiceLink: "/practice/fifo",
     category: categoryName,
-    testsLink: ""
+    testsLink: "/test/7"
   },
   {
     name: "Clock",
     theoryLink: "",
     practiceLink: "/practice/page-replacement/clock",
     category: categoryName,
-    testsLink: ""
+    testsLink: "/test/8"
   },
   {
     name: "LRU",
     theoryLink: "",
     practiceLink: "/practice/lru/false",
     category: categoryName,
-    testsLink: ""
+    testsLink: "/test/9"
   },
   {
     name: "LRU (stack)",
     theoryLink: "",
     practiceLink: "/practice/lru/true",
     category: categoryName,
-    testsLink: ""
+    testsLink: "/test/10"
   },
   {
     name: "LFU",
     theoryLink: "",
     practiceLink: "/practice/page-replacement/lfu",
     category: categoryName,
-    testsLink: ""
+    testsLink: "/test/11"
   },
   {
     name: "MFU",
     theoryLink: "",
     practiceLink: "/practice/page-replacement/mfu",
     category: categoryName,
-    testsLink: ""
+    testsLink: "/test/12"
   },
 ];

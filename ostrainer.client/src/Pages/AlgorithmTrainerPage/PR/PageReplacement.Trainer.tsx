@@ -434,25 +434,21 @@ const generateClockMatrix = (pageRequests, frameCount) => {
       pageFaults.push(true);
 
       if (frames.includes(null)) {
-        // Still have empty frames
+        // There are empty frames, so place the page in the first available frame
         const emptyIndex = frames.indexOf(null);
         frames[emptyIndex] = page;
-        secondChanceBits[emptyIndex] = 0;
+        secondChanceBits[emptyIndex] = 1;  // Set second chance bit on a new page
       } else {
         // Need to find a page to replace using clock algorithm
-        while (true) {
-          if (secondChanceBits[pointer] === 1) {
-            // Give second chance
-            secondChanceBits[pointer] = 0;
-            pointer = (pointer + 1) % frameCount;
-          } else {
-            // Replace page
-            frames[pointer] = page;
-            secondChanceBits[pointer] = 0;
-            pointer = (pointer + 1) % frameCount;
-            break;
-          }
+        while (secondChanceBits[pointer] === 1) {
+          // Give a second chance, reset bit, and move pointer
+          secondChanceBits[pointer] = 0;
+          pointer = (pointer + 1) % frameCount;
         }
+        // Replace the page at the current pointer location
+        frames[pointer] = page;
+        secondChanceBits[pointer] = 1;  // Set second chance bit on the new page
+        pointer = (pointer + 1) % frameCount;
       }
     } else {
       // Page hit - set second chance bit
@@ -460,12 +456,10 @@ const generateClockMatrix = (pageRequests, frameCount) => {
       secondChanceBits[frameIndex] = 1;
     }
 
-    // Fill matrix with current state
+    // Fill matrix with current state of frames for each page request
     for (let i = 0; i < frameCount; i++) {
       matrix[i][columnIndex] = frames[i];
     }
-    // Add second chance bits state
-    //matrix[frameCount][columnIndex] = [...secondChanceBits];
   });
 
   return { matrix, pageFaults };

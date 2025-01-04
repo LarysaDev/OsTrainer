@@ -3,7 +3,7 @@
     public class Algorithm
     {
         public int Id { get; set; }
-        public string Name { get; set; } // e.g., "FCFS", "Round Robin"
+        public string Name { get; set; }
         public List<TestQuestion> Questions { get; set; }
     }
 }
