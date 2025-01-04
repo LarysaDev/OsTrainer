@@ -19,11 +19,16 @@ import { AvoidDeadlocksAlgorithmCards } from "./Pages/Student/DashboardLearn/Dea
 import { PageReplacementTrainer } from './Pages/AlgorithmTrainerPage/PR/PageReplacement.Trainer.tsx';
 import { ResourceAllocationTrainer } from "./Pages/AlgorithmTrainerPage/DeadlocksAvoidance/ResourceAllocationTrainer.tsx";
 import BankersAlgorithmTrainer from "./Pages/AlgorithmTrainerPage/DeadlocksAvoidance/BankirTrainer.tsx";
+import LandingPage from "../src/Pages/Landing/Landing.tsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Home />,
+  },
+  {
+    path: "/welcome",
+    element: <LandingPage />,
   },
   {
     path: "/home",

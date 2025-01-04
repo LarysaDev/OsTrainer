@@ -1,52 +1,76 @@
-.header {
-    display: flex;
-    justify-content: space-between;
-    padding: 20px;
-    background-color: #f8f9fa;
+.header_container {
+    position: absolute;
+    top: 0;
     width: 100%;
-}
-
-.left {
-    font-size: 24px;
-    font-weight: bold;
-}
-
-.right {
-    display: flex;
-    gap: 10px;
-}
-
-.button {
-    padding: 10px 20px;
-    border: none;
-    background-color: #007bff;
-    color: white;
-    cursor: pointer;
-    border-radius: 5px;
-}
-
-.button:hover {
-    background-color: #0056b3;
-}
-
-.body {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-image: url('path-to-your-dog-learning-image.jpg');
+    background-image: url("../../assets/dog-landing.png");
     background-size: cover;
-    background-position: center;
+    min-height: 700px;
+    font-family: 'Rubik', sans-serif;
+    line-height: auto;
+    letter-spacing: 0%;
+    color: #46403C;
+    opacity: 1;
 }
 
-.textContainer {
-    font-size: 48px;
-    color: white;
+.header {
+    width: 80%;
+    display: flex;
+    flex-direction: row;
+    height: 100px;
+    text-align: center;
+    align-items: center;
+    margin: 0 auto;
+    font-size: 20px;
+    text-transform: uppercase;
+}
+
+.header_actions {
+    display: flex;
+    margin-left: auto;
+    gap: 20px; 
+}
+
+
+.header_action {
+    position: relative;
+    cursor: pointer;
+    padding: 2px 4px;
+}
+
+.header_action::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    bottom: -2px;
+    left: 0;
+    background-color: #46403C;
+    transform: scaleX(0);
+    transform-origin: bottom right;
+    transition: transform 0.3s ease-out;
+}
+
+.header_action:hover::after {
+    transform: scaleX(1);
+    transform-origin: bottom left;
+}
+
+.banner {
+    width: 80%;
+    display: flex;
+    flex-direction: row;
+    height: 100px;
+    text-align: center;
+    align-items: center;
+    margin: 0 auto;
+    font-size: 80px;
+    text-transform: uppercase;
+    color: #FFFFFF;
+    height: 500px;
+    font-weight: lighter;
+}
+
+.banner_text {
+    width: 30%;
     text-align: left;
 }
-
-.landingPage {
-    font-family: Arial, sans-serif;
-    width: 100%;
-}
-
-
