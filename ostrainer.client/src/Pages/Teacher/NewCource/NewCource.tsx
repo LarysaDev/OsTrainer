@@ -18,8 +18,8 @@ import {
   generateRoundRobinData,
   generateBankerAlgorithmData,
 } from "../../../common/RandomGenerators/AlgorithmRandomDataGenerator";
-import Checkbox from "@mui/material/Checkbox";
-import { FormControlLabel } from "@mui/material";
+import { generateWordDocument } from "../../../common/FileDownloading/generateWordDocument";
+import { Download } from "@mui/icons-material";
 
 export const NewCourse = () => {
   const navigate = useNavigate();
@@ -133,17 +133,17 @@ export const NewCourse = () => {
     return true;
   };
 
-  const handleSubmit = async () => {
-    if (!validateFields()) return;
-    try {
-      const response = await axios.post("/api/course/create", courseData);
-      if (response.status === 200) {
-        navigate("/");
-      }
-    } catch (err) {
-      setError("Failed to create course.");
-    }
-  };
+  const columns = [
+    { field: "id", headerName: "ID", width: 150 },
+    { field: "name", headerName: "Name", width: 200 },
+    { field: "age", headerName: "Age", width: 150 },
+  ];
+
+  const rows = [
+    { id: 1, name: "John Doe", age: 25 },
+    { id: 2, name: "Jane Smith", age: 30 },
+    { id: 3, name: "Alice Brown", age: 27 },
+  ];
 
   return (
     <>
@@ -312,10 +312,10 @@ export const NewCourse = () => {
             <Button
               variant="contained"
               color="primary"
-              onClick={handleSubmit}
+              onClick={() => { generateWordDocument(rows, columns) }}
               sx={{ marginLeft: "15px" }}
             >
-              Створити
+              Завантажити білет <Download sx={{marginLeft:'10px'}}/>
             </Button>
           </Box>
         </Box>
