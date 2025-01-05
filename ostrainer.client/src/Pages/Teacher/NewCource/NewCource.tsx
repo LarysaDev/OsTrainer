@@ -11,16 +11,19 @@ import {
   teacherLinks as links,
   updateActiveLinkByIndex,
 } from "../../../Components/SidePanel/SidePanel";
-import { 
+import {
   generateRandomData,
   generatePageReplacementData,
   generatePrioritySchedulingData,
   generateRoundRobinData,
-  generateBankerAlgorithmData } from "../../../common/RandomGenerators/AlgorithmRandomDataGenerator";
+  generateBankerAlgorithmData,
+} from "../../../common/RandomGenerators/AlgorithmRandomDataGenerator";
+import Checkbox from "@mui/material/Checkbox";
+import { FormControlLabel } from "@mui/material";
 
 export const NewCourse = () => {
   const navigate = useNavigate();
-
+  const [showFilledTable, setShowFilledTable] = useState<boolean>(true);
   const [courseData, setCourseData] = useState({
     name: "",
     description: "",
@@ -32,60 +35,73 @@ export const NewCourse = () => {
     pageRequests: [0],
     frames: 0,
     resources: 0,
-    processes: 0
+    processes: 0,
   });
 
   const [error, setError] = useState<string | null>(null);
 
-  
-  const schedulingAlorithms: AlgorithmType[] = [AlgorithmType.FCFS, AlgorithmType.RR, AlgorithmType.SJF_PREEMPTIVE, AlgorithmType.SJF_NON_PREEMPTIVE, AlgorithmType.PRIORITY_NON_PREEMPTIVE, AlgorithmType.PRIORITY_PREEMPTIVE];
-  const replacementAlgorithms: AlgorithmType[] = [AlgorithmType.FIFO, AlgorithmType.LFU, AlgorithmType.CLOCK, AlgorithmType.LRU, AlgorithmType.MFU, AlgorithmType.LRU_STACK];
-  const deadlockAvoidAlgorithms: AlgorithmType[] = [AlgorithmType.BANKER]
+  const schedulingAlorithms: AlgorithmType[] = [
+    AlgorithmType.FCFS,
+    AlgorithmType.RR,
+    AlgorithmType.SJF_PREEMPTIVE,
+    AlgorithmType.SJF_NON_PREEMPTIVE,
+    AlgorithmType.PRIORITY_NON_PREEMPTIVE,
+    AlgorithmType.PRIORITY_PREEMPTIVE,
+  ];
+  const replacementAlgorithms: AlgorithmType[] = [
+    AlgorithmType.FIFO,
+    AlgorithmType.LFU,
+    AlgorithmType.CLOCK,
+    AlgorithmType.LRU,
+    AlgorithmType.MFU,
+    AlgorithmType.LRU_STACK,
+  ];
+  const deadlockAvoidAlgorithms: AlgorithmType[] = [AlgorithmType.BANKER];
 
   const handleAutocompleteInput = () => {
-    if(courseData.algorithmType == AlgorithmType.RR){
-      const [ arrivalTimes, burstTimes, timeQuantum ] = generateRoundRobinData();
+    if (courseData.algorithmType == AlgorithmType.RR) {
+      const [arrivalTimes, burstTimes, timeQuantum] = generateRoundRobinData();
       setCourseData({
         ...courseData,
-        arrivalTimes: arrivalTimes.join(','),
-        burstTimes: burstTimes.join(','),
-        timeQuantum: timeQuantum.toString()
+        arrivalTimes: arrivalTimes.join(","),
+        burstTimes: burstTimes.join(","),
+        timeQuantum: timeQuantum.toString(),
       });
-    }
-    else if(courseData.algorithmType == AlgorithmType.PRIORITY_NON_PREEMPTIVE || courseData.algorithmType == AlgorithmType.PRIORITY_PREEMPTIVE){
-      const [ arrivalTimes, burstTimes, priorities ] = generatePrioritySchedulingData();
+    } else if (
+      courseData.algorithmType == AlgorithmType.PRIORITY_NON_PREEMPTIVE ||
+      courseData.algorithmType == AlgorithmType.PRIORITY_PREEMPTIVE
+    ) {
+      const [arrivalTimes, burstTimes, priorities] =
+        generatePrioritySchedulingData();
       setCourseData({
         ...courseData,
-        arrivalTimes: arrivalTimes.join(','),
-        burstTimes: burstTimes.join(','),
-        priorities: priorities.join(',')
+        arrivalTimes: arrivalTimes.join(","),
+        burstTimes: burstTimes.join(","),
+        priorities: priorities.join(","),
       });
-    }
-    else if(schedulingAlorithms.includes(courseData.algorithmType)){
-      const [ arrivalTimes, burstTimes ] = generateRandomData();
+    } else if (schedulingAlorithms.includes(courseData.algorithmType)) {
+      const [arrivalTimes, burstTimes] = generateRandomData();
       setCourseData({
         ...courseData,
-        arrivalTimes: arrivalTimes.join(','),
-        burstTimes: burstTimes.join(',')
+        arrivalTimes: arrivalTimes.join(","),
+        burstTimes: burstTimes.join(","),
       });
-    }
-    else if(replacementAlgorithms.includes(courseData.algorithmType)){
+    } else if (replacementAlgorithms.includes(courseData.algorithmType)) {
       const [pages, frameSize] = generatePageReplacementData();
       setCourseData({
         ...courseData,
         pageRequests: pages,
-        frames: frameSize
+        frames: frameSize,
       });
-    }
-    else if(deadlockAvoidAlgorithms.includes(courseData.algorithmType)){
+    } else if (deadlockAvoidAlgorithms.includes(courseData.algorithmType)) {
       const [resourceCount, processCount] = generateBankerAlgorithmData();
       setCourseData({
         ...courseData,
         resources: resourceCount,
-        processes: processCount
+        processes: processCount,
       });
-    }    
-  }
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -221,7 +237,7 @@ export const NewCourse = () => {
               }
             />
           )}
-          {(schedulingAlorithms.includes(courseData.algorithmType)) && (
+          {schedulingAlorithms.includes(courseData.algorithmType) && (
             <>
               <TextField
                 label="Arrival Times (через кому)"
@@ -239,7 +255,7 @@ export const NewCourse = () => {
               />{" "}
             </>
           )}
-          {(replacementAlgorithms.includes(courseData.algorithmType)) && (
+          {replacementAlgorithms.includes(courseData.algorithmType) && (
             <>
               <TextField
                 label="Сторінки для завантаження (через кому)"
@@ -257,7 +273,7 @@ export const NewCourse = () => {
               />{" "}
             </>
           )}
-          {(deadlockAvoidAlgorithms.includes(courseData.algorithmType)) && (
+          {deadlockAvoidAlgorithms.includes(courseData.algorithmType) && (
             <>
               <TextField
                 label="Кількість ресурсів"
@@ -275,9 +291,22 @@ export const NewCourse = () => {
               />
             </>
           )}
+          {/* <FormControlLabel
+            control={
+              <Checkbox
+                checked={showFilledTable}
+                onChange={(e) => setShowFilledTable(e.target.checked)}
+              />
+            }
+            label="Створити завдання із заповненою матрицею станів процесів"
+          /> */}
           {error && <p style={{ color: "red" }}>{error}</p>}
           <Box mt={2}>
-            <Button variant="contained" color="primary" onClick={handleAutocompleteInput}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleAutocompleteInput}
+            >
               Автозаповнити вхідні дані
             </Button>
             <Button
