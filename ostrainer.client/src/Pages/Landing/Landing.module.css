@@ -73,4 +73,32 @@
 .banner_text {
     width: 30%;
     text-align: left;
+    opacity: 0.75;
+}
+
+.explore {
+    margin-top: 80%;
+    display: flex;
+    position: relative;
+    padding: 50px 220px;
+}
+
+.explore_item {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    align-items: initial;
+}
+
+.explore_heading {
+    width: 450px;
+    height: 150px;
+    border-radius: 20px;
+    padding: 20px 25px;
+    color: #FFFFFF;
+    font-family: 'Rubik', sans-serif;
+    line-height: auto;
+    letter-spacing: 0%;
+    line-height: 25px;
+    font-size: 16px;
 }

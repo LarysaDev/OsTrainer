@@ -1,6 +1,4 @@
-import * as React from "react";
 import styles from "./Landing.module.css";
-import { setRef } from "@mui/material";
 
 function ResponsiveAppBar() {
   return (
