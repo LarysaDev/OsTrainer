@@ -63,3 +63,40 @@ export function generatePageReplacementData(): [number[], number] {
 
     return [pages, frameSize];
 }
+
+export function generateBankerAlgorithmData(): [number, number, number[][], number[][], number[]] {
+    const resourceCount = Math.floor(Math.random() * 4) + 3;
+    const processCount = Math.floor(Math.random() * 5) + 5;
+  
+    const maxNeeds: number[][] = [];
+    const allocations: number[][] = [];
+    const availableResources: number[] = [];
+  
+    for (let i = 0; i < processCount; i++) {
+      const maxRow: number[] = [];
+      const allocRow: number[] = [];
+      for (let j = 0; j < resourceCount; j++) {
+        const maxNeed = Math.floor(Math.random() * 10) + 1;
+        const allocation = Math.floor(Math.random() * (maxNeed + 1));
+        maxRow.push(maxNeed);
+        allocRow.push(allocation);
+      }
+      maxNeeds.push(maxRow);
+      allocations.push(allocRow);
+    }
+  
+    for (let j = 0; j < resourceCount; j++) {
+      const totalAllocated = allocations.reduce((sum, row) => sum + row[j], 0);
+      const maxAvailable = Math.floor(Math.random() * 10) + totalAllocated;
+      availableResources.push(maxAvailable - totalAllocated);
+    }
+  
+    return [
+      resourceCount,
+      processCount,
+      maxNeeds,
+      allocations,
+      availableResources,
+    ];
+  }
+  

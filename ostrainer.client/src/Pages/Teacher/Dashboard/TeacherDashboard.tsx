@@ -12,11 +12,7 @@ import DeleteIcon from "../../../assets/DeleteIcon";
 import AddUserIcon from "../../../assets/AddUserIcon";
 import styles from '../../Student/AssignedCourses/AssignedCourses.module.less';
 import { getUserEmail } from "../../../Components/AuthorizeView";
-
-export const links: SidePanelLink[] = [
-  { label: "Dashboard", link: "/", active: true },
-  { label: "Create Course", link: "/newCourse" },
-];
+import { teacherLinks as links, updateActiveLinkByIndex } from "../../../Components/SidePanel/SidePanel";
 
 export const TeacherDashboard = () => {
   const user = getUserEmail();
@@ -47,7 +43,7 @@ export const TeacherDashboard = () => {
 
   return (
     <>
-      <LoggedInView links={links}>
+      <LoggedInView links={updateActiveLinkByIndex(0, links)}>
         <div>
         <p className={styles.headerText}>MY COURSES</p>
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, p: 2 }}>

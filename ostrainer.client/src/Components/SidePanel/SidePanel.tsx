@@ -18,8 +18,14 @@ export const links: SidePanelLink[] = [
   { label: "Уникнення дедлоків", link: "/avoid-deadlocks" },
 ];
 
-export function updateActiveLinkByIndex(activeIndex: number): SidePanelLink[] {
-  return links.map((link, index) => ({
+export const teacherLinks: SidePanelLink[] = [
+  { label: "Головна", link: "/" },
+  { label: "Екзаменаційний білет", link: "/newCourse" },
+  { label: "Доступні алгоритми", link: "/" }
+];
+
+export function updateActiveLinkByIndex(activeIndex: number, linksToUpdate: SidePanelLink[] = links): SidePanelLink[] {
+  return linksToUpdate.map((link, index) => ({
     ...link,
     active: index === activeIndex
   }));

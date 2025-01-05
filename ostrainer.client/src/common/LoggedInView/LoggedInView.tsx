@@ -46,7 +46,6 @@ export function LoggedInView(props: LoggedInFrameProps) {
     }
   }
 
-  // return focus to the button when we transitioned from !open -> open
   const prevOpen = React.useRef(open);
   React.useEffect(() => {
     if (prevOpen.current === true && open === false) {
@@ -60,7 +59,7 @@ export function LoggedInView(props: LoggedInFrameProps) {
     <>
       <AuthorizeView>
         <div className={styles.container}>
-          <div style={{ width: "20%" }}>
+          <div style={{ width: "20%", position: 'sticky', top: 0, height: '100vh' }}>
             <SidePanel links={props.links} />
           </div>
           <div className={styles.main}>
