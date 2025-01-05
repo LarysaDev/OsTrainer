@@ -34,7 +34,7 @@ export const selectUser = (): string | null => {
   };
 
   export const clearUser = () => {
-    localStorage.removeItem('user');
+    localStorage.removeItem('role');
   };
 
   export const setUser = (user: User) => {

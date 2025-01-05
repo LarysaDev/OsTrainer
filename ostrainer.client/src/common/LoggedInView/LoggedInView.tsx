@@ -124,7 +124,6 @@ export function LoggedInView(props: LoggedInFrameProps) {
                 </div>
               </Stack>
             </div>
-            {/* End of profile icon */}
             {props.children}
           </div>
         </div>

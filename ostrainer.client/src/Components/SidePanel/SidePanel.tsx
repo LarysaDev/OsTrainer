@@ -12,7 +12,7 @@ interface SidePanelProps {
 }
 
 export const links: SidePanelLink[] = [
-  { label: "Головна", link: "/" },
+  { label: "Головна", link: "/home" },
   { label: "Планування потоків", link: "/scheduling" },
   { label: "Заміщення сторінок", link: "/page-replacement" },
   { label: "Уникнення дедлоків", link: "/avoid-deadlocks" },

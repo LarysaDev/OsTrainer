@@ -101,10 +101,8 @@ function AuthorizeView(props: { children: React.ReactNode }) {
 }
 
 export function AuthorizedUser(props: { value: string }) {
-    // Consume the username from the UserContext
     const user: any = React.useContext(UserContext);
 
-    // Display the username in a h1 tag
     if (props.value == "email")
         return <>{user.email}</>;
     else
@@ -112,7 +110,6 @@ export function AuthorizedUser(props: { value: string }) {
 }
 
 export function getUserEmail() {
-    // Consume the username from the UserContext
     const user: any = React.useContext(UserContext);
 
     return user.email;

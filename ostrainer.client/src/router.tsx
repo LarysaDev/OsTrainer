@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import Home from "./Pages/Home";
 import Login from "./Pages/Login/Login.tsx";
 import Register from "./Pages/Register/Register.tsx";
@@ -20,15 +20,14 @@ import { PageReplacementTrainer } from './Pages/AlgorithmTrainerPage/PR/PageRepl
 import { ResourceAllocationTrainer } from "./Pages/AlgorithmTrainerPage/DeadlocksAvoidance/ResourceAllocationTrainer.tsx";
 import BankersAlgorithmTrainer from "./Pages/AlgorithmTrainerPage/DeadlocksAvoidance/BankirTrainer.tsx";
 import LandingPage from "../src/Pages/Landing/Landing.tsx";
+import ProtectedRoute from "./utils/ProtectedRoute.tsx";
+
+const isLoggedIn = !!localStorage.getItem("role");
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Home />,
-  },
-  {
-    path: "/welcome",
-    element: <LandingPage />,
+    element: isLoggedIn ? <Navigate to="/home" /> : <LandingPage />,
   },
   {
     path: "/home",
