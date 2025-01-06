@@ -4,7 +4,7 @@ import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import MenuItem from "@mui/material/MenuItem";
-import axios from "axios";
+import { generateSchedulingMatrixData, generateFIFOMatrix } from "../../../common/MatrixGenerator/Matrixgenerator";
 import { useNavigate } from "react-router-dom";
 import { AlgorithmType } from "../../../common/AlgorithmType";
 import {
@@ -133,17 +133,24 @@ export const NewCourse = () => {
     return true;
   };
 
-  const columns = [
-    { field: "id", headerName: "ID", width: 150 },
-    { field: "name", headerName: "Name", width: 200 },
-    { field: "age", headerName: "Age", width: 150 },
-  ];
+  const handleGenerate = () => {
+    const alorithm = courseData.algorithmType;
 
-  const rows = [
-    { id: 1, name: "John Doe", age: 25 },
-    { id: 2, name: "Jane Smith", age: 30 },
-    { id: 3, name: "Alice Brown", age: 27 },
-  ];
+    if(alorithm == AlgorithmType.FIFO) {
+      const generatedData = generateSchedulingMatrixData(
+        courseData.pageRequests,
+        courseData.frames,
+        generateFIFOMatrix
+      );
+    
+      return {
+        correctMatrix: generatedData.correctMatrix,
+        userMatrix: generatedData.userMatrix,
+      };
+    }
+
+    return getDefaultMatrix();
+  };
 
   return (
     <>
@@ -312,14 +319,36 @@ export const NewCourse = () => {
             <Button
               variant="contained"
               color="primary"
-              onClick={() => { generateWordDocument(rows, columns) }}
+              onClick={() => {
+                generateWordDocument(
+                  courseData.name,
+                  courseData.description,
+                  courseData.algorithmType,
+                  handleGenerate()
+                );
+              }}
               sx={{ marginLeft: "15px" }}
             >
-              Завантажити білет <Download sx={{marginLeft:'10px'}}/>
+              Завантажити білет <Download sx={{ marginLeft: "10px" }} />
             </Button>
           </Box>
         </Box>
       </LoggedInView>
     </>
   );
+};
+
+const getDefaultMatrix = () => {
+  return {
+    correctMatrix: [
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+      [0, 0, 0, 0]
+    ],
+    userMatrix: [
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+      [0, 0, 0, 0]
+    ]
+  }
 };
