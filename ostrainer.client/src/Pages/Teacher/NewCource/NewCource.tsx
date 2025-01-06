@@ -4,7 +4,10 @@ import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import MenuItem from "@mui/material/MenuItem";
-import { generateSchedulingMatrixData, generateFIFOMatrix } from "../../../common/MatrixGenerator/Matrixgenerator";
+import {
+  generateSchedulingMatrixData,
+  generateFIFOMatrix,
+} from "../../../common/MatrixGenerator/Matrixgenerator";
 import { useNavigate } from "react-router-dom";
 import { AlgorithmType } from "../../../common/AlgorithmType";
 import {
@@ -18,10 +21,26 @@ import {
   generateRoundRobinData,
   generateBankerAlgorithmData,
 } from "../../../common/RandomGenerators/AlgorithmRandomDataGenerator";
-import { generateWordDocument } from "../../../common/FileDownloading/generateWordDocument";
+import { generateSchedulingDocument } from "../../../common/FileDownloading/word/generateSchedulingDocument";
+import { generateSchedulingPdf } from "../../../common/FileDownloading/pdf/generateSchedulingPdf";
+import { generateSchedulingExcel } from "../../../common/FileDownloading/excel/generateSchedulingExcel";
+import Radio from "@mui/material/Radio";
+import RadioGroup from "@mui/material/RadioGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import FormControl from "@mui/material/FormControl";
+import FormLabel from "@mui/material/FormLabel";
 import { Download } from "@mui/icons-material";
+import { DownloadType, DownloadFormat } from "../../../common/FileDownloading/types";
+import { InputLabel, Select, SelectChangeEvent } from "@mui/material";
 
 export const NewCourse = () => {
+  const [downloadType, setDownloadType] = useState<DownloadType>(
+    DownloadType.ToSolve
+  );
+  const [downloadFormat, setDownloadFormat] = useState<DownloadFormat>(
+    DownloadFormat.word
+  );
+
   const navigate = useNavigate();
   const [showFilledTable, setShowFilledTable] = useState<boolean>(true);
   const [courseData, setCourseData] = useState({
@@ -57,6 +76,18 @@ export const NewCourse = () => {
     AlgorithmType.LRU_STACK,
   ];
   const deadlockAvoidAlgorithms: AlgorithmType[] = [AlgorithmType.BANKER];
+
+  const handleDownloadTypeChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setDownloadType((event.target as HTMLInputElement).value as DownloadType);
+  };
+
+  const handleDownloadFormatChange = (
+    event: SelectChangeEvent<DownloadFormat>
+  ) => {
+    setDownloadFormat(event.target.value as DownloadFormat);
+  };
 
   const handleAutocompleteInput = () => {
     if (courseData.algorithmType == AlgorithmType.RR) {
@@ -136,13 +167,13 @@ export const NewCourse = () => {
   const handleGenerate = () => {
     const alorithm = courseData.algorithmType;
 
-    if(alorithm == AlgorithmType.FIFO) {
+    if (alorithm == AlgorithmType.FIFO) {
       const generatedData = generateSchedulingMatrixData(
         courseData.pageRequests,
         courseData.frames,
         generateFIFOMatrix
       );
-    
+
       return {
         correctMatrix: generatedData.correctMatrix,
         userMatrix: generatedData.userMatrix,
@@ -178,13 +209,13 @@ export const NewCourse = () => {
             inputProps={{ maxLength: 255 }}
           />
           <TextField
-            label="Опис"
+            label="Опис завдання"
             name="description"
             value={courseData.description}
             onChange={handleChange}
             fullWidth
             multiline
-            rows={4}
+            rows={1}
           />
           <TextField
             select
@@ -298,16 +329,6 @@ export const NewCourse = () => {
               />
             </>
           )}
-          {/* <FormControlLabel
-            control={
-              <Checkbox
-                checked={showFilledTable}
-                onChange={(e) => setShowFilledTable(e.target.checked)}
-              />
-            }
-            label="Створити завдання із заповненою матрицею станів процесів"
-          /> */}
-          {error && <p style={{ color: "red" }}>{error}</p>}
           <Box mt={2}>
             <Button
               variant="contained"
@@ -316,18 +337,57 @@ export const NewCourse = () => {
             >
               Автозаповнити вхідні дані
             </Button>
+          </Box>
+          <FormControl>
+            <FormLabel id="demo-radio-buttons-group-label">
+              Оберіть тип завантаження
+            </FormLabel>
+            <RadioGroup
+              aria-labelledby="demo-radio-buttons-group-label"
+              defaultValue="toSolve"
+              name="radio-buttons-group"
+              onChange={handleDownloadTypeChange}
+            >
+              <FormControlLabel
+                value="toSolve"
+                control={<Radio />}
+                label="Тільки білет для розв'язання"
+              />
+              <FormControlLabel
+                value="solved"
+                control={<Radio />}
+                label="Тільки таблиця з відповідями"
+              />
+            </RadioGroup>
+          </FormControl>
+          {error && <p style={{ color: "red" }}>{error}</p>}
+          <Box >
+            <FormControl fullWidth sx={{marginBottom: '15px'}}>
+            <FormLabel id="demo-radio-buttons-group-label">
+              Оберіть формат завантаження
+            </FormLabel>
+              <Select
+                labelId="file-format-label"
+                value={downloadFormat}
+                onChange={handleDownloadFormatChange}
+              >
+                <MenuItem value="docx">DOCX</MenuItem>
+                <MenuItem value="excel">Excel</MenuItem>
+                <MenuItem value="pdf">PDF</MenuItem>
+              </Select>
+            </FormControl>
             <Button
               variant="contained"
               color="primary"
               onClick={() => {
-                generateWordDocument(
+                generateSchedulingPdf(
                   courseData.name,
                   courseData.description,
                   courseData.algorithmType,
+                  downloadType,
                   handleGenerate()
                 );
               }}
-              sx={{ marginLeft: "15px" }}
             >
               Завантажити білет <Download sx={{ marginLeft: "10px" }} />
             </Button>
@@ -343,12 +403,12 @@ const getDefaultMatrix = () => {
     correctMatrix: [
       [0, 0, 0, 0],
       [0, 0, 0, 0],
-      [0, 0, 0, 0]
+      [0, 0, 0, 0],
     ],
     userMatrix: [
       [0, 0, 0, 0],
       [0, 0, 0, 0],
-      [0, 0, 0, 0]
-    ]
-  }
+      [0, 0, 0, 0],
+    ],
+  };
 };
