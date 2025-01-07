@@ -8,7 +8,7 @@ import {
   TextRun,
   WidthType,
 } from "docx";
-import { DownloadType } from "../types";
+import { DownloadType, MatrixData } from "../types";
 import { saveAs } from "file-saver";
 
 export const generateSchedulingDocument = (
@@ -16,10 +16,7 @@ export const generateSchedulingDocument = (
   description: string,
   algorithmType: string,
   downloadType: DownloadType,
-  matrixData: {
-    correctMatrix: (number | null)[][];
-    userMatrix: (string | number)[][];
-  }
+  matrixData: MatrixData
 ) => {
   const { correctMatrix, userMatrix } = matrixData;
 
@@ -54,6 +51,7 @@ export const generateSchedulingDocument = (
   const tableHeader = downloadSolvedTable
     ? "Таблиця результатів"
     : "Заповніть матрицю станів процесів";
+    console.log('ready...')
 
   const doc = new Document({
     sections: [
@@ -101,6 +99,8 @@ export const generateSchedulingDocument = (
       },
     ],
   });
+
+
 
   Packer.toBlob(doc).then((blob) => {
     saveAs(blob, `${examSheetName}.docx`);

@@ -1,15 +1,12 @@
 import * as XLSX from "xlsx";
-import { DownloadType } from "../types";
+import { DownloadType, MatrixData } from "../types";
 
 export const generateSchedulingExcel = (
   examSheetName: string,
   description: string,
   algorithmType: string,
   downloadType: DownloadType,
-  matrixData: {
-    correctMatrix: (number | null)[][];
-    userMatrix: (string | number)[][];
-  }
+  matrixData: MatrixData
 ) => {
   const { correctMatrix, userMatrix } = matrixData;
 

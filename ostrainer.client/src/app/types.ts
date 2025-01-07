@@ -6,6 +6,7 @@ export interface User {
   }
   
 export interface UserState {
-    user: User | null;
+    user: U
+    ser | null;
 }
   

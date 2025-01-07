@@ -2,11 +2,7 @@ import * as pdfMake from "pdfmake/build/pdfmake";
 import * as pdfFonts from "pdfmake/build/vfs_fonts";
 import { TDocumentDefinitions } from "pdfmake/interfaces";
 import { DownloadType } from "../types";
-
-interface MatrixData {
-  correctMatrix: (number | null)[][];
-  userMatrix: (string | number)[][];
-}
+import { MatrixData } from "../types";
 
 export const generateSchedulingPdf = (
   examSheetName: string,
@@ -93,9 +89,7 @@ export const generateSchedulingPdf = (
     },
   };
 
-  // Configure fonts
   (pdfMake as any).vfs = pdfFonts.vfs;
 
-  // Generate and download PDF
   pdfMake.createPdf(docDefinition).download(`${examSheetName}.pdf`);
 };

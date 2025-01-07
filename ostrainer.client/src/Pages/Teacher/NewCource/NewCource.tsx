@@ -9,7 +9,12 @@ import {
   generateFIFOMatrix,
 } from "../../../common/MatrixGenerator/Matrixgenerator";
 import { useNavigate } from "react-router-dom";
-import { AlgorithmType } from "../../../common/AlgorithmType";
+import {
+  AlgorithmType,
+  isDeadlockAvoiding,
+  isReplacingType,
+  isSchedulingType,
+} from "../../../common/AlgorithmType";
 import {
   teacherLinks as links,
   updateActiveLinkByIndex,
@@ -21,16 +26,17 @@ import {
   generateRoundRobinData,
   generateBankerAlgorithmData,
 } from "../../../common/RandomGenerators/AlgorithmRandomDataGenerator";
-import { generateSchedulingDocument } from "../../../common/FileDownloading/word/generateSchedulingDocument";
-import { generateSchedulingPdf } from "../../../common/FileDownloading/pdf/generateSchedulingPdf";
-import { generateSchedulingExcel } from "../../../common/FileDownloading/excel/generateSchedulingExcel";
+import { generateFile } from "../../../common/FileDownloading/generateFile";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
 import { Download } from "@mui/icons-material";
-import { DownloadType, DownloadFormat } from "../../../common/FileDownloading/types";
+import {
+  DownloadType,
+  DownloadFormat,
+} from "../../../common/FileDownloading/types";
 import { InputLabel, Select, SelectChangeEvent } from "@mui/material";
 
 export const NewCourse = () => {
@@ -58,24 +64,6 @@ export const NewCourse = () => {
   });
 
   const [error, setError] = useState<string | null>(null);
-
-  const schedulingAlorithms: AlgorithmType[] = [
-    AlgorithmType.FCFS,
-    AlgorithmType.RR,
-    AlgorithmType.SJF_PREEMPTIVE,
-    AlgorithmType.SJF_NON_PREEMPTIVE,
-    AlgorithmType.PRIORITY_NON_PREEMPTIVE,
-    AlgorithmType.PRIORITY_PREEMPTIVE,
-  ];
-  const replacementAlgorithms: AlgorithmType[] = [
-    AlgorithmType.FIFO,
-    AlgorithmType.LFU,
-    AlgorithmType.CLOCK,
-    AlgorithmType.LRU,
-    AlgorithmType.MFU,
-    AlgorithmType.LRU_STACK,
-  ];
-  const deadlockAvoidAlgorithms: AlgorithmType[] = [AlgorithmType.BANKER];
 
   const handleDownloadTypeChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -110,21 +98,21 @@ export const NewCourse = () => {
         burstTimes: burstTimes.join(","),
         priorities: priorities.join(","),
       });
-    } else if (schedulingAlorithms.includes(courseData.algorithmType)) {
+    } else if (isSchedulingType(courseData.algorithmType)) {
       const [arrivalTimes, burstTimes] = generateRandomData();
       setCourseData({
         ...courseData,
         arrivalTimes: arrivalTimes.join(","),
         burstTimes: burstTimes.join(","),
       });
-    } else if (replacementAlgorithms.includes(courseData.algorithmType)) {
+    } else if (isReplacingType(courseData.algorithmType)) {
       const [pages, frameSize] = generatePageReplacementData();
       setCourseData({
         ...courseData,
         pageRequests: pages,
         frames: frameSize,
       });
-    } else if (deadlockAvoidAlgorithms.includes(courseData.algorithmType)) {
+    } else if (isDeadlockAvoiding(courseData.algorithmType)) {
       const [resourceCount, processCount] = generateBankerAlgorithmData();
       setCourseData({
         ...courseData,
@@ -275,7 +263,7 @@ export const NewCourse = () => {
               }
             />
           )}
-          {schedulingAlorithms.includes(courseData.algorithmType) && (
+          {isSchedulingType(courseData.algorithmType) && (
             <>
               <TextField
                 label="Arrival Times (через кому)"
@@ -293,7 +281,7 @@ export const NewCourse = () => {
               />{" "}
             </>
           )}
-          {replacementAlgorithms.includes(courseData.algorithmType) && (
+          {isReplacingType(courseData.algorithmType) && (
             <>
               <TextField
                 label="Сторінки для завантаження (через кому)"
@@ -311,7 +299,7 @@ export const NewCourse = () => {
               />{" "}
             </>
           )}
-          {deadlockAvoidAlgorithms.includes(courseData.algorithmType) && (
+          {isDeadlockAvoiding(courseData.algorithmType) && (
             <>
               <TextField
                 label="Кількість ресурсів"
@@ -361,11 +349,11 @@ export const NewCourse = () => {
             </RadioGroup>
           </FormControl>
           {error && <p style={{ color: "red" }}>{error}</p>}
-          <Box >
-            <FormControl fullWidth sx={{marginBottom: '15px'}}>
-            <FormLabel id="demo-radio-buttons-group-label">
-              Оберіть формат завантаження
-            </FormLabel>
+          <Box>
+            <FormControl fullWidth sx={{ marginBottom: "15px" }}>
+              <FormLabel id="demo-radio-buttons-group-label">
+                Оберіть формат завантаження
+              </FormLabel>
               <Select
                 labelId="file-format-label"
                 value={downloadFormat}
@@ -380,11 +368,12 @@ export const NewCourse = () => {
               variant="contained"
               color="primary"
               onClick={() => {
-                generateSchedulingPdf(
+                generateFile(
                   courseData.name,
                   courseData.description,
                   courseData.algorithmType,
                   downloadType,
+                  downloadFormat,
                   handleGenerate()
                 );
               }}
