@@ -1,5 +1,6 @@
-import { jsPDF } from "jspdf";
-import autoTable from 'jspdf-autotable'
+import * as pdfMake from "pdfmake/build/pdfmake";
+import * as pdfFonts from "pdfmake/build/vfs_fonts";
+import { TDocumentDefinitions } from "pdfmake/interfaces";
 import { DownloadType } from "../types";
 
 interface MatrixData {
@@ -8,62 +9,93 @@ interface MatrixData {
 }
 
 export const generateSchedulingPdf = (
-    examSheetName: string,
-    description: string,
-    algorithmType: string,
-    downloadType: DownloadType,
-    matrixData: MatrixData
-  ) => {
-    const { correctMatrix, userMatrix } = matrixData;
-  
-    const sanitizedCorrectMatrix = correctMatrix.map((row) =>
-      row.map((cell) => (cell === null ? "" : cell))
-    );
-  
-    const createTableRows = (matrix: (string | number)[][]) =>
-      matrix.map((row) => row.map((cell) => String(cell)));
-  
-    const downloadSolvedTable = downloadType === DownloadType.Solved;
-    const matrixToUse = downloadSolvedTable ? sanitizedCorrectMatrix : userMatrix;
-  
-    const tableHeader = downloadSolvedTable
-      ? "Таблиця результатів"
-      : "Заповніть матрицю станів процесів";
-  
-    const doc = new jsPDF();
-  
-    doc.setFontSize(28);
-    doc.text(examSheetName, 20, 20);
-  
-    doc.setFontSize(24);
-    doc.text(description, 20, 30);
-  
-    doc.setFontSize(24);
-    doc.text(`Алгоритм для опрацювання: ${algorithmType}`, 20, 40);
-  
-    doc.setFontSize(22);
-    doc.text("Стани процесів", 20, 50);
-    doc.setFontSize(22);
-    doc.text("-: Виконання не розпочалось, e: Виконується, w: Очікує", 20, 60);
-  
-    doc.setFontSize(26);
-    doc.text(tableHeader, 20, 70);
-  
-    const rows = createTableRows(matrixToUse);
-    const columnWidths = Array(rows[0].length).fill(30); 
-  
-    autoTable(doc, {
-      startY: 80,
-      head: [["Колонка 1", "Колонка 2", "Колонка 3", "Колонка 4"]], 
-      body: rows, 
-      columnStyles: {
-        0: { cellWidth: 40 }, 
+  examSheetName: string,
+  description: string,
+  algorithmType: string,
+  downloadType: DownloadType,
+  matrixData: MatrixData
+) => {
+  const { correctMatrix, userMatrix } = matrixData;
+
+  const sanitizedCorrectMatrix = correctMatrix.map((row) =>
+    row.map((cell) => (cell === null ? "" : cell))
+  );
+
+  const downloadSolvedTable = downloadType === DownloadType.Solved;
+  const matrixToUse = downloadSolvedTable ? sanitizedCorrectMatrix : userMatrix;
+  const tableHeader = downloadSolvedTable
+    ? "Таблиця результатів"
+    : "Заповніть матрицю станів процесів";
+
+  const tableBody = matrixToUse.map((row) =>
+    row.map((cell) => ({
+      text: String(cell),
+      alignment: "center",
+      fontSize: 9
+    }))
+  );
+
+  const docDefinition: TDocumentDefinitions = {
+    content: [
+      {
+        text: examSheetName,
+        fontSize: 20,
+        bold: true,
+        margin: [0, 0, 0, 15]
       },
-      styles: {
-        fontSize: 12,
+      {
+        text: description,
+        fontSize: 10,
+        margin: [0, 0, 0, 15]
       },
-      theme: "grid", 
-    });
-  
-    doc.save(`${examSheetName}.pdf`);
+      {
+        text: `Алгоритм для опрацювання: ${algorithmType}`,
+        fontSize: 14,
+        margin: [0, 0, 0, 15]
+      },
+      {
+        text: "Стани процесів",
+        fontSize: 10,
+        bold: true,
+        margin: [0, 0, 0, 5]
+      },
+      {
+        text: "-: Виконання не розпочалось, e: Виконується, w: Очікує",
+        fontSize: 10,
+        margin: [0, 0, 0, 20]
+      },
+      {
+        text: tableHeader,
+        fontSize: 9,
+        bold: true,
+        margin: [0, 20, 0, 15]
+      },
+      {
+        table: {
+          headerRows: 0,
+          widths: Array(matrixToUse[0].length).fill("*"),
+          body: tableBody,
+        },
+        layout: {
+          hLineWidth: () => 1,
+          vLineWidth: () => 1,
+          hLineColor: () => "#000",
+          vLineColor: () => "#000",
+          paddingLeft: () => 2,
+          paddingRight: () => 2,
+          paddingTop: () => 2,
+          paddingBottom: () => 2,
+        },
+      },
+    ],
+    defaultStyle: {
+      font: "Roboto",
+    },
   };
+
+  // Configure fonts
+  (pdfMake as any).vfs = pdfFonts.vfs;
+
+  // Generate and download PDF
+  pdfMake.createPdf(docDefinition).download(`${examSheetName}.pdf`);
+};
