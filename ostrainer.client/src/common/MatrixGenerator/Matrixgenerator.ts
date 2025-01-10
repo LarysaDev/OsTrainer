@@ -2,6 +2,8 @@ import { AlgorithmType } from "../AlgorithmType";
 import { SchedulingMatrixData } from "../FileDownloading/types";
 import { generateFCFSMatrix } from "./Scheduling/generateFCFS";
 import { generateRRMatrix } from './Scheduling/generateRR';
+import { generateNonpreemptiveSJFMatrix } from "./Scheduling/generateSjfNon";
+import { generatePreemptiveSJFMatrix } from "./Scheduling/generateSJFP";
 
 export const generateSchedulingMatrixData = (
   arrivalTimes: string,
@@ -56,7 +58,8 @@ export const getMatrixGenerationLogic = (alg: AlgorithmType, processes, timeQuan
   switch (alg) {
     case AlgorithmType.FCFS: return generateFCFSMatrix(processes);
     case AlgorithmType.RR: return generateRRMatrix(processes, timeQuantum);
-    case AlgorithmType.SJF_PREEMPTIVE: return generatePreemptiveSJFMatrix;
+    case AlgorithmType.SJF_NON_PREEMPTIVE: return generateNonpreemptiveSJFMatrix(processes);
+    case AlgorithmType.SJF_PREEMPTIVE: return generatePreemptiveSJFMatrix(processes);
     case AlgorithmType.FIFO: return generateFIFOMatrix;
   }
 }
@@ -96,92 +99,4 @@ export const generateFIFOMatrix = (
   return { matrix, pageFaults };
 };
 
-export const generatePreemptiveSJFMatrix = (arrivalTimes, burstTimes) => {
-  let processes = arrivalTimes.map((arrival, index) => ({
-    id: index + 1,
-    arrivalTime: arrival,
-    burstTime: burstTimes[index],
-    remainingTime: burstTimes[index],
-    startTime: undefined,
-    completionTime: undefined,
-    currentStartTime: undefined,
-  }));
-
-  let currentTime = Math.min(...arrivalTimes);
-  let completedProcesses = 0;
-  let executionHistory = [];
-  let currentProcess = null;
-
-  while (completedProcesses < processes.length) {
-    let availableProcesses = processes.filter(
-      (p) => p.arrivalTime <= currentTime && p.remainingTime > 0
-    );
-
-    if (availableProcesses.length === 0) {
-      currentTime = Math.min(
-        ...processes
-          .filter((p) => p.remainingTime > 0)
-          .map((p) => p.arrivalTime)
-      );
-      continue;
-    }
-
-    availableProcesses.sort((a, b) => a.remainingTime - b.remainingTime);
-
-    let nextProcess = availableProcesses[0];
-
-    if (currentProcess && currentProcess.remainingTime > 0) {
-      if (nextProcess.remainingTime < currentProcess.remainingTime) {
-        currentProcess = nextProcess;
-      }
-    } else {
-      currentProcess = nextProcess;
-    }
-
-    if (processes[currentProcess.id - 1].startTime === undefined) {
-      processes[currentProcess.id - 1].startTime = currentTime;
-    }
-    processes[currentProcess.id - 1].currentStartTime = currentTime;
-
-    executionHistory.push({
-      time: currentTime,
-      processId: currentProcess.id,
-    });
-
-    currentProcess.remainingTime--;
-    currentTime++;
-
-    if (currentProcess.remainingTime === 0) {
-      processes[currentProcess.id - 1].completionTime = currentTime;
-      completedProcesses++;
-      currentProcess = null;
-    }
-  }
-
-  const maxTime = Math.max(...processes.map((p) => p.completionTime!));
-  const matrix = [];
-
-  processes.forEach((process) => {
-    const row = [];
-    for (let t = 0; t <= maxTime; t++) {
-      if (t < process.arrivalTime) {
-        row.push("-");
-      } else if (t >= process.completionTime!) {
-        row.push("");
-      } else {
-        const isExecuting = executionHistory.find(
-          (h) => h.time === t && h.processId === process.id
-        );
-        if (isExecuting) {
-          row.push("e");
-        } else {
-          row.push("w");
-        }
-      }
-    }
-    matrix.push(row);
-  });
-
-  return matrix;
-};
 

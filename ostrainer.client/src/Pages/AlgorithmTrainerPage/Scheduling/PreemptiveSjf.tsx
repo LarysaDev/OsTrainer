@@ -101,10 +101,6 @@ export const PreemptiveSjfTrainer: React.FC = () => {
     }));
 
     try {
-      const response = await axios.post(
-        "/api/ganttchart/preemptive_sjf",
-        processList
-      );
       generateMatrixTable(arrivalArray, burstArray);
     } catch (error) {
       console.error("Error generating Gantt chart", error);
