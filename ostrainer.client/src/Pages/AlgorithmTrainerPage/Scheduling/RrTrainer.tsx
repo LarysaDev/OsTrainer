@@ -95,18 +95,7 @@ export const RrTrainer: React.FC = () => {
       .map(Number);
     const burstArray = burstTimes.replace(/\s+/g, "").split(",").map(Number);
 
-    const processList = arrivalArray.map((arrival, index) => ({
-      id: index + 1,
-      arrivalTime: arrival,
-      burstTime: burstArray[index],
-    }));
-
     try {
-      const requestData = {
-        processes: processList,
-        timeQuantum: timeQuantum,
-      };
-      const response = await axios.post("/api/ganttchart/rr", requestData);
       generateMatrixTable(arrivalArray, burstArray, timeQuantum);
     } catch (error) {
       console.error("Error generating Gantt chart", error);
@@ -115,6 +104,8 @@ export const RrTrainer: React.FC = () => {
 
   const generateMatrixTable = (arrivalTime: number[], burstArray: number[],  timeQuantum: number) => {
     let statesMatrix = roundRobinScheduler(arrivalTime, burstArray, timeQuantum);
+
+    console.log(statesMatrix)
 
     setMatrix(statesMatrix);
     setUserMatrix(
@@ -292,101 +283,107 @@ export const RrTrainer: React.FC = () => {
   );
 };
 
+
+
 function roundRobinScheduler(arrivalTimes, burstTimes, timeQuantum) {
-  // Створюємо масив процесів
   const processes = arrivalTimes.map((at, index) => ({
-      id: index + 1,
-      arrivalTime: at,
-      burstTime: burstTimes[index],
-      remainingTime: burstTimes[index],
-      states: []
+    id: index + 1,
+    arrivalTime: at,
+    burstTime: burstTimes[index],
+    remainingTime: burstTimes[index],
+    inQueue: false,
+    lastExecutionTime: -1 // Track when process was last executed
   }));
 
-  let currentTime = 0;
+  let currentTime = Math.min(...arrivalTimes);
   let completed = 0;
   let queue = [];
   let statesMatrix = [["Process\\Time"]];
-  // Ініціалізуємо початкові стани для всіх процесів
+
   processes.forEach((process, index) => {
-      statesMatrix.push([`P${index + 1}`]); // Add process row headers
+    statesMatrix.push([`P${index + 1}`]);
   });
 
-  // Продовжуємо поки всі процеси не завершаться
+  // Fill initial waiting states
+  for (let t = 0; t < currentTime; t++) {
+    processes.forEach((process, index) => {
+      statesMatrix[index + 1].push("-");
+    });
+  }
+
   while (completed < processes.length) {
-      // Додаємо нові процеси в чергу
-      for (let i = 0; i < processes.length; i++) {
-          if (processes[i].arrivalTime <= currentTime &&
-              processes[i].remainingTime > 0 &&
-              !queue.includes(processes[i]) &&
-              !processes[i].inQueue) {
-              queue.push(processes[i]);
-              processes[i].inQueue = true;
-          }
+    // Add newly arrived processes to queue
+    processes.forEach(process => {
+      if (process.arrivalTime <= currentTime && 
+          process.remainingTime > 0 && 
+          !process.inQueue) {
+        queue.push(process);
+        process.inQueue = true;
       }
+    });
 
-      // Якщо в черзі немає процесів, просто очікуємо
-      if (queue.length === 0) {
-          processes.forEach((process, index) => {
-              statesMatrix[index + 1].push("-");
-          });
-          currentTime++;
-          continue;
-      }
+    if (queue.length === 0) {
+      processes.forEach((process, index) => {
+        statesMatrix[index + 1].push("-");
+      });
+      currentTime++;
+      continue;
+    }
 
-      // Беремо перший процес з черги
-      let currentProcess = queue.shift();
-      currentProcess.inQueue = false;
+    // Get next process
+    const currentProcess = queue.shift();
+    currentProcess.inQueue = false;
 
-      // Визначаємо час виконання
-      const executeTime = Math.min(timeQuantum, currentProcess.remainingTime);
+    // Execute for time quantum or remaining time
+    const executeTime = Math.min(timeQuantum, currentProcess.remainingTime);
 
-      // Оновлюємо стани для всіх процесів протягом виконання
-      for (let t = 0; t < executeTime; t++) {
-          processes.forEach((process, index) => {
-              let state;
-              if (process.id === currentProcess.id) {
-                  state = "e"; // Executing
-              } else if (process.remainingTime === 0) {
-                  state = ""; // Completed
-              } else if (process.arrivalTime <= currentTime + t && process.remainingTime > 0) {
-                  state = "w"; // Waiting
-              } else {
-                  state = "-"; // Not arrived
-              }
-              statesMatrix[index + 1].push(state);
-          });
-      }
+    // Update states during execution
+    for (let t = 0; t < executeTime; t++) {
+      processes.forEach((process, index) => {
+        if (process.id === currentProcess.id) {
+          statesMatrix[index + 1].push("e");
+        } else if (process.remainingTime === 0) {
+          statesMatrix[index + 1].push("");
+        } else if (process.arrivalTime <= currentTime) {
+          statesMatrix[index + 1].push("w");
+        } else {
+          statesMatrix[index + 1].push("-");
+        }
+      });
+      currentTime++;
+      currentProcess.lastExecutionTime = currentTime;
+    }
 
-      // Оновлюємо час виконання процесу
-      currentProcess.remainingTime -= executeTime;
-      currentTime += executeTime;
+    // Update remaining time
+    currentProcess.remainingTime -= executeTime;
 
-      // Якщо процес завершено
-      if (currentProcess.remainingTime === 0) {
-          completed++;
-          // Заповнюємо стани X для завершеного процесу
-          const processIndex = currentProcess.id - 1;
-          while (statesMatrix[processIndex + 1].length < statesMatrix[0].length) {
-              statesMatrix[processIndex + 1].push("X");
-          }
-      } else {
-          // Повертаємо процес в кінець черги
-          queue.push(currentProcess);
-          currentProcess.inQueue = true;
-      }
+    // Handle process completion or re-queueing
+    if (currentProcess.remainingTime === 0) {
+      completed++;
+    } else {
+      // Check for any new arrivals before re-queueing
+      processes.forEach(process => {
+        if (process.arrivalTime <= currentTime && 
+            process.remainingTime > 0 && 
+            !process.inQueue && 
+            process.id !== currentProcess.id) {
+          queue.push(process);
+          process.inQueue = true;
+        }
+      });
+      // Add current process back to queue
+      queue.push(currentProcess);
+      currentProcess.inQueue = true;
+    }
   }
 
-  // Заповнюємо перший рядок всіма значеннями від 0 до currentTime
-  const timeHeader = Array.from({ length: currentTime + 1 }, (_, i) => i);
-  statesMatrix[0] = [...statesMatrix[0], ...timeHeader];
-
-  // Вирівнюємо довжини всіх рядків до максимальної
-  const maxLength = statesMatrix[0].length;
-  for (let i = 1; i < statesMatrix.length; i++) {
-      while (statesMatrix[i].length < maxLength) {
-          statesMatrix[i].push("");
-      }
-  }
+  // Add time headers
+  const timeHeader = Array.from(
+    { length: statesMatrix[1].length - 1 }, 
+    (_, i) => i
+  );
+  statesMatrix[0] = ["Process\\Time", ...timeHeader];
 
   return statesMatrix;
 }
+
