@@ -40,10 +40,7 @@ const generateWordFile = (
   downloadType: DownloadType,
   matrixData: MatrixData
 ) => {
-    console.log('generating word...')
-    console.log(algorithmType)
     if(isSchedulingType(algorithmType)){
-        console.log('here///')
         return generateSchedulingDocument(examSheetName, description, algorithmType, downloadType, matrixData);
     }
 };

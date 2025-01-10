@@ -7,7 +7,8 @@ import MenuItem from "@mui/material/MenuItem";
 import {
   generateSchedulingMatrixData,
   generateFIFOMatrix,
-} from "../../../common/MatrixGenerator/Matrixgenerator";
+  generatePreemptiveSJFMatrix,
+} from "../../../common/MatrixGenerator/MatrixGenerator";
 import { useNavigate } from "react-router-dom";
 import {
   AlgorithmType,
@@ -155,11 +156,11 @@ export const NewCourse = () => {
   const handleGenerate = () => {
     const alorithm = courseData.algorithmType;
 
-    if (alorithm == AlgorithmType.FIFO) {
+    if (isSchedulingType(alorithm)) {
       const generatedData = generateSchedulingMatrixData(
-        courseData.pageRequests,
-        courseData.frames,
-        generateFIFOMatrix
+        courseData.arrivalTimes,
+        courseData.burstTimes,
+        courseData.algorithmType
       );
 
       return {

@@ -13,3 +13,8 @@ export interface MatrixData {
   correctMatrix: (number | null)[][];
   userMatrix: (string | number)[][];
 }
+
+export interface SchedulingMatrixData {
+  correctMatrix: (string | null)[][];
+  userMatrix: (number | number)[][];
+}

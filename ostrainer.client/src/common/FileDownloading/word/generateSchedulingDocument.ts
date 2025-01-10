@@ -20,6 +20,8 @@ export const generateSchedulingDocument = (
 ) => {
   const { correctMatrix, userMatrix } = matrixData;
 
+  console.log(matrixData)
+
   const sanitizedCorrectMatrix = correctMatrix.map((row) =>
     row.map((cell) => (cell === null ? "" : cell))
   );

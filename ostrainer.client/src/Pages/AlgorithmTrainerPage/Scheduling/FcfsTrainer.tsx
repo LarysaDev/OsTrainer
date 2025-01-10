@@ -19,7 +19,7 @@ import {
   Typography,
   TextField,
 } from "@mui/material";
-import { generateRandomData } from '../../../common/RandomGenerators/AlgorithmRandomDataGenerator';
+import { generateRandomData } from "../../../common/RandomGenerators/AlgorithmRandomDataGenerator";
 
 export const FcfsTrainer: React.FC = () => {
   const [arrivalTimes, setArrivalTimes] = useState<string>("");
@@ -98,18 +98,17 @@ export const FcfsTrainer: React.FC = () => {
     }));
 
     try {
-      const response = await axios.post("/api/ganttchart/fcfs", processList);
-      generateMatrixTable(response.data.$values);
+      generateMatrixTable(processList);
     } catch (error) {
       console.error("Error generating Gantt chart", error);
     }
   };
-  
+
   const handleAutocompleteInput = () => {
-    const [ arrivalTimes, burstTimes ] = generateRandomData();
-    setArrivalTimes(arrivalTimes.join(','));
-    setBurstTimes(burstTimes.join(','));
-  }
+    const [arrivalTimes, burstTimes] = generateRandomData();
+    setArrivalTimes(arrivalTimes.join(","));
+    setBurstTimes(burstTimes.join(","));
+  };
 
   function generateMatrixTable(processes) {
     const n = processes.length;
@@ -120,20 +119,21 @@ export const FcfsTrainer: React.FC = () => {
 
     const processesWithIndex = processes.map((process, index) => ({
         ...process,
-        originalIndex: index
+        originalIndex: index,
+        processId: `P${index + 1}`
     }));
-
-    processesWithIndex.sort((a, b) => a.arrivalTime - b.arrivalTime);
+    const sortedProcesses = [...processesWithIndex].sort((a, b) => a.arrivalTime - b.arrivalTime);
 
     let currentTime = 0;
     for (let i = 0; i < n; i++) {
-        if (currentTime < processesWithIndex[i].arrivalTime) {
-            currentTime = processesWithIndex[i].arrivalTime;
+        const process = sortedProcesses[i];
+        if (currentTime < process.arrivalTime) {
+            currentTime = process.arrivalTime;
         }
-        currentTime += processesWithIndex[i].burstTime;
-        completionTimes[processesWithIndex[i].originalIndex] = currentTime;
-        turnaroundTimes[processesWithIndex[i].originalIndex] = currentTime - processesWithIndex[i].arrivalTime;
-        waitingTimes[processesWithIndex[i].originalIndex] = turnaroundTimes[processesWithIndex[i].originalIndex] - processesWithIndex[i].burstTime;
+        currentTime += process.burstTime;
+        completionTimes[process.originalIndex] = currentTime;
+        turnaroundTimes[process.originalIndex] = currentTime - process.arrivalTime;
+        waitingTimes[process.originalIndex] = turnaroundTimes[process.originalIndex] - process.burstTime;
     }
 
     const headerRow = ["Process\\Time"];
@@ -145,11 +145,13 @@ export const FcfsTrainer: React.FC = () => {
 
     for (let i = 0; i < n; i++) {
         const row = [`P${i + 1}`];
-        let startTime = completionTimes[i] - processes[i].burstTime;
-        let endTime = completionTimes[i];
+        const process = processes[i];
+        
+        const startTime = completionTimes[i] - process.burstTime;
+        const endTime = completionTimes[i];
 
         for (let t = 0; t <= maxTime; t++) {
-            if (t < processes[i].arrivalTime) {
+            if (t < process.arrivalTime) {
                 row.push("-");
             } else if (t >= startTime && t < endTime) {
                 row.push("e");
@@ -164,13 +166,12 @@ export const FcfsTrainer: React.FC = () => {
 
     setMatrix(matrix);
     setUserMatrix(
-        matrix.map((row) =>
-            row.map((cell) => (typeof cell === "number" ? cell : ""))
+        matrix.map(row =>
+            row.map(cell => typeof cell === "number" ? cell : "")
         )
     );
-    setColorMatrix(matrix.map((row) => row.map(() => "")));
+    setColorMatrix(matrix.map(row => row.map(() => "")));
 }
-
 
   const handleUserInputChange = (
     rowIndex: number,
@@ -246,7 +247,7 @@ export const FcfsTrainer: React.FC = () => {
                 variant="contained"
                 color="primary"
                 onClick={handleAutocompleteInput}
-                sx={{marginLeft: '10px'}}
+                sx={{ marginLeft: "10px" }}
               >
                 Автозаповнити вхідні дані
               </Button>
