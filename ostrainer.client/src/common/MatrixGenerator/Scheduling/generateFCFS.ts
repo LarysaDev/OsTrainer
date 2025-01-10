@@ -1,6 +1,7 @@
-import { SchedulingMatrixData } from "../FileDownloading/types";
+import { SchedulingMatrixData } from "../../FileDownloading/types";
 
 export const generateFCFSMatrix = (processes): SchedulingMatrixData => {
+  console.log(processes);
   const n = processes.length;
   const correctMatrix: string[][] = [];
   const completionTimes = new Array(n).fill(0);

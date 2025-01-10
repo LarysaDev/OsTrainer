@@ -160,6 +160,7 @@ export const NewCourse = () => {
       const generatedData = generateSchedulingMatrixData(
         courseData.arrivalTimes,
         courseData.burstTimes,
+        (Number(courseData.timeQuantum)),
         courseData.algorithmType
       );
 

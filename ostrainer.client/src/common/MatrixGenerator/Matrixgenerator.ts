@@ -1,10 +1,12 @@
 import { AlgorithmType } from "../AlgorithmType";
 import { SchedulingMatrixData } from "../FileDownloading/types";
 import { generateFCFSMatrix } from "./Scheduling/generateFCFS";
+import { generateRRMatrix } from './Scheduling/generateRR';
 
 export const generateSchedulingMatrixData = (
   arrivalTimes: string,
   burstTimes: string,
+  timeQuantum: number | null,
   type: AlgorithmType
 ) => {
   const arrivalArray = arrivalTimes
@@ -19,8 +21,7 @@ export const generateSchedulingMatrixData = (
       burstTime: burstArray[index],
     }));
 
-  const generateMatrixLogic = getMatrixGenerationLogic(type);
-  const matrixes: SchedulingMatrixData = generateMatrixLogic(processList);
+  const matrixes: SchedulingMatrixData = getMatrixGenerationLogic(type, processList, timeQuantum ?? 0);
 
   const maxTime = matrixes.userMatrix[0].length;
   const processedCount = arrivalArray.length;
@@ -51,10 +52,10 @@ export const generateSchedulingMatrixData = (
   };
 };
 
-export const getMatrixGenerationLogic = (alg: AlgorithmType) => {
+export const getMatrixGenerationLogic = (alg: AlgorithmType, processes, timeQuantum: number) => {
   switch (alg) {
-    case AlgorithmType.FCFS: return generateFCFSMatrix;
-    case AlgorithmType.RR: return generateRRMatrix;
+    case AlgorithmType.FCFS: return generateFCFSMatrix(processes);
+    case AlgorithmType.RR: return generateRRMatrix(processes, timeQuantum);
     case AlgorithmType.SJF_PREEMPTIVE: return generatePreemptiveSJFMatrix;
     case AlgorithmType.FIFO: return generateFIFOMatrix;
   }
@@ -94,92 +95,6 @@ export const generateFIFOMatrix = (
 
   return { matrix, pageFaults };
 };
-
-export const generateRRMatrix = (arrivalTimes, burstTimes, timeQuantum) => {
-  const processes = arrivalTimes.map((at, index) => ({
-      id: index + 1,
-      arrivalTime: at,
-      burstTime: burstTimes[index],
-      remainingTime: burstTimes[index],
-      states: []
-  }));
-
-  let currentTime = 0;
-  let completed = 0;
-  let queue = [];
-  let statesMatrix = [["Process\\Time"]];
-
-  processes.forEach((process, index) => {
-      statesMatrix.push([`P${index + 1}`]);
-  });
-
-  while (completed < processes.length) {
-      for (let i = 0; i < processes.length; i++) {
-          if (processes[i].arrivalTime <= currentTime &&
-              processes[i].remainingTime > 0 &&
-              !queue.includes(processes[i]) &&
-              !processes[i].inQueue) {
-              queue.push(processes[i]);
-              processes[i].inQueue = true;
-          }
-      }
-
-      if (queue.length === 0) {
-          processes.forEach((process, index) => {
-              statesMatrix[index + 1].push("-");
-          });
-          currentTime++;
-          continue;
-      }
-
-      let currentProcess = queue.shift();
-      currentProcess.inQueue = false;
-
-      const executeTime = Math.min(timeQuantum, currentProcess.remainingTime);
-
-      for (let t = 0; t < executeTime; t++) {
-          processes.forEach((process, index) => {
-              let state;
-              if (process.id === currentProcess.id) {
-                  state = "e"; 
-              } else if (process.remainingTime === 0) {
-                  state = ""; 
-              } else if (process.arrivalTime <= currentTime + t && process.remainingTime > 0) {
-                  state = "w";
-              } else {
-                  state = "-";
-              }
-              statesMatrix[index + 1].push(state);
-          });
-      }
-
-      currentProcess.remainingTime -= executeTime;
-      currentTime += executeTime;
-
-      if (currentProcess.remainingTime === 0) {
-          completed++;
-          const processIndex = currentProcess.id - 1;
-          while (statesMatrix[processIndex + 1].length < statesMatrix[0].length) {
-              statesMatrix[processIndex + 1].push("X");
-          }
-      } else {
-          queue.push(currentProcess);
-          currentProcess.inQueue = true;
-      }
-  }
-
-  const timeHeader = Array.from({ length: currentTime + 1 }, (_, i) => i);
-  statesMatrix[0] = [...statesMatrix[0], ...timeHeader];
-
-  const maxLength = statesMatrix[0].length;
-  for (let i = 1; i < statesMatrix.length; i++) {
-      while (statesMatrix[i].length < maxLength) {
-          statesMatrix[i].push("");
-      }
-  }
-
-  return statesMatrix;
-}
 
 export const generatePreemptiveSJFMatrix = (arrivalTimes, burstTimes) => {
   let processes = arrivalTimes.map((arrival, index) => ({
