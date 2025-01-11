@@ -7,7 +7,7 @@ import MenuItem from "@mui/material/MenuItem";
 import {
   generateSchedulingMatrixData,
   generatePageReplacementMatrixData
-} from "../../../common/MatrixGenerator/MatrixGenerator";
+} from "../../../common/MatrixGenerator/Matrixgenerator";
 import { useNavigate } from "react-router-dom";
 import {
   AlgorithmType,
@@ -57,7 +57,7 @@ export const NewCourse = () => {
     burstTimes: "",
     timeQuantum: "",
     priorities: "",
-    pageRequests: [0],
+    pageRequests: "",
     frames: 0,
     resources: 0,
     processes: 0,
@@ -109,7 +109,7 @@ export const NewCourse = () => {
       const [pages, frameSize] = generatePageReplacementData();
       setCourseData({
         ...courseData,
-        pageRequests: pages,
+        pageRequests: pages.join(','),
         frames: frameSize,
       });
     } else if (isDeadlockAvoiding(courseData.algorithmType)) {

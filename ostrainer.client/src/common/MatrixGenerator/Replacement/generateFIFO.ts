@@ -4,12 +4,12 @@ export const generateFIFOMatrixes = (
   pageRequests: number[],
   frameCount: number
 ): PageReplacementMatrixData => {
+  // Виклик функції з тестовими даними
   const { matrix: correctFrameMatrix, pageFaults } = generateMatrix(
     pageRequests,
-    frameCount
+    (Number(frameCount))
   );
 
-  console.log("after generation: ", correctFrameMatrix);
   const userMatrix = Array.from({ length: frameCount + 1 }, () =>
     new Array(pageRequests.length).fill(null)
   );
@@ -26,8 +26,6 @@ export const generateFIFOMatrixes = (
 };
 
 const generateMatrix = (pageRequests: number[], frameCount: number) => {
-  console.log("pageRequests", pageRequests);
-  console.log("frames", frameCount);
   const matrix = Array.from({ length: frameCount }, () =>
     new Array(pageRequests.length).fill(null)
   );
@@ -77,6 +75,5 @@ const generateMatrix = (pageRequests: number[], frameCount: number) => {
       }
     }
   });
-  console.log(matrix);
   return { matrix, pageFaults };
 };
