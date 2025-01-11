@@ -196,6 +196,7 @@ export const NewCourse = () => {
             display: "flex",
             flexDirection: "column",
             gap: 2,
+            marginTop: '100px'
           }}
         >
           <h3>

@@ -21,6 +21,7 @@ import { ResourceAllocationTrainer } from "./Pages/AlgorithmTrainerPage/Deadlock
 import BankersAlgorithmTrainer from "./Pages/AlgorithmTrainerPage/DeadlocksAvoidance/BankirTrainer.tsx";
 import LandingPage from "../src/Pages/Landing/Landing.tsx";
 import ProtectedRoute from "./utils/ProtectedRoute.tsx";
+import { AvailableSimulators } from "./Pages/Teacher/AvailableSimulators/AvailableSimulators.tsx";
 
 const isLoggedIn = !!localStorage.getItem("role");
 
@@ -44,6 +45,10 @@ const router = createBrowserRouter([
   {
     path: "/landing",
     element: <Landing />,
+  },
+  {
+    path: "/available_simulators",
+    element: <AvailableSimulators />,
   },
   {
     path: "/practice/fcfs",

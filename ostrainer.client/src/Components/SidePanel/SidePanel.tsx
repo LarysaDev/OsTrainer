@@ -21,7 +21,7 @@ export const links: SidePanelLink[] = [
 export const teacherLinks: SidePanelLink[] = [
   { label: "Головна", link: "/" },
   { label: "Екзаменаційний білет", link: "/newCourse" },
-  { label: "Доступні алгоритми", link: "/" }
+  { label: "Доступні алгоритми", link: "/available_simulators" }
 ];
 
 export function updateActiveLinkByIndex(activeIndex: number, linksToUpdate: SidePanelLink[] = links): SidePanelLink[] {
