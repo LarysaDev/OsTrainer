@@ -6,8 +6,7 @@ import Button from "@mui/material/Button";
 import MenuItem from "@mui/material/MenuItem";
 import {
   generateSchedulingMatrixData,
-  generateFIFOMatrix,
-  generatePreemptiveSJFMatrix,
+  generatePageReplacementMatrixData
 } from "../../../common/MatrixGenerator/MatrixGenerator";
 import { useNavigate } from "react-router-dom";
 import {
@@ -162,6 +161,18 @@ export const NewCourse = () => {
         courseData.burstTimes,
         courseData.priorities,
         (Number(courseData.timeQuantum)),
+        courseData.algorithmType
+      );
+
+      return {
+        correctMatrix: generatedData.correctMatrix,
+        userMatrix: generatedData.userMatrix,
+      };
+    }
+    else if(isReplacingType(alorithm)){
+      const generatedData = generatePageReplacementMatrixData(
+        courseData.pageRequests,
+        courseData.frames,
         courseData.algorithmType
       );
 

@@ -10,17 +10,18 @@ import {
 } from "docx";
 import { DownloadType, MatrixData } from "../types";
 import { saveAs } from "file-saver";
+import { AlgorithmType, isSchedulingType } from "../../AlgorithmType";
 
 export const generateSchedulingDocument = (
   examSheetName: string,
   description: string,
-  algorithmType: string,
+  algorithmType: AlgorithmType,
   downloadType: DownloadType,
   matrixData: MatrixData
 ) => {
   const { correctMatrix, userMatrix } = matrixData;
 
-  console.log(matrixData)
+  console.log(matrixData);
 
   const sanitizedCorrectMatrix = correctMatrix.map((row) =>
     row.map((cell) => (cell === null ? "" : cell))
@@ -52,8 +53,27 @@ export const generateSchedulingDocument = (
 
   const tableHeader = downloadSolvedTable
     ? "Таблиця результатів"
-    : "Заповніть матрицю станів процесів";
-    console.log('ready...')
+    : "Заповніть матрицю";
+  console.log("ready...");
+
+  const processStatesParagraphs = isSchedulingType(algorithmType)
+    ? [
+        new Paragraph({
+          children: [
+            new TextRun({ text: "Стани процесів", bold: true, size: 22 }),
+          ],
+        }),
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: "-: Виконання не розпочалось, e: Виконується, w: Очікує",
+              size: 22,
+            }),
+          ],
+          spacing: { before: 300, after: 100 },
+        }),
+      ]
+    : [];
 
   const doc = new Document({
     sections: [
@@ -76,20 +96,7 @@ export const generateSchedulingDocument = (
               }),
             ],
           }),
-          new Paragraph({
-            children: [
-              new TextRun({ text: 'Стани процесів', bold: true, size: 22 }),
-            ],
-          }),
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: "-: Виконання не розпочалось, e: Виконується, w: Очікує",
-                size: 22,
-              }),
-            ],
-            spacing: { before: 300, after: 100 },
-          }),
+          ...processStatesParagraphs,
           new Paragraph({
             children: [
               new TextRun({ text: tableHeader, bold: true, size: 26 }),
@@ -101,8 +108,6 @@ export const generateSchedulingDocument = (
       },
     ],
   });
-
-
 
   Packer.toBlob(doc).then((blob) => {
     saveAs(blob, `${examSheetName}.docx`);

@@ -18,3 +18,8 @@ export interface SchedulingMatrixData {
   correctMatrix: (string | null)[][];
   userMatrix: (number | number)[][];
 }
+
+export interface PageReplacementMatrixData {
+  correctMatrix: (number | null | boolean)[][];
+  userMatrix: (number | null | boolean)[][];
+}

@@ -1,11 +1,6 @@
 import { AlgorithmType } from "../AlgorithmType";
-import { SchedulingMatrixData } from "../FileDownloading/types";
-import { generateFCFSMatrix } from "./Scheduling/generateFCFS";
-import { generateRRMatrix } from './Scheduling/generateRR';
-import { generateNonpreemptiveSJFMatrix } from "./Scheduling/generateSjfNon";
-import { generatePreemptiveSJFMatrix } from "./Scheduling/generateSJFP";
-import { generatePreemptivePriorityMatrix } from "./Scheduling/generatePriorityP";
-import { generateNonpreemptivePriorityMatrix } from "./Scheduling/generatePriorityNon";
+import { PageReplacementMatrixData, SchedulingMatrixData } from "../FileDownloading/types";
+import { getMatrixGenerationLogic } from "./getMatrixGenerationLogic";
 
 export const generateSchedulingMatrixData = (
   arrivalTimes: string,
@@ -59,51 +54,33 @@ export const generateSchedulingMatrixData = (
   };
 };
 
-export const getMatrixGenerationLogic = (alg: AlgorithmType, processes, timeQuantum: number) => {
-  switch (alg) {
-    case AlgorithmType.FCFS: return generateFCFSMatrix(processes);
-    case AlgorithmType.RR: return generateRRMatrix(processes, timeQuantum);
-    case AlgorithmType.SJF_NON_PREEMPTIVE: return generateNonpreemptiveSJFMatrix(processes);
-    case AlgorithmType.SJF_PREEMPTIVE: return generatePreemptiveSJFMatrix(processes);
-    case AlgorithmType.PRIORITY_PREEMPTIVE: return generatePreemptivePriorityMatrix(processes);
-    case AlgorithmType.PRIORITY_NON_PREEMPTIVE: return generateNonpreemptivePriorityMatrix(processes);
-    case AlgorithmType.FIFO: return generateFIFOMatrix;
-  }
-}
-
-
-export const generateFIFOMatrix = (
-  pageRequests: number[],
-  frameCount: number
+export const generatePageReplacementMatrixData = (
+  pageRequestsArray: string,
+  frameSize: number,
+  algType: AlgorithmType
 ) => {
-  const matrix = Array.from({ length: frameCount }, () =>
-    new Array(pageRequests.length).fill(null)
-  );
-  const frames: number[] = [];
-  const pageFaults: boolean[] = [];
+  const pageRequests = pageRequestsArray.replace(/\s+/g, "").split(",").map(Number);
+  const matrixes: PageReplacementMatrixData = getMatrixGenerationLogic(algType, null, 0, pageRequests, frameSize);
+  const pageFaults = matrixes.correctMatrix[frameSize].map(fault => fault === true ? 1 : 0);
 
-  pageRequests.forEach((page, columnIndex) => {
-    const isPagePresent = frames.includes(page);
-
-    if (!isPagePresent) {
-      pageFaults.push(true);
-
-      if (frames.length < frameCount) {
-        frames.unshift(page);
-      } else {
-        frames.pop();
-        frames.unshift(page);
-      }
-    } else {
-      pageFaults.push(false);
-    }
-
-    for (let i = 0; i < frameCount; i++) {
-      matrix[i][columnIndex] = frames[i] ?? null;
-    }
-  });
-
-  return { matrix, pageFaults };
+  const userMatrixTemplate: (string | number)[][] = [
+    ["Page Requests", ...pageRequests],
+    ...Array.from({ length: frameSize }, (_, index) => [
+      `frame ${index + 1}`,
+      ...Array.from({ length: pageRequests.length }, () => ""),
+    ]),
+    ["Page Fault?", ...Array.from({ length: pageRequests.length }, () => "")],
+  ];
+  const updatedCorrectMatrix = [
+    ["Page Requests", ...pageRequests],
+    ...Array.from({ length: frameSize }, (_, frameIndex) => [
+      `frame ${frameIndex + 1}`,
+      ...pageRequests.map((_, requestIndex) => matrixes.correctMatrix[frameIndex][requestIndex] ?? null),
+    ]),
+    ["Page Fault?", ...pageFaults],
+  ];
+  return {
+    correctMatrix: updatedCorrectMatrix,
+    userMatrix: userMatrixTemplate,
+  };
 };
-
-
