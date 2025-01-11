@@ -22,4 +22,5 @@ export interface SchedulingMatrixData {
 export interface PageReplacementMatrixData {
   correctMatrix: (number | null | boolean)[][];
   userMatrix: (number | null | boolean)[][];
+  pageFaults: ('f' | '')[]
 }

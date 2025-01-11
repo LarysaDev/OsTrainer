@@ -4,24 +4,21 @@ export const generateFIFOMatrixes = (
   pageRequests: number[],
   frameCount: number
 ): PageReplacementMatrixData => {
-  // Виклик функції з тестовими даними
   const { matrix: correctFrameMatrix, pageFaults } = generateMatrix(
     pageRequests,
     (Number(frameCount))
   );
 
+  const updatedFaults = pageFaults.map((fault) => (fault == true ? 'f' : ''));
+
   const userMatrix = Array.from({ length: frameCount + 1 }, () =>
     new Array(pageRequests.length).fill(null)
   );
 
-  const correctMatrix = [
-    ...correctFrameMatrix,
-    pageFaults.map((fault) => (fault ? 1 : 0)),
-  ];
-
   return {
-    correctMatrix,
+    correctMatrix: correctFrameMatrix,
     userMatrix,
+    pageFaults: updatedFaults
   };
 };
 
@@ -31,17 +28,14 @@ const generateMatrix = (pageRequests: number[], frameCount: number) => {
   );
   const pageFaults: boolean[] = [];
 
-  // Додамо змінну для відстеження позиції наступної заміни
   let replacePosition = 0;
 
   pageRequests.forEach((page, columnIndex) => {
-    // Отримуємо поточний стан фреймів з попередньої колонки
     const currentFrames =
       columnIndex === 0
         ? Array(frameCount).fill(null)
         : matrix.map((row) => row[columnIndex - 1]);
 
-    // Перевіряємо, чи є сторінка вже у фреймах
     const isPagePresent = currentFrames.includes(page);
 
     if (!isPagePresent) {

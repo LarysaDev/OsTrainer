@@ -61,7 +61,7 @@ export const generatePageReplacementMatrixData = (
 ) => {
   const pageRequests = pageRequestsArray.replace(/\s+/g, "").split(",").map(Number);
   const matrixes: PageReplacementMatrixData = getMatrixGenerationLogic(algType, null, 0, pageRequests, frameSize);
-  const pageFaults = matrixes.correctMatrix[frameSize].map(fault => fault === true ? 1 : 0);
+  const pageFaults = matrixes.pageFaults;
 
   const userMatrixTemplate: (string | number)[][] = [
     ["Page Requests", ...pageRequests],
@@ -69,7 +69,7 @@ export const generatePageReplacementMatrixData = (
       `frame ${index + 1}`,
       ...Array.from({ length: pageRequests.length }, () => ""),
     ]),
-    ["Page Fault?", ...Array.from({ length: pageRequests.length }, () => "")],
+    ["Page Fault?", ...Array.from({ length: pageFaults.length }, () => "")],
   ];
   const updatedCorrectMatrix = [
     ["Page Requests", ...pageRequests],

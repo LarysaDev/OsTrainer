@@ -6,6 +6,7 @@ import { generatePreemptiveSJFMatrix } from "./Scheduling/generateSJFP";
 import { generatePreemptivePriorityMatrix } from "./Scheduling/generatePriorityP";
 import { generateNonpreemptivePriorityMatrix } from "./Scheduling/generatePriorityNon";
 import { generateFIFOMatrixes } from "./Replacement/generateFIFO";
+import { generateClockMatrixes } from "./Replacement/generateClock";
 
 export const getMatrixGenerationLogic = (
   alg: AlgorithmType,
@@ -29,5 +30,7 @@ export const getMatrixGenerationLogic = (
       return generateNonpreemptivePriorityMatrix(processes);
     case AlgorithmType.FIFO:
       return generateFIFOMatrixes(pageRequests, frameCount);
+    case AlgorithmType.CLOCK:
+      return generateClockMatrixes(pageRequests, frameCount)
   }
 };
