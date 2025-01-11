@@ -9,20 +9,16 @@ export const generateClockMatrixes = (
     (Number(frameCount))
   );
 
-  console.log('faults', pageFaults);
+  const updatedFaults = pageFaults.map((fault) => (fault == true ? 'f' : ''));
 
   const userMatrix = Array.from({ length: frameCount + 1 }, () =>
     new Array(pageRequests.length).fill(null)
   );
 
-  const correctMatrix = [
-    ...correctFrameMatrix,
-    pageFaults.map((fault) => (fault)),
-  ];
-
   return {
-    correctMatrix,
+    correctMatrix: correctFrameMatrix,
     userMatrix,
+    pageFaults: updatedFaults 
   };
 };
 
@@ -33,7 +29,7 @@ const generateClockMatrix = (pageRequests: number[], frameCount: number) => {
     );
     const frames = new Array(frameCount).fill(null);
     const secondChanceBits = new Array(frameCount).fill(0);
-    const pageFaults: boolean = [];
+    const pageFaults: boolean[] = [];
     let pointer = 0;
   
     pageRequests.forEach((page, columnIndex) => {
