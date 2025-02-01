@@ -68,16 +68,16 @@ function Register() {
   return (
     <div className={styles.container}>
       <div className={styles.formContainer}>
-        <h3 className={styles.heading}>REGISTER FORM</h3>
+        <h3 className={styles.heading}>РЕЄСТРАЦІЯ</h3>
         <div className={styles.buttonGroupFront}>
           <button className={styles.buttonFront} type="submit">
-            REGISTER
+            ЗАРЕЄСТРУВАТИСЯ
           </button>
           <button
             className={styles.buttonFrontInactive}
             onClick={handleLoginClick}
           >
-            LOGIN
+            УВІЙТИ
           </button>
         </div>
         <form onSubmit={handleSubmit}>
@@ -89,7 +89,7 @@ function Register() {
               name="email"
               value={email}
               onChange={handleChange}
-              placeholder="Email Address"
+              placeholder="Email адреса"
             />
           </div>
           <div className={styles.inputGroup}>
@@ -100,7 +100,7 @@ function Register() {
               name="password"
               value={password}
               onChange={handleChange}
-              placeholder="Password"
+              placeholder="Пароль"
             />
           </div>
           <div className={styles.inputGroup}>
@@ -111,7 +111,7 @@ function Register() {
               name="confirmPassword"
               value={confirmPassword}
               onChange={handleChange}
-              placeholder="Confirm Password"
+              placeholder="Підтвердіть пароль"
             />
           </div>
           <div className={styles.inputGroup}>
@@ -120,13 +120,13 @@ function Register() {
               value={role}
               onChange={(e) => setRole(e.target.value)}
             >
-              <option value="Student">Student</option>
-              <option value="Teacher">Teacher</option>
+              <option value="Student">Студент</option>
+              <option value="Teacher">Викладач</option>
             </select>
           </div>
           <div className={styles.buttonGroup}>
             <button className={styles.button} type="submit">
-              Register
+              ЗАРЕЄСТРУВАТИСЯ
             </button>
           </div>
         </form>

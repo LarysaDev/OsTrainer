@@ -42,9 +42,10 @@ export default function Footer() {
           <Grid item xs={12} sm={4}>
           <Typography variant="body2" color="text.secondary" align="center">
             {"Copyright © "}
-            <Link color="inherit" href="https://github.com/LarysaDev/OsTrainer//">
+            {/* <Link color="inherit" href="https://github.com/LarysaDev/OsTrainer//"> */}
               OsTrainer
-            </Link>{" "}
+            {/* </Link>*/} 
+            {" "}
             {new Date().getFullYear()}
             {"."}
           </Typography>

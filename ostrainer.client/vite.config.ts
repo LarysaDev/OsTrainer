@@ -82,6 +82,11 @@ export default defineConfig({
                 secure: false,
                 changeOrigin: true
             },
+            '^/api/Auth/profile': {
+                target: 'https://localhost:7111/',
+                secure: false,
+                changeOrigin: true
+            },
              '^/api/ganttchart/fcfs': {
                 target: 'https://localhost:7111/',
                 secure: false

@@ -75,7 +75,7 @@ export function LoggedInView(props: LoggedInFrameProps) {
                     aria-haspopup="true"
                     onClick={handleToggle}
                   >
-                    MY PROFILE
+                    Мій профіль
                   </Button>
                   <Popper
                     open={open}
@@ -103,7 +103,6 @@ export function LoggedInView(props: LoggedInFrameProps) {
                               aria-labelledby="composition-button"
                               onKeyDown={handleListKeyDown}
                             >
-                              <MenuItem onClick={handleClose}>Profile</MenuItem>
                               <MenuItem onClick={handleClose}>
                                 Мій акаунт
                               </MenuItem>

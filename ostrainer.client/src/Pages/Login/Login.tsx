@@ -45,16 +45,16 @@ function Login() {
   return (
     <div className={styles.container}>
       <div className={styles.formContainer}>
-        <h3 className={styles.heading}>LOGIN FORM</h3>
+        <h3 className={styles.heading}>ВХІД</h3>
         <div className={styles.buttonGroupFront}>
           <button className={styles.buttonFront} type="submit">
-            LOGIN
+            УВІЙТИ
           </button>
           <button
             className={styles.buttonFrontInactive}
             onClick={handleRegisterClick}
           >
-            REGISTER
+            ЗАРЕЄСТРУВАТИСЯ
           </button>
         </div>
         <form onSubmit={handleSubmit}>
@@ -66,7 +66,7 @@ function Login() {
               name="email"
               value={email}
               onChange={handleChange}
-              placeholder="Email Address"
+              placeholder="Email адреса"
             />
           </div>
           <div className={styles.inputGroup}>
@@ -77,7 +77,7 @@ function Login() {
               name="password"
               value={password}
               onChange={handleChange}
-              placeholder="Password"
+              placeholder="Пароль"
             />
           </div>
           <div className={styles.checkboxGroup}>
@@ -90,12 +90,12 @@ function Login() {
               onChange={handleChange}
             />
             <label className={styles.checkboxLabel} htmlFor="rememberme">
-              Remember Me
+              Запам'ятати мене
             </label>
           </div>
           <div className={styles.buttonGroup}>
             <button className={styles.button} type="submit" disabled={isLoading}>
-              LOGIN
+              УВІЙТИ
             </button>
           </div>
         </form>

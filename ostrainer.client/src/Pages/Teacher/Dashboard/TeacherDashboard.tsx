@@ -45,7 +45,7 @@ export const TeacherDashboard = () => {
     <>
       <LoggedInView links={updateActiveLinkByIndex(0, links)}>
         <div>
-        <p className={styles.headerText}>MY COURSES</p>
+        <p className={styles.headerText}>МОЇ КУРСИ</p>
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, p: 2 }}>
             {courses?.map((course) => (
               <Card key={course.id} variant="outlined" sx={{ minWidth: 275, borderRadius: '20px', boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)" }}>

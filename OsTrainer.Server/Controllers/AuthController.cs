@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using OsTrainer.Server.Data;
+using OsTrainer.Server.Models;
 
 namespace OsTrainer.Server.Controllers
 {
@@ -78,8 +79,26 @@ namespace OsTrainer.Server.Controllers
 
             return Unauthorized();
         }
-    }
 
+        [HttpGet("profile")]
+        public async Task<UserProfile> GetProfileData([FromQuery] string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return new UserProfile();
+            }
+
+            var roles = await _userManager.GetRolesAsync(user);
+
+            return new UserProfile()
+            {
+                Email = user.Email,
+                UserName = user.UserName,
+                Role = roles.FirstOrDefault(),
+            };
+        }
+    }
     public class RegisterModel
     {
         public string Email { get; set; }
