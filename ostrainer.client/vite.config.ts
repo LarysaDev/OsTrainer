@@ -87,6 +87,11 @@ export default defineConfig({
                 secure: false,
                 changeOrigin: true
             },
+            '^/api/Auth/refresh-token': {
+                target: 'https://localhost:7111/',
+                secure: false,
+                changeOrigin: true
+            },
              '^/api/ganttchart/fcfs': {
                 target: 'https://localhost:7111/',
                 secure: false

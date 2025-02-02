@@ -21,7 +21,7 @@ const userSlice = createSlice({
 });
 
 export const selectUser = (): string | null => {
-    const userString = localStorage.getItem('role');
+    const userString = localStorage.getItem('os_trainer_role');
     if (userString) {
       try {
         return userString;

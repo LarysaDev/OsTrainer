@@ -1,9 +1,12 @@
-
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using OsTrainer.Server.Data;
+using OsTrainer.Server.Services.JWT;
 using OsTrainer.Server.Services.Scheduling;
 using System.Security.Claims;
+using System.Text;
 using System.Text.Json.Serialization;
 
 namespace OsTrainer.Server
@@ -17,12 +20,28 @@ namespace OsTrainer.Server
             var connectionString = builder.Configuration.GetConnectionString("AppDbContextConnection") ?? throw new InvalidOperationException("Invalid connection string");
             builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
 
-            builder.Services.AddAuthentication();
+            var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]);
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                        ValidAudience = builder.Configuration["Jwt:Audience"],
+                        IssuerSigningKey = new SymmetricSecurityKey(key)
+                    };
+                });
+
+            // Add services to the container.
+            builder.Services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
+
             builder.Services.AddIdentityApiEndpoints<AppUser>()
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<AppDbContext>();
-
-            // Add services to the container.
 
             builder.Services.AddControllers()
                 .AddJsonOptions(options =>
@@ -38,7 +57,6 @@ namespace OsTrainer.Server
                 });
             });
 
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 

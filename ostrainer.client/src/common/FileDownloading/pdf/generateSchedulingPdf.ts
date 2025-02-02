@@ -89,7 +89,5 @@ export const generateSchedulingPdf = (
     },
   };
 
-  (pdfMake as any).vfs = pdfFonts.vfs;
-
   pdfMake.createPdf(docDefinition).download(`${examSheetName}.pdf`);
 };

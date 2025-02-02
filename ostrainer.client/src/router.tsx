@@ -20,10 +20,9 @@ import { PageReplacementTrainer } from './Pages/AlgorithmTrainerPage/PR/PageRepl
 import { ResourceAllocationTrainer } from "./Pages/AlgorithmTrainerPage/DeadlocksAvoidance/ResourceAllocationTrainer.tsx";
 import BankersAlgorithmTrainer from "./Pages/AlgorithmTrainerPage/DeadlocksAvoidance/BankirTrainer.tsx";
 import LandingPage from "../src/Pages/Landing/Landing.tsx";
-import ProtectedRoute from "./utils/ProtectedRoute.tsx";
 import { AvailableSimulators } from "./Pages/Teacher/AvailableSimulators/AvailableSimulators.tsx";
 
-const isLoggedIn = !!localStorage.getItem("role");
+const isLoggedIn = !!localStorage.getItem("accessToken") || !!localStorage.getItem("refreshToken");
 
 const router = createBrowserRouter([
   {

@@ -11,7 +11,7 @@ namespace OsTrainer.Server.Data
             : base(options)
         {
         }
-
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<Assignment> Assignments { get; set; }
 
         public DbSet<Algorithm> Algorithms { get; set; }

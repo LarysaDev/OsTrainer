@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import styles from "./Login.module.less";
 import { useLoginMutation } from "../../app/authApi";
 import { User } from "../../app/types";
-import { setUser } from "../../app/userSlice";
 
 function Login() {
   const [email, setEmail] = useState<string>("");
@@ -33,7 +32,11 @@ function Login() {
       setError("");
       try {
         const user: User = await login({ email, password }).unwrap();
-        localStorage.setItem('role', user.role);
+        console.log('Authorizing new user...', user);
+
+        localStorage.setItem('os_trainer_role', user.role);
+        localStorage.setItem('accessToken', user.token);
+        localStorage.setItem('refreshToken', user.refreshToken);
         navigate("/home"); 
       } catch (err) {
         setError("Error Logging in.");
