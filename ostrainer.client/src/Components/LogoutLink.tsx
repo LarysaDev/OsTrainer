@@ -1,10 +1,7 @@
 
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "../app/store";
 
 function LogoutLink(props: { children: React.ReactNode }) {
-    const dispatch = useDispatch<AppDispatch>();
     const navigate = useNavigate();
 
 
@@ -38,7 +35,7 @@ function LogoutLink(props: { children: React.ReactNode }) {
 
     return (
         <>
-            <a href="#" onClick={handleSubmit}>{props.children}</a>
+            <a style={{ textDecoration: "none", color: "#9a9a9a" }} href="#" onClick={handleSubmit}>{props.children}</a>
         </>
     );
 }

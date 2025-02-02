@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./Register.module.less";
+import { useRegisterMutation } from "../../app/authApi";
 
 function Register() {
   // state variables for email and passwords
@@ -8,7 +9,9 @@ function Register() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [role, setRole] = useState("Student");
+  const [userName, setUserName] = useState("");
   const navigate = useNavigate();
+  const [register, { isLoading }] = useRegisterMutation();
 
   // state variable for error messages
   const [error, setError] = useState("");
@@ -23,6 +26,7 @@ function Register() {
     if (name === "email") setEmail(value);
     if (name === "password") setPassword(value);
     if (name === "confirmPassword") setConfirmPassword(value);
+    if (name === "name") setUserName(value);
   };
 
   // handle submit event for the form
@@ -36,29 +40,14 @@ function Register() {
     } else if (password !== confirmPassword) {
       setError("Passwords do not match.");
     } else {
-      // clear error message
       setError("");
-      // post data to the /register api
-      fetch("/api/Auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: email,
-          password: password,
-          role: role,
-        }),
-      })
-        //.then((response) => response.json())
+      const result = register({ email, password, role, userName }).unwrap()
         .then((data) => {
-          // handle success or error from the server
           console.log(data);
-          if (data.ok) setError("Successful register.");
+          if (data) setError("Successful register.");
           else setError("Error registering.");
         })
         .catch((error) => {
-          // handle network error
           console.error(error);
           setError("Error registering.");
         });
@@ -81,6 +70,17 @@ function Register() {
           </button>
         </div>
         <form onSubmit={handleSubmit}>
+          <div className={styles.inputGroup}>
+            <input
+              className={styles.input}
+              type="name"
+              id="name"
+              name="name"
+              value={userName}
+              onChange={handleChange}
+              placeholder="Ім'я користувача"
+            />
+          </div>
           <div className={styles.inputGroup}>
             <input
               className={styles.input}

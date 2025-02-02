@@ -81,11 +81,8 @@ function AuthorizeView(props: { children: React.ReactNode }) {
 
 export function AuthorizedUser(props: { value: string }) {
     const user: any = React.useContext(UserContext);
-
-    if (props.value == "email")
-        return <>{user.email}</>;
-    else
-        return <></>
+    console.log('user', user)
+    return <>{user.email}</>;
 }
 
 export function getUserEmail() {

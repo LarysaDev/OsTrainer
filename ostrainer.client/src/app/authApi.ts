@@ -13,6 +13,13 @@ export const authApi = createApi({
         body: { email, password },
       }),
     }),
+    register: builder.mutation<User, { email: string; password: string; role: string; userName: string }>({
+      query: ({ email, password, role, userName }) => ({
+        url: 'Auth/register?useSessionCookies=true',
+        method: 'POST',
+        body: { email, password, role, userName },
+      }),
+    }),
     getStudentsAssignments: builder.mutation<AssignedCourse[], { studentEmail: string }>({
       query: ({ studentEmail }) => ({
         url: '/assignment/getstudentassignments',
@@ -24,4 +31,4 @@ export const authApi = createApi({
   }),
 });
 
-export const { useLoginMutation, useGetStudentsAssignmentsMutation } = authApi;
+export const { useLoginMutation, useRegisterMutation, useGetStudentsAssignmentsMutation } = authApi;

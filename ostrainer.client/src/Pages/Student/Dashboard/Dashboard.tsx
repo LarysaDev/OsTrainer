@@ -124,11 +124,11 @@ export function StudentDashboard() {
             </Stack>
           </div>
           {/* End of profile icon */}
-          {courses.length > 0 ? (
+          {/* {courses.length > 0 ? (
             <AssignedCourses />
           ) : (
             "You are not assigned to any courses"
-          )}
+          )} */}
         </div>
       </div>
     </AuthorizeView>

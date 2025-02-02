@@ -37,7 +37,7 @@ namespace OsTrainer.Server.Controllers
 
             var user = new AppUser
             {
-                UserName = model.Email,
+                UserName = string.IsNullOrEmpty(model.UserName) ? model.Email : model.UserName,
                 Email = model.Email
             };
 
@@ -142,6 +142,7 @@ namespace OsTrainer.Server.Controllers
         public string Email { get; set; }
         public string Password { get; set; }
         public string Role { get; set; }
+        public string UserName { get; set; }
     }
 
     public class LoginModel
