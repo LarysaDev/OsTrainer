@@ -78,3 +78,10 @@ export type AssignedCourse = {
   status: CourseStatus;
   mark: number;
 };
+
+export type UserProfile = {
+  id: string;
+  email: string;
+  userName: string;
+  role: string;
+};

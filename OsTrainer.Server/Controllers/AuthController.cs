@@ -89,27 +89,36 @@ namespace OsTrainer.Server.Controllers
 
         [Authorize]
         [HttpGet("profile")]
-        public async Task<IActionResult> GetProfileData()
+        public async Task<UserProfile> GetProfileData()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId == null)
             {
-                return Unauthorized("Invalid token.");
+                return new UserProfile();
             }
 
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.FindByEmailAsync(userId);
             if (user == null)
             {
-                return NotFound("User not found.");
+                return new UserProfile();
             }
 
             var roles = await _userManager.GetRolesAsync(user);
-            return Ok(new UserProfile
+            return new UserProfile
             {
                 Email = user.Email,
                 UserName = user.UserName,
                 Role = roles.FirstOrDefault()
-            });
+            };
+        }
+
+        [HttpGet("getToken")]
+        public async Task<string> GetToken(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            var roles = await _userManager.GetRolesAsync(user);
+
+            return _jwtTokenGenerator.GenerateJwtToken(user, roles.FirstOrDefault());
         }
 
         [HttpPost("refresh-token")]

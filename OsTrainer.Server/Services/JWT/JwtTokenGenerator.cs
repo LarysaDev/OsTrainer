@@ -1,42 +1,60 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Azure.Core;
+using Microsoft.IdentityModel.Tokens;
 using OsTrainer.Server.Data;
 using OsTrainer.Server.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 
 namespace OsTrainer.Server.Services.JWT
 {
     public class JwtTokenGenerator : IJwtTokenGenerator
     {
-        private readonly IConfiguration _configuration;
-
-        public JwtTokenGenerator(IConfiguration configuration)
-        {
-            _configuration = configuration;
-        }
+        private const string TokenSecret = "PersykAsAKeyForOSTrainerSecretKey";
+        private static readonly TimeSpan TokenLifetime = TimeSpan.FromHours(8);
 
         public string GenerateJwtToken(AppUser user, string role)
         {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
-            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(TokenSecret);
 
-            var claims = new[]
+            var claims = new List<Claim>
+        {
+            new Claim(JwtRegisteredClaimNames.Jti, user.Id.ToString()),
+            new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+            new Claim(JwtRegisteredClaimNames.Email, user.Email),
+            new Claim("userid", user.Id.ToString())
+            };
+
+            //foreach (var claimPair in request.CustomClaims)
+            //{
+            //    var jsonElement = (JsonElement)claimPair.Value;
+            //    var valueType = jsonElement.ValueKind switch
+            //    {
+            //        JsonValueKind.True => ClaimValueTypes.Boolean,
+            //        JsonValueKind.False => ClaimValueTypes.Boolean,
+            //        JsonValueKind.Number => ClaimValueTypes.Double,
+            //        _ => ClaimValueTypes.String
+            //    };
+
+            //    var claim = new Claim(claimPair.Key, claimPair.Value.ToString()!, valueType);
+            //    claims.Add(claim);
+            //}
+
+            var tokenDescriptor = new SecurityTokenDescriptor
             {
-            new Claim(ClaimTypes.NameIdentifier, user.Id),
-            new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.Role, role)
-        };
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.Add(TokenLifetime),
+                Issuer = "https://localhost:7111",
+                Audience = "https://localhost:5173",
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
 
-            var token = new JwtSecurityToken(
-                _configuration["Jwt:Issuer"],
-                _configuration["Jwt:Audience"],
-                claims,
-                expires: DateTime.UtcNow.AddHours(2),
-                signingCredentials: credentials);
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var jwt = tokenHandler.WriteToken(token);
+            return jwt;
         }
 
         public RefreshToken GenerateRefreshToken()

@@ -20,21 +20,28 @@ namespace OsTrainer.Server
             var connectionString = builder.Configuration.GetConnectionString("AppDbContextConnection") ?? throw new InvalidOperationException("Invalid connection string");
             builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
 
-            var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]);
-            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            builder.Services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
                 .AddJwtBearer(options =>
                 {
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
+                        ValidIssuer = "https://localhost:7111",
+                        ValidAudience = "https://localhost:5173",
+                        IssuerSigningKey = new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes("PersykAsAKeyForOSTrainerSecretKey")),
                         ValidateIssuer = true,
                         ValidateAudience = true,
                         ValidateLifetime = true,
-                        ValidateIssuerSigningKey = true,
-                        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-                        ValidAudience = builder.Configuration["Jwt:Audience"],
-                        IssuerSigningKey = new SymmetricSecurityKey(key)
+                        ValidateIssuerSigningKey = true
                     };
                 });
+
+            builder.Services.AddAuthorization();
 
             // Add services to the container.
             builder.Services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
@@ -91,6 +98,7 @@ namespace OsTrainer.Server
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
 

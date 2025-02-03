@@ -103,7 +103,7 @@ export function LoggedInView(props: LoggedInFrameProps) {
                               aria-labelledby="composition-button"
                               onKeyDown={handleListKeyDown}
                             >
-                              <MenuItem onClick={handleClose}>
+                              <MenuItem onClick={() => window.location.href = "/profile"}>
                                 Мій акаунт
                               </MenuItem>
                               <MenuItem onClick={handleClose}>
