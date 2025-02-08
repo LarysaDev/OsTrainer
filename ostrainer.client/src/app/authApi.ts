@@ -13,6 +13,13 @@ export const authApi = createApi({
         body: { email, password },
       }),
     }),
+    loginWithGoogle: builder.mutation<User, { provider: string; idToken: string, role: string | null }>({
+      query: ({ provider, idToken, role }) => ({
+        url: 'Auth/external-login?useSessionCookies=true',
+        method: 'POST',
+        body: { provider, idToken, role },
+      }),
+    }),
     register: builder.mutation<User, { email: string; password: string; role: string; userName: string }>({
       query: ({ email, password, role, userName }) => ({
         url: 'Auth/register?useSessionCookies=true',
@@ -41,4 +48,4 @@ export const authApi = createApi({
   }),
 });
 
-export const { useLoginMutation, useRegisterMutation, useGetProfileMutation, useGetStudentsAssignmentsMutation } = authApi;
+export const { useLoginMutation, useLoginWithGoogleMutation, useRegisterMutation, useGetProfileMutation, useGetStudentsAssignmentsMutation } = authApi;

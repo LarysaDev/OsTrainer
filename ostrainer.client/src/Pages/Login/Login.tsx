@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./Login.module.less";
-import { useLoginMutation } from "../../app/authApi";
+import { useLoginMutation, useLoginWithGoogleMutation } from "../../app/authApi";
 import { User } from "../../app/types";
 
 function Login() {
@@ -12,6 +12,7 @@ function Login() {
   const navigate = useNavigate();
 
   const [login, { isLoading }] = useLoginMutation();
+  const [loginWithGoogle] = useLoginWithGoogleMutation();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -19,6 +20,31 @@ function Login() {
     if (name === "password") setPassword(value);
     if (name === "rememberme") setRememberme(e.target.checked);
   };
+
+  const handleGoogleResponse = async (response: any) => {
+    const idToken: string = response.credential;
+
+      const user: User = await loginWithGoogle({ provider: 'Google', idToken, role: '' }).unwrap();
+
+      console.log('Google user authorized:', user);
+
+      localStorage.setItem('os_trainer_role', user.role);
+      localStorage.setItem('accessToken', user.token);
+      localStorage.setItem('refreshToken', user.refreshToken);
+      navigate("/home");
+  };
+
+  useEffect(() => {
+    window.google?.accounts.id.initialize({
+      client_id: "761148932094-2aog6ek6prnuu76jsk5cbrqefkt8u6cf.apps.googleusercontent.com",
+      callback: handleGoogleResponse,
+    });
+
+    window.google?.accounts.id.renderButton(
+      document.getElementById("google-signin-button"),
+      { theme: "outline", size: "large" }
+    );
+  }, []);
 
   const handleRegisterClick = () => {
     navigate("/register");
@@ -102,6 +128,7 @@ function Login() {
             </button>
           </div>
         </form>
+        <div id="google-signin-button" style={{display: 'flex', marginTop: '50px', justifyContent: 'center'}} className={styles.googleButton}></div>
         {error && <p className={styles.error}>{error}</p>}
       </div>
     </div>

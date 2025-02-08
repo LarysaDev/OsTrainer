@@ -77,6 +77,10 @@ export default defineConfig({
                 target: 'https://localhost:7111/',
                 secure: false
             },
+            '^/api/Auth/external-login': {
+                target: 'https://localhost:7111/',
+                secure: false
+            },
             '^/api/Auth/login': {
                 target: 'https://localhost:7111/',
                 secure: false,

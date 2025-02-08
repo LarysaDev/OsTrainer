@@ -26,20 +26,27 @@ namespace OsTrainer.Server
                 x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-                .AddJwtBearer(options =>
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidIssuer = "https://localhost:7111",
-                        ValidAudience = "https://localhost:5173",
-                        IssuerSigningKey = new SymmetricSecurityKey(
-                            Encoding.UTF8.GetBytes("PersykAsAKeyForOSTrainerSecretKey")),
-                        ValidateIssuer = true,
-                        ValidateAudience = true,
-                        ValidateLifetime = true,
-                        ValidateIssuerSigningKey = true
-                    };
-                });
+                    ValidIssuer = "https://localhost:7111",
+                    ValidAudience = "https://localhost:5173",
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes("PersykAsAKeyForOSTrainerSecretKey")),
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true
+                };
+            })
+            .AddGoogle(googleOptions =>
+            {
+                googleOptions.ClientId = "761148932094-2aog6ek6prnuu76jsk5cbrqefkt8u6cf.apps.googleusercontent.com";
+                googleOptions.ClientSecret = "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";
+                googleOptions.CallbackPath = "/signin-google";
+            });
+
 
             builder.Services.AddAuthorization();
 

@@ -5,6 +5,7 @@ using OsTrainer.Server.Services.JWT;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using Google.Apis.Auth;
 
 namespace OsTrainer.Server.Controllers
 {
@@ -144,6 +145,72 @@ namespace OsTrainer.Server.Controllers
 
             return Ok(new { Token = newJwtToken });
         }
+
+        [HttpPost("external-login")]
+        public async Task<IActionResult> ExternalLogin([FromBody] ExternalLoginModel model)
+        {
+            var payload = await VerifyGoogleToken(model);
+            if (payload == null)
+            {
+                return BadRequest("Invalid Google token.");
+            }
+
+            var info = new UserLoginInfo(model.Provider, payload.Subject, model.Provider);
+            var user = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
+
+            if (user == null)
+            {
+                user = await _userManager.FindByEmailAsync(payload.Email);
+                if (user == null)
+                {
+                    user = new AppUser
+                    {
+                        Email = payload.Email,
+                        UserName = payload.Email
+                    };
+                    await _userManager.CreateAsync(user);
+                    var roleResult = await _userManager.AddToRoleAsync(user, model.Role ?? "Student");
+                    await _userManager.AddLoginAsync(user, info);
+                }
+                else
+                {
+                    await _userManager.AddLoginAsync(user, info);
+                }
+            }
+
+            var roles = await _userManager.GetRolesAsync(user);
+            var jwtToken = _jwtTokenGenerator.GenerateJwtToken(user, roles.FirstOrDefault());
+
+            return Ok(new
+            {
+                Role = roles.FirstOrDefault() ?? "Student",
+                Token = jwtToken
+            });
+        }
+
+        private async Task<GoogleJsonWebSignature.Payload> VerifyGoogleToken(ExternalLoginModel externalAuth)
+        {
+            try
+            {
+                var settings = new GoogleJsonWebSignature.ValidationSettings()
+                {
+                    Audience = new List<string>() { "761148932094-2aog6ek6prnuu76jsk5cbrqefkt8u6cf.apps.googleusercontent.com" }
+                };
+
+                var payload = await GoogleJsonWebSignature.ValidateAsync(externalAuth.IdToken, settings);
+                return payload;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+    }
+    public class ExternalLoginModel
+    {
+        public string Provider { get; set; }
+        public string IdToken { get; set; }
+        public string Role { get; set; }
     }
 
     public class RegisterModel

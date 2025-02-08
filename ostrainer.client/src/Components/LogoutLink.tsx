@@ -7,10 +7,13 @@ function LogoutLink(props: { children: React.ReactNode }) {
 
     const handleSubmit = (e: React.FormEvent<HTMLAnchorElement>) => {
         e.preventDefault();
+        const accessToken = localStorage.getItem("accessToken");
+
         fetch("/logout", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                "Authorization": 'Bearer ' + accessToken
             },
             body: ""
 
@@ -23,7 +26,9 @@ function LogoutLink(props: { children: React.ReactNode }) {
 
                     navigate("/login");
                 }
-                else { }
+                else { 
+                    console.log("Error while logging out");
+                }
 
 
             })
