@@ -166,7 +166,7 @@ namespace OsTrainer.Server.Controllers
                     user = new AppUser
                     {
                         Email = payload.Email,
-                        UserName = payload.Email
+                        UserName = GetUserName(payload.Email)
                     };
                     await _userManager.CreateAsync(user);
                     var roleResult = await _userManager.AddToRoleAsync(user, model.Role ?? "Student");
@@ -204,6 +204,14 @@ namespace OsTrainer.Server.Controllers
             {
                 return null;
             }
+        }
+
+        private string GetUserName(string email)
+        {
+            int atIndex = email.IndexOf('@');
+            string localPart = email.Substring(0, atIndex);
+
+            return localPart;
         }
     }
     public class ExternalLoginModel

@@ -1,7 +1,10 @@
 import { useState } from "react";
 import axios from "axios";
 import styles from "../Trainer.module.less";
-import { SidePanel, updateActiveLinkByIndex } from "../../../Components/SidePanel/SidePanel";
+import {
+  SidePanel,
+  updateActiveLinkByIndex,
+} from "../../../Components/SidePanel/SidePanel";
 import AuthorizeView from "../../../Components/AuthorizeView";
 import {
   Button,
@@ -18,6 +21,13 @@ import {
 } from "@mui/material";
 import { Process } from "../../common";
 import { generatePrioritySchedulingData } from "../../../common/RandomGenerators/AlgorithmRandomDataGenerator";
+import {
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  FormControl,
+  FormLabel,
+} from "@mui/material";
 
 export const PreemptivePriorityTrainer: React.FC = () => {
   const [arrivalTimes, setArrivalTimes] = useState<string>("");
@@ -29,6 +39,7 @@ export const PreemptivePriorityTrainer: React.FC = () => {
   const [matrix, setMatrix] = useState<(string | number)[][]>([]);
   const [userMatrix, setUserMatrix] = useState<(string | number)[][]>([]);
   const [colorMatrix, setColorMatrix] = useState<(string | number)[][]>([]);
+  const [system, setSystem] = useState("Linux");
 
   const validateInputs = () => {
     const trimmedArrivalTimes = arrivalTimes.replace(/\s+/g, "");
@@ -41,16 +52,20 @@ export const PreemptivePriorityTrainer: React.FC = () => {
 
     let valid = true;
 
-    if (arrivalArray.length !== burstArray.length ) {
-      setArrivalError("Arrival Times та Burst Times повинні мати однакову кількість значень.");
-      setBurstError("Arrival Times та Burst Times повинні мати однакову кількість значень.");
+    if (arrivalArray.length !== burstArray.length) {
+      setArrivalError(
+        "Arrival Times та Burst Times повинні мати однакову кількість значень."
+      );
+      setBurstError(
+        "Arrival Times та Burst Times повинні мати однакову кількість значень."
+      );
       valid = false;
-    } 
-    else if(arrivalArray.length !== priorityArray.length){
-        setPrioritiesError("Arrival Times, Burst Times та Priorities повинні мати однакову кількість значень.");
-        valid = false;
-    }
-    else {
+    } else if (arrivalArray.length !== priorityArray.length) {
+      setPrioritiesError(
+        "Arrival Times, Burst Times та Priorities повинні мати однакову кількість значень."
+      );
+      valid = false;
+    } else {
       setArrivalError(null);
       setBurstError(null);
       setPrioritiesError(null);
@@ -63,46 +78,56 @@ export const PreemptivePriorityTrainer: React.FC = () => {
       (value) => isNaN(Number(value)) || value === ""
     );
     const priorityInvalid = priorityArray.some(
-        (value) => isNaN(Number(value)) || value === ""
-      );
+      (value) => isNaN(Number(value)) || value === ""
+    );
 
     if (arrivalInvalid) {
-      setArrivalError("Arrival Times повинні містити тільки коректні числові значення.");
+      setArrivalError(
+        "Arrival Times повинні містити тільки коректні числові значення."
+      );
       valid = false;
     } else if (!arrivalError) {
       setArrivalError(null);
     }
 
     if (burstInvalid) {
-      setBurstError("Burst Times повинні містити тільки коректні числові значення.");
+      setBurstError(
+        "Burst Times повинні містити тільки коректні числові значення."
+      );
       valid = false;
     } else if (!burstError) {
       setBurstError(null);
     }
 
     if (priorityInvalid) {
-        setPrioritiesError("Priority повинні містити тільки коректні числові значення.");
-        valid = false;
-      } else if (!prioritiesError) {
-        setPrioritiesError(null);
-      }
+      setPrioritiesError(
+        "Priority повинні містити тільки коректні числові значення."
+      );
+      valid = false;
+    } else if (!prioritiesError) {
+      setPrioritiesError(null);
+    }
 
     return valid;
   };
 
   const handleAutocompleteInput = () => {
-    const [ arrivalTimes, burstTimes, priorities ] = generatePrioritySchedulingData();
-    setArrivalTimes(arrivalTimes.join(','));
-    setBurstTimes(burstTimes.join(','));
-    setPriorities(priorities.join(','));
-  }
+    const [arrivalTimes, burstTimes, priorities] =
+      generatePrioritySchedulingData();
+    setArrivalTimes(arrivalTimes.join(","));
+    setBurstTimes(burstTimes.join(","));
+    setPriorities(priorities.join(","));
+  };
 
   const handleGenerate = async () => {
     if (!validateInputs()) {
       return;
     }
 
-    const arrivalArray = arrivalTimes.replace(/\s+/g, "").split(",").map(Number);
+    const arrivalArray = arrivalTimes
+      .replace(/\s+/g, "")
+      .split(",")
+      .map(Number);
     const burstArray = burstTimes.replace(/\s+/g, "").split(",").map(Number);
     const priorityArray = priorities.replace(/\s+/g, "").split(",").map(Number);
 
@@ -114,7 +139,10 @@ export const PreemptivePriorityTrainer: React.FC = () => {
     }));
 
     try {
-      const response = await axios.post("/api/ganttchart/preemptive_sjf", processList);
+      const response = await axios.post(
+        "/api/ganttchart/preemptive_sjf",
+        processList
+      );
       generateMatrixTable(arrivalArray, burstArray, priorityArray);
     } catch (error) {
       console.error("Error generating Gantt chart", error);
@@ -122,20 +150,20 @@ export const PreemptivePriorityTrainer: React.FC = () => {
   };
 
   const generateMatrixTable = (
-    arrivalTimes: number[], 
-    burstTimes: number[], 
+    arrivalTimes: number[],
+    burstTimes: number[],
     priorities: number[]
-) => {
+  ) => {
     // Ініціалізуємо процеси
     let processes: Process[] = arrivalTimes.map((arrival, index) => ({
-        id: index + 1,
-        arrivalTime: arrival,
-        burstTime: burstTimes[index],
-        priority: priorities[index],
-        remainingTime: burstTimes[index],
-        completionTime: undefined,
-        startTime: undefined,
-        currentStartTime: undefined
+      id: index + 1,
+      arrivalTime: arrival,
+      burstTime: burstTimes[index],
+      priority: priorities[index],
+      remainingTime: burstTimes[index],
+      completionTime: undefined,
+      startTime: undefined,
+      currentStartTime: undefined,
     }));
 
     let currentTime = Math.min(...arrivalTimes);
@@ -144,88 +172,97 @@ export const PreemptivePriorityTrainer: React.FC = () => {
     let currentProcess: Process | null = null;
 
     while (completedProcesses < processes.length) {
-        let availableProcesses = processes.filter(
-            p => p.arrivalTime <= currentTime && p.remainingTime > 0
+      let availableProcesses = processes.filter(
+        (p) => p.arrivalTime <= currentTime && p.remainingTime > 0
+      );
+
+      if (availableProcesses.length === 0) {
+        let nextArrival = Math.min(
+          ...processes
+            .filter((p) => p.remainingTime > 0)
+            .map((p) => p.arrivalTime)
         );
+        currentTime = nextArrival;
+        continue;
+      }
 
-        if (availableProcesses.length === 0) {
-            let nextArrival = Math.min(
-                ...processes
-                    .filter(p => p.remainingTime > 0)
-                    .map(p => p.arrivalTime)
-            );
-            currentTime = nextArrival;
-            continue;
-        }
-
-        let highestPriorityProcess = availableProcesses.reduce((prev, current) => 
-            prev.priority <= current.priority ? prev : current
+      let highestPriorityProcess;
+      if (system === "Windows") {
+        highestPriorityProcess = availableProcesses.reduce((prev, current) =>
+          prev.priority >= current.priority ? prev : current
         );
+      } else {
+        highestPriorityProcess = availableProcesses.reduce((prev, current) =>
+          prev.priority <= current.priority ? prev : current
+        );
+      }
 
-        if (currentProcess && currentProcess.remainingTime > 0) {
-            if (highestPriorityProcess.priority < currentProcess.priority) {
-                currentProcess = highestPriorityProcess;
-            }
-        } else {
-            currentProcess = highestPriorityProcess;
+      if (currentProcess && currentProcess.remainingTime > 0) {
+        if (highestPriorityProcess.priority < currentProcess.priority) {
+          currentProcess = highestPriorityProcess;
         }
+      } else {
+        currentProcess = highestPriorityProcess;
+      }
 
-        if (processes[currentProcess.id - 1].startTime === undefined) {
-            processes[currentProcess.id - 1].startTime = currentTime;
-        }
-        processes[currentProcess.id - 1].currentStartTime = currentTime;
+      if (processes[currentProcess.id - 1].startTime === undefined) {
+        processes[currentProcess.id - 1].startTime = currentTime;
+      }
+      processes[currentProcess.id - 1].currentStartTime = currentTime;
 
-        executionHistory.push({ 
-            time: currentTime, 
-            processId: currentProcess.id 
-        });
+      executionHistory.push({
+        time: currentTime,
+        processId: currentProcess.id,
+      });
 
-        currentProcess.remainingTime--;
-        currentTime++;
+      currentProcess.remainingTime--;
+      currentTime++;
 
-        if (currentProcess.remainingTime === 0) {
-            processes[currentProcess.id - 1].completionTime = currentTime;
-            completedProcesses++;
-            currentProcess = null;
-        }
+      if (currentProcess.remainingTime === 0) {
+        processes[currentProcess.id - 1].completionTime = currentTime;
+        completedProcesses++;
+        currentProcess = null;
+      }
     }
 
-    const maxTime = Math.max(...processes.map(p => p.completionTime!));
+    const maxTime = Math.max(...processes.map((p) => p.completionTime!));
     const matrix: (string | number)[][] = [];
-    
+
     const headerRow: (string | number)[] = ["Process\\Time"];
     for (let t = 0; t <= maxTime; t++) {
-        headerRow.push(t);
+      headerRow.push(t);
     }
     matrix.push(headerRow);
 
-    processes.forEach(process => {
-        const row: (string | number)[] = [`P${process.id}`];
-        for (let t = 0; t <= maxTime; t++) {
-            if (t < process.arrivalTime) {
-                row.push("-");
-            } else if (t >= process.completionTime!) {
-                row.push("");
-            } else {
-                const isExecuting = executionHistory.find(
-                    h => h.time === t && h.processId === process.id
-                );
-                if (isExecuting) {
-                    row.push("e");
-                } else {
-                    row.push("w");
-                }
-            }
+    processes.forEach((process) => {
+      const row: (string | number)[] = [`P${process.id}`];
+      for (let t = 0; t <= maxTime; t++) {
+        if (t < process.arrivalTime) {
+          row.push("-");
+        } else if (t >= process.completionTime!) {
+          row.push("");
+        } else {
+          const isExecuting = executionHistory.find(
+            (h) => h.time === t && h.processId === process.id
+          );
+          if (isExecuting) {
+            row.push("e");
+          } else {
+            row.push("w");
+          }
         }
-        matrix.push(row);
+      }
+      matrix.push(row);
     });
 
     setMatrix(matrix);
     setUserMatrix(
-        matrix.map(row => row.map(cell => typeof cell === "number" ? cell : ""))
+      matrix.map((row) =>
+        row.map((cell) => (typeof cell === "number" ? cell : ""))
+      )
     );
-    setColorMatrix(matrix.map(row => row.map(() => "")));
-};
+    setColorMatrix(matrix.map((row) => row.map(() => "")));
+  };
 
   const handleUserInputChange = (
     rowIndex: number,
@@ -300,7 +337,28 @@ export const PreemptivePriorityTrainer: React.FC = () => {
                 fullWidth
                 margin="normal"
               />
-               <Button
+              <FormControl component="fieldset">
+                <FormLabel component="legend">Оберіть ОС</FormLabel>
+                <RadioGroup
+                  row
+                  value={system}
+                  onChange={(e) => setSystem(e.target.value)}
+                >
+                  <FormControlLabel
+                    value="Windows"
+                    control={<Radio />}
+                    label="Windows"
+                  />
+                  <FormControlLabel
+                    value="Linux"
+                    control={<Radio />}
+                    label="Linux"
+                  />
+                </RadioGroup>
+              </FormControl>
+              <br />
+              <br />
+              <Button
                 variant="contained"
                 color="primary"
                 onClick={handleGenerate}
@@ -311,7 +369,7 @@ export const PreemptivePriorityTrainer: React.FC = () => {
                 variant="contained"
                 color="primary"
                 onClick={handleAutocompleteInput}
-                sx={{marginLeft: '10px'}}
+                sx={{ marginLeft: "10px" }}
               >
                 Автозаповнити вхідні дані
               </Button>
@@ -322,8 +380,11 @@ export const PreemptivePriorityTrainer: React.FC = () => {
               <strong>e</strong> : Виконується <br />
               <strong>w</strong> : Очікує <br />
             </Typography>
-            <TableContainer component={Paper} style={{ maxWidth: '1000px', overflowX: 'auto' }}>
-            <Table>
+            <TableContainer
+              component={Paper}
+              style={{ maxWidth: "1000px", overflowX: "auto" }}
+            >
+              <Table>
                 <TableHead>
                   <TableRow>
                     {matrix[0]?.map((header, index) => (
@@ -339,9 +400,8 @@ export const PreemptivePriorityTrainer: React.FC = () => {
                         <TableCell
                           key={cellIndex}
                           style={{
-                            backgroundColor: colorMatrix[rowIndex + 1][
-                              cellIndex + 1
-                            ],
+                            backgroundColor:
+                              colorMatrix[rowIndex + 1][cellIndex + 1],
                           }}
                         >
                           <input

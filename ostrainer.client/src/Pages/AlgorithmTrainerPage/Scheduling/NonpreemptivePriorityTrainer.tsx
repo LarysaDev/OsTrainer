@@ -21,6 +21,13 @@ import {
 } from "@mui/material";
 import { Process } from "../../common";
 import { generatePrioritySchedulingData } from "../../../common/RandomGenerators/AlgorithmRandomDataGenerator";
+import {
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  FormControl,
+  FormLabel,
+} from "@mui/material";
 
 export const NonpreemptivePriorityTrainer: React.FC = () => {
   const [arrivalTimes, setArrivalTimes] = useState<string>("");
@@ -32,6 +39,7 @@ export const NonpreemptivePriorityTrainer: React.FC = () => {
   const [matrix, setMatrix] = useState<(string | number)[][]>([]);
   const [userMatrix, setUserMatrix] = useState<(string | number)[][]>([]);
   const [colorMatrix, setColorMatrix] = useState<(string | number)[][]>([]);
+  const [system, setSystem] = useState("Windows");
 
   const validateInputs = () => {
     const trimmedArrivalTimes = arrivalTimes.replace(/\s+/g, "");
@@ -74,21 +82,27 @@ export const NonpreemptivePriorityTrainer: React.FC = () => {
     );
 
     if (arrivalInvalid) {
-      setArrivalError("Arrival Times повинні містити тільки коректні числові значення.");
+      setArrivalError(
+        "Arrival Times повинні містити тільки коректні числові значення."
+      );
       valid = false;
     } else if (!arrivalError) {
       setArrivalError(null);
     }
 
     if (burstInvalid) {
-      setBurstError("Burst Times повинні містити тільки коректні числові значення.");
+      setBurstError(
+        "Burst Times повинні містити тільки коректні числові значення."
+      );
       valid = false;
     } else if (!burstError) {
       setBurstError(null);
     }
 
     if (priorityInvalid) {
-      setPrioritiesError("Priority повинні містити тільки коректні числові значення.");
+      setPrioritiesError(
+        "Priority повинні містити тільки коректні числові значення."
+      );
       valid = false;
     } else if (!prioritiesError) {
       setPrioritiesError(null);
@@ -98,11 +112,12 @@ export const NonpreemptivePriorityTrainer: React.FC = () => {
   };
 
   const handleAutocompleteInput = () => {
-    const [ arrivalTimes, burstTimes, priorities ] = generatePrioritySchedulingData();
-    setArrivalTimes(arrivalTimes.join(','));
-    setBurstTimes(burstTimes.join(','));
-    setPriorities(priorities.join(','));
-  }
+    const [arrivalTimes, burstTimes, priorities] =
+      generatePrioritySchedulingData();
+    setArrivalTimes(arrivalTimes.join(","));
+    setBurstTimes(burstTimes.join(","));
+    setPriorities(priorities.join(","));
+  };
 
   const handleGenerate = async () => {
     if (!validateInputs()) {
@@ -167,9 +182,17 @@ export const NonpreemptivePriorityTrainer: React.FC = () => {
         continue;
       }
 
-      let selectedProcess = availableProcesses.reduce((prev, current) =>
-        prev.priority <= current.priority ? prev : current
-      );
+      let selectedProcess;
+
+      if (system === "Windows") {
+        selectedProcess = availableProcesses.reduce((prev, current) =>
+          prev.priority >= current.priority ? prev : current
+        );
+      } else {
+        selectedProcess = availableProcesses.reduce((prev, current) =>
+          prev.priority <= current.priority ? prev : current
+        );
+      };
 
       if (!processes[selectedProcess.id - 1].startTime) {
         processes[selectedProcess.id - 1].startTime = currentTime;
@@ -301,7 +324,28 @@ export const NonpreemptivePriorityTrainer: React.FC = () => {
                 fullWidth
                 margin="normal"
               />
-               <Button
+              <FormControl component="fieldset">
+                <FormLabel component="legend">Оберіть ОС</FormLabel>
+                <RadioGroup
+                  row
+                  value={system}
+                  onChange={(e) => setSystem(e.target.value)}
+                >
+                  <FormControlLabel
+                    value="Windows"
+                    control={<Radio />}
+                    label="Windows"
+                  />
+                  <FormControlLabel
+                    value="Linux"
+                    control={<Radio />}
+                    label="Linux"
+                  />
+                </RadioGroup>
+              </FormControl>
+              <br />
+              <br />
+              <Button
                 variant="contained"
                 color="primary"
                 onClick={handleGenerate}
@@ -312,7 +356,7 @@ export const NonpreemptivePriorityTrainer: React.FC = () => {
                 variant="contained"
                 color="primary"
                 onClick={handleAutocompleteInput}
-                sx={{marginLeft: '10px'}}
+                sx={{ marginLeft: "10px" }}
               >
                 Автозаповнити вхідні дані
               </Button>
