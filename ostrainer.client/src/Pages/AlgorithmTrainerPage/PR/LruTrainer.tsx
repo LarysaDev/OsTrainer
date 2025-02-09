@@ -24,7 +24,7 @@ import { generatePageReplacementData } from "../../../common/RandomGenerators/Al
 const generateMatrix = (
   pageRequests: number[],
   frameCount: number,
-  isStack: string
+  isStack: stringh
 ) => {
   return isStack == "true"
     ? generateLRUStackMatrix(pageRequests, frameCount)

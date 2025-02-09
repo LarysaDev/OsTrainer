@@ -278,7 +278,9 @@ export const PreemptivePriorityTrainer: React.FC = () => {
     const newColorMatrix = matrix.map((row, i) =>
       row.map((cell, j) => {
         if (i === 0 || j === 0) return "";
-        return userMatrix[i][j] === cell ? "green" : "red";
+        return userMatrix[i][j] === cell
+          ? "rgb(232, 245, 233)"
+          : "rgb(255, 235, 238)";
       })
     );
     setColorMatrix(newColorMatrix);
@@ -374,7 +376,7 @@ export const PreemptivePriorityTrainer: React.FC = () => {
                 Автозаповнити вхідні дані
               </Button>
             </form>
-            <h2>Матриця статусу потоків відносно моментів часу</h2>
+            <h2>Матриця статусу процесів відносно моментів часу</h2>
             <Typography variant="body1" style={{ margin: "20px 0" }}>
               <strong>-</strong> : Виконання не розпочалось <br />
               <strong>e</strong> : Виконується <br />
@@ -397,13 +399,7 @@ export const PreemptivePriorityTrainer: React.FC = () => {
                     <TableRow key={rowIndex}>
                       <TableCell>{row[0]}</TableCell>
                       {row.slice(1).map((cell, cellIndex) => (
-                        <TableCell
-                          key={cellIndex}
-                          style={{
-                            backgroundColor:
-                              colorMatrix[rowIndex + 1][cellIndex + 1],
-                          }}
-                        >
+                        <TableCell key={cellIndex}>
                           <input
                             value={userMatrix[rowIndex + 1][cellIndex + 1]}
                             onChange={(e) =>
@@ -413,7 +409,14 @@ export const PreemptivePriorityTrainer: React.FC = () => {
                                 e.target.value
                               )
                             }
-                            style={{ width: "30px", textAlign: "center" }}
+                            style={{
+                              width: "30px",
+                              textAlign: "center",
+                              backgroundColor:
+                                colorMatrix[rowIndex + 1][cellIndex + 1],
+                              border: "1px solid #ccc",
+                              borderRadius: "4px"
+                            }}
                           />
                         </TableCell>
                       ))}

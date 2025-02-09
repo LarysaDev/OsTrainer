@@ -118,60 +118,64 @@ export const FcfsTrainer: React.FC = () => {
     const turnaroundTimes = new Array(n).fill(0);
 
     const processesWithIndex = processes.map((process, index) => ({
-        ...process,
-        originalIndex: index,
-        processId: `P${index + 1}`
+      ...process,
+      originalIndex: index,
+      processId: `P${index + 1}`,
     }));
-    const sortedProcesses = [...processesWithIndex].sort((a, b) => a.arrivalTime - b.arrivalTime);
+    const sortedProcesses = [...processesWithIndex].sort(
+      (a, b) => a.arrivalTime - b.arrivalTime
+    );
 
     let currentTime = 0;
     for (let i = 0; i < n; i++) {
-        const process = sortedProcesses[i];
-        if (currentTime < process.arrivalTime) {
-            currentTime = process.arrivalTime;
-        }
-        currentTime += process.burstTime;
-        completionTimes[process.originalIndex] = currentTime;
-        turnaroundTimes[process.originalIndex] = currentTime - process.arrivalTime;
-        waitingTimes[process.originalIndex] = turnaroundTimes[process.originalIndex] - process.burstTime;
+      const process = sortedProcesses[i];
+      if (currentTime < process.arrivalTime) {
+        currentTime = process.arrivalTime;
+      }
+      currentTime += process.burstTime;
+      completionTimes[process.originalIndex] = currentTime;
+      turnaroundTimes[process.originalIndex] =
+        currentTime - process.arrivalTime;
+      waitingTimes[process.originalIndex] =
+        turnaroundTimes[process.originalIndex] - process.burstTime;
     }
 
     const headerRow = ["Process\\Time"];
     const maxTime = Math.max(...completionTimes);
     for (let t = 0; t <= maxTime; t++) {
-        headerRow.push(t);
+      headerRow.push(t);
     }
     matrix.push(headerRow);
 
     for (let i = 0; i < n; i++) {
-        const row = [`P${i + 1}`];
-        const process = processes[i];
-        
-        const startTime = completionTimes[i] - process.burstTime;
-        const endTime = completionTimes[i];
+      const row = [`P${i + 1}`];
+      const process = processes[i];
 
-        for (let t = 0; t <= maxTime; t++) {
-            if (t < process.arrivalTime) {
-                row.push("-");
-            } else if (t >= startTime && t < endTime) {
-                row.push("e");
-            } else if (t >= endTime) {
-                row.push("");
-            } else {
-                row.push("w");
-            }
+      const startTime = completionTimes[i] - process.burstTime;
+      const endTime = completionTimes[i];
+
+      for (let t = 0; t <= maxTime; t++) {
+        if (t < process.arrivalTime) {
+          row.push("-");
+        } else if (t >= startTime && t < endTime) {
+          row.push("e");
+        } else if (t >= endTime) {
+          row.push("");
+        } else {
+          row.push("w");
         }
-        matrix.push(row);
+      }
+      matrix.push(row);
     }
 
     setMatrix(matrix);
     setUserMatrix(
-        matrix.map(row =>
-            row.map(cell => typeof cell === "number" ? cell : "")
-        )
+      matrix.map((row) =>
+        row.map((cell) => (typeof cell === "number" ? cell : ""))
+      )
     );
-    setColorMatrix(matrix.map(row => row.map(() => "")));
-}
+    setColorMatrix(matrix.map((row) => row.map(() => "")));
+  }
 
   const handleUserInputChange = (
     rowIndex: number,
@@ -187,7 +191,7 @@ export const FcfsTrainer: React.FC = () => {
     const newColorMatrix = matrix.map((row, i) =>
       row.map((cell, j) => {
         if (i === 0 || j === 0) return "";
-        return userMatrix[i][j] === cell ? "green" : "red";
+        return userMatrix[i][j] === cell ? "rgb(232, 245, 233)" : "rgb(255, 235, 238)";
       })
     );
     setColorMatrix(newColorMatrix);
@@ -252,7 +256,7 @@ export const FcfsTrainer: React.FC = () => {
                 Автозаповнити вхідні дані
               </Button>
             </form>
-            <h2>Матриця статусу потоків відносно моментів часу</h2>
+            <h2>Матриця статусу процесів відносно моментів часу</h2>
             <Typography variant="body1" style={{ margin: "20px 0" }}>
               <strong>-</strong> : Виконання не розпочалось <br />
               <strong>e</strong> : Виконується <br />
@@ -275,13 +279,7 @@ export const FcfsTrainer: React.FC = () => {
                     <TableRow key={rowIndex}>
                       <TableCell>{row[0]}</TableCell>
                       {row.slice(1).map((cell, cellIndex) => (
-                        <TableCell
-                          key={cellIndex}
-                          style={{
-                            backgroundColor:
-                              colorMatrix[rowIndex + 1][cellIndex + 1],
-                          }}
-                        >
+                        <TableCell key={cellIndex}>
                           <input
                             value={userMatrix[rowIndex + 1][cellIndex + 1]}
                             onChange={(e) =>
@@ -291,7 +289,14 @@ export const FcfsTrainer: React.FC = () => {
                                 e.target.value
                               )
                             }
-                            style={{ width: "30px", textAlign: "center" }}
+                            style={{
+                              width: "30px",
+                              textAlign: "center",
+                              backgroundColor:
+                                colorMatrix[rowIndex + 1][cellIndex + 1],
+                              border: "1px solid #ccc", 
+                              borderRadius: "4px",
+                            }}
                           />
                         </TableCell>
                       ))}

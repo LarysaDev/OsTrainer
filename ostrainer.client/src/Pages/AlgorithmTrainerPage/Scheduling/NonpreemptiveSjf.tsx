@@ -60,14 +60,18 @@ export const NonpreemptiveSjfTrainer: React.FC = () => {
     );
 
     if (arrivalInvalid) {
-      setArrivalError("Arrival Times повинні містити тільки коректні числові значення.");
+      setArrivalError(
+        "Arrival Times повинні містити тільки коректні числові значення."
+      );
       valid = false;
     } else if (!arrivalError) {
       setArrivalError(null);
     }
 
     if (burstInvalid) {
-      setBurstError("Burst Times  повинні містити тільки коректні числові значення.");
+      setBurstError(
+        "Burst Times  повинні містити тільки коректні числові значення."
+      );
       valid = false;
     } else if (!burstError) {
       setBurstError(null);
@@ -77,10 +81,10 @@ export const NonpreemptiveSjfTrainer: React.FC = () => {
   };
 
   const handleAutocompleteInput = () => {
-    const [ arrivalTimes, burstTimes ] = generateRandomData();
-    setArrivalTimes(arrivalTimes.join(','));
-    setBurstTimes(burstTimes.join(','));
-  }
+    const [arrivalTimes, burstTimes] = generateRandomData();
+    setArrivalTimes(arrivalTimes.join(","));
+    setBurstTimes(burstTimes.join(","));
+  };
 
   const handleGenerate = async () => {
     if (!validateInputs()) {
@@ -110,13 +114,13 @@ export const NonpreemptiveSjfTrainer: React.FC = () => {
     arrivalTime: number;
     burstTime: number;
     completed?: boolean;
-}
+  }
 
-const generateMatrixTable = (arrivalTime: number[], burstTime: number[]) => {
+  const generateMatrixTable = (arrivalTime: number[], burstTime: number[]) => {
     const processes: Process[] = arrivalTime.map((arrival, index) => ({
-        arrivalTime: arrival,
-        burstTime: burstTime[index],
-        completed: false
+      arrivalTime: arrival,
+      burstTime: burstTime[index],
+      completed: false,
     }));
 
     const n = processes.length;
@@ -129,69 +133,79 @@ const generateMatrixTable = (arrivalTime: number[], burstTime: number[]) => {
     let completedProcesses = 0;
 
     while (completedProcesses < n) {
-        let selectedProcess: number = -1;
-        let shortestBurst = Number.MAX_VALUE;
+      let selectedProcess: number = -1;
+      let shortestBurst = Number.MAX_VALUE;
 
+      for (let i = 0; i < n; i++) {
+        if (
+          !processes[i].completed &&
+          processes[i].arrivalTime <= currentTime &&
+          processes[i].burstTime < shortestBurst
+        ) {
+          selectedProcess = i;
+          shortestBurst = processes[i].burstTime;
+        }
+      }
+
+      if (selectedProcess !== -1) {
+        startTimes[selectedProcess] = currentTime;
+        completionTimes[selectedProcess] =
+          currentTime + processes[selectedProcess].burstTime;
+        currentTime = completionTimes[selectedProcess];
+        processes[selectedProcess].completed = true;
+        completedProcesses++;
+      } else {
+        let nextArrival = Number.MAX_VALUE;
         for (let i = 0; i < n; i++) {
-            if (!processes[i].completed && 
-                processes[i].arrivalTime <= currentTime && 
-                processes[i].burstTime < shortestBurst) {
-                selectedProcess = i;
-                shortestBurst = processes[i].burstTime;
-            }
+          if (
+            !processes[i].completed &&
+            processes[i].arrivalTime > currentTime
+          ) {
+            nextArrival = Math.min(nextArrival, processes[i].arrivalTime);
+          }
         }
-
-        if (selectedProcess !== -1) {
-            startTimes[selectedProcess] = currentTime;
-            completionTimes[selectedProcess] = currentTime + processes[selectedProcess].burstTime;
-            currentTime = completionTimes[selectedProcess];
-            processes[selectedProcess].completed = true;
-            completedProcesses++;
-        } else {
-            let nextArrival = Number.MAX_VALUE;
-            for (let i = 0; i < n; i++) {
-                if (!processes[i].completed && processes[i].arrivalTime > currentTime) {
-                    nextArrival = Math.min(nextArrival, processes[i].arrivalTime);
-                }
-            }
-            currentTime = nextArrival;
-        }
+        currentTime = nextArrival;
+      }
     }
 
     for (let i = 0; i < n; i++) {
-        turnaroundTimes[i] = completionTimes[i] - processes[i].arrivalTime;
-        waitingTimes[i] = turnaroundTimes[i] - processes[i].burstTime;
+      turnaroundTimes[i] = completionTimes[i] - processes[i].arrivalTime;
+      waitingTimes[i] = turnaroundTimes[i] - processes[i].burstTime;
     }
 
     const maxTime = Math.max(...completionTimes);
     const matrix: (string | number)[][] = [];
-    
+
     const headerRow: (string | number)[] = ["Process\\Time"];
     for (let t = 0; t <= maxTime; t++) {
-        headerRow.push(t);
+      headerRow.push(t);
     }
     matrix.push(headerRow);
 
     processes.forEach((process, index) => {
-        const row: (string | number)[] = [`P${index + 1}`];
-        for (let t = 0; t <= maxTime; t++) {
-            if (t < process.arrivalTime) {
-                row.push("-");
-            } else if (t >= startTimes[index] && t < completionTimes[index]) {
-                row.push("e");
-            } else if (t >= process.arrivalTime && t < startTimes[index]) {
-                row.push("w");
-            } else {
-                row.push("");
-            }
+      const row: (string | number)[] = [`P${index + 1}`];
+      for (let t = 0; t <= maxTime; t++) {
+        if (t < process.arrivalTime) {
+          row.push("-");
+        } else if (t >= startTimes[index] && t < completionTimes[index]) {
+          row.push("e");
+        } else if (t >= process.arrivalTime && t < startTimes[index]) {
+          row.push("w");
+        } else {
+          row.push("");
         }
-        matrix.push(row);
+      }
+      matrix.push(row);
     });
 
     setMatrix(matrix);
-    setUserMatrix(matrix.map(row => row.map(cell => typeof cell === "number" ? cell : "")));
-    setColorMatrix(matrix.map(row => row.map(() => "")));
-};
+    setUserMatrix(
+      matrix.map((row) =>
+        row.map((cell) => (typeof cell === "number" ? cell : ""))
+      )
+    );
+    setColorMatrix(matrix.map((row) => row.map(() => "")));
+  };
 
   const handleUserInputChange = (
     rowIndex: number,
@@ -207,7 +221,9 @@ const generateMatrixTable = (arrivalTime: number[], burstTime: number[]) => {
     const newColorMatrix = matrix.map((row, i) =>
       row.map((cell, j) => {
         if (i === 0 || j === 0) return "";
-        return userMatrix[i][j] === cell ? "green" : "red";
+        return userMatrix[i][j] === cell
+          ? "rgb(232, 245, 233)"
+          : "rgb(255, 235, 238)";
       })
     );
     setColorMatrix(newColorMatrix);
@@ -256,7 +272,7 @@ const generateMatrixTable = (arrivalTime: number[], burstTime: number[]) => {
                 fullWidth
                 margin="normal"
               />
-               <Button
+              <Button
                 variant="contained"
                 color="primary"
                 onClick={handleGenerate}
@@ -267,12 +283,12 @@ const generateMatrixTable = (arrivalTime: number[], burstTime: number[]) => {
                 variant="contained"
                 color="primary"
                 onClick={handleAutocompleteInput}
-                sx={{marginLeft: '10px'}}
+                sx={{ marginLeft: "10px" }}
               >
                 Автозаповнити вхідні дані
               </Button>
             </form>
-            <h2>Матриця статусу потоків відносно моментів часу</h2>
+            <h2>Матриця статусу процесів відносно моментів часу</h2>
             <Typography variant="body1" style={{ margin: "20px 0" }}>
               <strong>-</strong> : Виконання не розпочалось <br />
               <strong>e</strong> : Виконується <br />
@@ -295,13 +311,7 @@ const generateMatrixTable = (arrivalTime: number[], burstTime: number[]) => {
                     <TableRow key={rowIndex}>
                       <TableCell>{row[0]}</TableCell>
                       {row.slice(1).map((cell, cellIndex) => (
-                        <TableCell
-                          key={cellIndex}
-                          style={{
-                            backgroundColor:
-                              colorMatrix[rowIndex + 1][cellIndex + 1],
-                          }}
-                        >
+                        <TableCell key={cellIndex}>
                           <input
                             value={userMatrix[rowIndex + 1][cellIndex + 1]}
                             onChange={(e) =>
@@ -311,7 +321,14 @@ const generateMatrixTable = (arrivalTime: number[], burstTime: number[]) => {
                                 e.target.value
                               )
                             }
-                            style={{ width: "30px", textAlign: "center" }}
+                            style={{
+                              width: "30px",
+                              textAlign: "center",
+                              backgroundColor:
+                                colorMatrix[rowIndex + 1][cellIndex + 1],
+                              border: "1px solid #ccc",
+                              borderRadius: "4px",
+                            }}
                           />
                         </TableCell>
                       ))}

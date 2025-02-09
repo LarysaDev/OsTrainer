@@ -60,14 +60,18 @@ export const RrTrainer: React.FC = () => {
     );
 
     if (arrivalInvalid) {
-      setArrivalError("Arrival Times повинні містити тільки коректні числові значення.");
+      setArrivalError(
+        "Arrival Times повинні містити тільки коректні числові значення."
+      );
       valid = false;
     } else if (!arrivalError) {
       setArrivalError(null);
     }
 
     if (burstInvalid) {
-      setBurstError("Burst Times повинні містити тільки коректні числові значення.");
+      setBurstError(
+        "Burst Times повинні містити тільки коректні числові значення."
+      );
       valid = false;
     } else if (!burstError) {
       setBurstError(null);
@@ -77,11 +81,11 @@ export const RrTrainer: React.FC = () => {
   };
 
   const handleAutocompleteInput = () => {
-    const [ arrivalTimes, burstTimes, timeQuantum ] = generateRoundRobinData();
-    setArrivalTimes(arrivalTimes.join(','));
-    setBurstTimes(burstTimes.join(','));
+    const [arrivalTimes, burstTimes, timeQuantum] = generateRoundRobinData();
+    setArrivalTimes(arrivalTimes.join(","));
+    setBurstTimes(burstTimes.join(","));
     setTimeQuantum(timeQuantum);
-  }
+  };
 
   const handleGenerate = async () => {
     if (!validateInputs()) {
@@ -101,10 +105,18 @@ export const RrTrainer: React.FC = () => {
     }
   };
 
-  const generateMatrixTable = (arrivalTime: number[], burstArray: number[],  timeQuantum: number) => {
-    let statesMatrix = roundRobinScheduler(arrivalTime, burstArray, timeQuantum);
+  const generateMatrixTable = (
+    arrivalTime: number[],
+    burstArray: number[],
+    timeQuantum: number
+  ) => {
+    let statesMatrix = roundRobinScheduler(
+      arrivalTime,
+      burstArray,
+      timeQuantum
+    );
 
-    console.log(statesMatrix)
+    console.log(statesMatrix);
 
     setMatrix(statesMatrix);
     setUserMatrix(
@@ -129,7 +141,7 @@ export const RrTrainer: React.FC = () => {
     const newColorMatrix = matrix.map((row, i) =>
       row.map((cell, j) => {
         if (i === 0 || j === 0) return "";
-        return userMatrix[i][j] === cell ? "green" : "red";
+        return userMatrix[i][j] === cell ? "rgb(232, 245, 233)" : "rgb(255, 235, 238)";
       })
     );
     setColorMatrix(newColorMatrix);
@@ -197,12 +209,12 @@ export const RrTrainer: React.FC = () => {
                 variant="contained"
                 color="primary"
                 onClick={handleAutocompleteInput}
-                sx={{marginLeft: '10px'}}
+                sx={{ marginLeft: "10px" }}
               >
                 Автозаповнити вхідні дані
               </Button>
             </form>
-            <h2>Матриця статусу потоків відносно моментів часу</h2>
+            <h2>Матриця статусу процесів відносно моментів часу</h2>
             <Typography variant="body1" style={{ margin: "20px 0" }}>
               <strong>-</strong> : Виконання не розпочалось <br />
               <strong>e</strong> : Виконується <br />
@@ -225,13 +237,7 @@ export const RrTrainer: React.FC = () => {
                     <TableRow key={rowIndex}>
                       <TableCell>{row[0]}</TableCell>
                       {row.slice(1).map((cell, cellIndex) => (
-                        <TableCell
-                          key={cellIndex}
-                          style={{
-                            backgroundColor:
-                              colorMatrix[rowIndex + 1][cellIndex + 1],
-                          }}
-                        >
+                        <TableCell key={cellIndex}>
                           <input
                             value={userMatrix[rowIndex + 1][cellIndex + 1]}
                             onChange={(e) =>
@@ -241,7 +247,14 @@ export const RrTrainer: React.FC = () => {
                                 e.target.value
                               )
                             }
-                            style={{ width: "30px", textAlign: "center" }}
+                            style={{
+                              width: "30px",
+                              textAlign: "center",
+                              backgroundColor:
+                                colorMatrix[rowIndex + 1][cellIndex + 1], 
+                              border: "1px solid #ccc", 
+                              borderRadius: "4px",
+                            }}
                           />
                         </TableCell>
                       ))}
@@ -282,8 +295,6 @@ export const RrTrainer: React.FC = () => {
   );
 };
 
-
-
 function roundRobinScheduler(arrivalTimes, burstTimes, timeQuantum) {
   const processes = arrivalTimes.map((at, index) => ({
     id: index + 1,
@@ -291,7 +302,7 @@ function roundRobinScheduler(arrivalTimes, burstTimes, timeQuantum) {
     burstTime: burstTimes[index],
     remainingTime: burstTimes[index],
     inQueue: false,
-    lastExecutionTime: -1 // Track when process was last executed
+    lastExecutionTime: -1, // Track when process was last executed
   }));
 
   let currentTime = Math.min(...arrivalTimes);
@@ -312,10 +323,12 @@ function roundRobinScheduler(arrivalTimes, burstTimes, timeQuantum) {
 
   while (completed < processes.length) {
     // Add newly arrived processes to queue
-    processes.forEach(process => {
-      if (process.arrivalTime <= currentTime && 
-          process.remainingTime > 0 && 
-          !process.inQueue) {
+    processes.forEach((process) => {
+      if (
+        process.arrivalTime <= currentTime &&
+        process.remainingTime > 0 &&
+        !process.inQueue
+      ) {
         queue.push(process);
         process.inQueue = true;
       }
@@ -361,11 +374,13 @@ function roundRobinScheduler(arrivalTimes, burstTimes, timeQuantum) {
       completed++;
     } else {
       // Check for any new arrivals before re-queueing
-      processes.forEach(process => {
-        if (process.arrivalTime <= currentTime && 
-            process.remainingTime > 0 && 
-            !process.inQueue && 
-            process.id !== currentProcess.id) {
+      processes.forEach((process) => {
+        if (
+          process.arrivalTime <= currentTime &&
+          process.remainingTime > 0 &&
+          !process.inQueue &&
+          process.id !== currentProcess.id
+        ) {
           queue.push(process);
           process.inQueue = true;
         }
@@ -378,11 +393,10 @@ function roundRobinScheduler(arrivalTimes, burstTimes, timeQuantum) {
 
   // Add time headers
   const timeHeader = Array.from(
-    { length: statesMatrix[1].length - 1 }, 
+    { length: statesMatrix[1].length - 1 },
     (_, i) => i
   );
   statesMatrix[0] = ["Process\\Time", ...timeHeader];
 
   return statesMatrix;
 }
-
