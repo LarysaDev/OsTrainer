@@ -16,7 +16,8 @@ export const getMatrixGenerationLogic = (
   processes,
   timeQuantum: number,
   pageRequests: number[],
-  frameCount: number
+  frameCount: number,
+  os: string | null
 ) => {
   switch (alg) {
     case AlgorithmType.FCFS:
@@ -28,9 +29,9 @@ export const getMatrixGenerationLogic = (
     case AlgorithmType.SJF_PREEMPTIVE:
       return generatePreemptiveSJFMatrix(processes);
     case AlgorithmType.PRIORITY_PREEMPTIVE:
-      return generatePreemptivePriorityMatrix(processes);
+      return generatePreemptivePriorityMatrix(processes, os as string);
     case AlgorithmType.PRIORITY_NON_PREEMPTIVE:
-      return generateNonpreemptivePriorityMatrix(processes);
+      return generateNonpreemptivePriorityMatrix(processes, os as string);
     case AlgorithmType.FIFO:
       return generateFIFOMatrixes(pageRequests, frameCount);
     case AlgorithmType.CLOCK:

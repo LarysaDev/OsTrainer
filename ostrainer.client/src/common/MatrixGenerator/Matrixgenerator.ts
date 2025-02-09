@@ -7,7 +7,8 @@ export const generateSchedulingMatrixData = (
   burstTimes: string,
   priorities: string,
   timeQuantum: number | null,
-  type: AlgorithmType
+  type: AlgorithmType,
+  os: string
 ) => {
   const arrivalArray = arrivalTimes
       .replace(/\s+/g, "")
@@ -23,7 +24,7 @@ export const generateSchedulingMatrixData = (
       priority: priorityArray[index]
     }));
 
-  const matrixes: SchedulingMatrixData = getMatrixGenerationLogic(type, processList, timeQuantum ?? 0);
+  const matrixes: SchedulingMatrixData = getMatrixGenerationLogic(type, processList, timeQuantum ?? 0, os);
 
   const maxTime = matrixes.userMatrix[0].length;
   const processedCount = arrivalArray.length;
@@ -60,7 +61,7 @@ export const generatePageReplacementMatrixData = (
   algType: AlgorithmType
 ) => {
   const pageRequests = pageRequestsArray.replace(/\s+/g, "").split(",").map(Number);
-  const matrixes: PageReplacementMatrixData = getMatrixGenerationLogic(algType, null, 0, pageRequests, frameSize);
+  const matrixes: PageReplacementMatrixData = getMatrixGenerationLogic(algType, null, 0, pageRequests, frameSize, null);
   const pageFaults = matrixes.pageFaults;
 
   const userMatrixTemplate: (string | number)[][] = [

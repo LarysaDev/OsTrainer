@@ -1,7 +1,8 @@
 import { SchedulingMatrixData } from "../../FileDownloading/types";
 
 export const generateNonpreemptivePriorityMatrix = (
-    processes
+    processes,
+    os: string
   ): SchedulingMatrixData => {
     // Create working copy of processes
     const workingProcesses = processes.map(proc => ({
@@ -31,9 +32,17 @@ export const generateNonpreemptivePriorityMatrix = (
       }
   
       // Get highest priority process
-      let selectedProcess = availableProcesses.reduce((prev, current) =>
-        prev.priority <= current.priority ? prev : current
-      );
+      let selectedProcess;
+
+      if (os === "Windows") {
+        selectedProcess = availableProcesses.reduce((prev, current) =>
+          prev.priority >= current.priority ? prev : current
+        );
+      } else {
+        selectedProcess = availableProcesses.reduce((prev, current) =>
+          prev.priority <= current.priority ? prev : current
+        );
+      }
   
       // Set start time if not set
       if (!workingProcesses[selectedProcess.id - 1].startTime) {

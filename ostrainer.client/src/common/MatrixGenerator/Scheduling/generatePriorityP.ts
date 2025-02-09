@@ -1,7 +1,8 @@
 import { SchedulingMatrixData } from "../../FileDownloading/types";
 
 export const generatePreemptivePriorityMatrix = (
-    processes
+    processes,
+    os: string
   ): SchedulingMatrixData => {
     const workingProcesses = processes.map(proc => ({
       ...proc,
@@ -31,10 +32,16 @@ export const generatePreemptivePriorityMatrix = (
         continue;
       }
   
-      // Get highest priority process (lower number = higher priority)
-      let highestPriorityProcess = availableProcesses.reduce((prev, current) =>
-        prev.priority <= current.priority ? prev : current
-      );
+      let highestPriorityProcess;
+      if (os === "Windows") {
+        highestPriorityProcess = availableProcesses.reduce((prev, current) =>
+          prev.priority >= current.priority ? prev : current
+        );
+      } else {
+        highestPriorityProcess = availableProcesses.reduce((prev, current) =>
+          prev.priority <= current.priority ? prev : current
+        );
+      }
   
       // Check for preemption
       if (currentProcess && currentProcess.remainingTime > 0) {

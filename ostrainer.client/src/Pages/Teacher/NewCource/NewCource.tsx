@@ -6,7 +6,7 @@ import Button from "@mui/material/Button";
 import MenuItem from "@mui/material/MenuItem";
 import {
   generateSchedulingMatrixData,
-  generatePageReplacementMatrixData
+  generatePageReplacementMatrixData,
 } from "../../../common/MatrixGenerator/Matrixgenerator";
 import { useNavigate } from "react-router-dom";
 import {
@@ -49,6 +49,8 @@ export const NewCourse = () => {
 
   const navigate = useNavigate();
   const [showFilledTable, setShowFilledTable] = useState<boolean>(true);
+  const [system, setSystem] = useState("Linux");
+
   const [courseData, setCourseData] = useState({
     name: "",
     description: "",
@@ -109,7 +111,7 @@ export const NewCourse = () => {
       const [pages, frameSize] = generatePageReplacementData();
       setCourseData({
         ...courseData,
-        pageRequests: pages.join(','),
+        pageRequests: pages.join(","),
         frames: frameSize,
       });
     } else if (isDeadlockAvoiding(courseData.algorithmType)) {
@@ -160,16 +162,16 @@ export const NewCourse = () => {
         courseData.arrivalTimes,
         courseData.burstTimes,
         courseData.priorities,
-        (Number(courseData.timeQuantum)),
-        courseData.algorithmType
+        Number(courseData.timeQuantum),
+        courseData.algorithmType,
+        system
       );
 
       return {
         correctMatrix: generatedData.correctMatrix,
         userMatrix: generatedData.userMatrix,
       };
-    }
-    else if(isReplacingType(alorithm)){
+    } else if (isReplacingType(alorithm)) {
       const generatedData = generatePageReplacementMatrixData(
         courseData.pageRequests,
         courseData.frames,
@@ -196,7 +198,7 @@ export const NewCourse = () => {
             display: "flex",
             flexDirection: "column",
             gap: 2,
-            marginTop: '100px'
+            marginTop: "100px",
           }}
         >
           <h3>
@@ -254,29 +256,50 @@ export const NewCourse = () => {
           {(courseData.algorithmType ===
             AlgorithmType.PRIORITY_NON_PREEMPTIVE ||
             courseData.algorithmType === AlgorithmType.PRIORITY_PREEMPTIVE) && (
-            <TextField
-              label="Priorities (через кому)"
-              name="priorities"
-              value={courseData.priorities}
-              onChange={handleChange}
-              fullWidth
-              error={
-                !!error &&
-                (courseData.algorithmType ===
-                  AlgorithmType.PRIORITY_NON_PREEMPTIVE ||
-                  courseData.algorithmType ===
-                    AlgorithmType.PRIORITY_PREEMPTIVE)
-              }
-              helperText={
-                error &&
-                (courseData.algorithmType ===
-                  AlgorithmType.PRIORITY_NON_PREEMPTIVE ||
-                  courseData.algorithmType ===
-                    AlgorithmType.PRIORITY_PREEMPTIVE)
-                  ? error
-                  : ""
-              }
-            />
+            <>
+              <TextField
+                label="Priorities (через кому)"
+                name="priorities"
+                value={courseData.priorities}
+                onChange={handleChange}
+                fullWidth
+                error={
+                  !!error &&
+                  (courseData.algorithmType ===
+                    AlgorithmType.PRIORITY_NON_PREEMPTIVE ||
+                    courseData.algorithmType ===
+                      AlgorithmType.PRIORITY_PREEMPTIVE)
+                }
+                helperText={
+                  error &&
+                  (courseData.algorithmType ===
+                    AlgorithmType.PRIORITY_NON_PREEMPTIVE ||
+                    courseData.algorithmType ===
+                      AlgorithmType.PRIORITY_PREEMPTIVE)
+                    ? error
+                    : ""
+                }
+              />
+              <FormControl component="fieldset">
+                <FormLabel component="legend">Оберіть ОС</FormLabel>
+                <RadioGroup
+                  row
+                  value={system}
+                  onChange={(e) => setSystem(e.target.value)}
+                >
+                  <FormControlLabel
+                    value="Windows"
+                    control={<Radio />}
+                    label="Windows"
+                  />
+                  <FormControlLabel
+                    value="Linux"
+                    control={<Radio />}
+                    label="Linux"
+                  />
+                </RadioGroup>
+              </FormControl>
+            </>
           )}
           {isSchedulingType(courseData.algorithmType) && (
             <>
