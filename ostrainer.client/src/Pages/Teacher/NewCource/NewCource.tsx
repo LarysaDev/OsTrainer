@@ -37,12 +37,10 @@ import {
   DownloadType,
   DownloadFormat,
 } from "../../../common/FileDownloading/types";
-import { InputLabel, Select, SelectChangeEvent } from "@mui/material";
+import { Select, SelectChangeEvent } from "@mui/material";
 
 export const NewCourse = () => {
-  const [downloadType, setDownloadType] = useState<DownloadType>(
-    DownloadType.ToSolve
-  );
+  const [downloadType, setDownloadType] = useState<DownloadType>(DownloadType.ToSolve);
   const [downloadFormat, setDownloadFormat] = useState<DownloadFormat>(
     DownloadFormat.word
   );
@@ -197,8 +195,9 @@ export const NewCourse = () => {
             padding: 2,
             display: "flex",
             flexDirection: "column",
+            height: "100vh",
             gap: 2,
-            marginTop: "100px",
+            p: 3
           }}
         >
           <h3>

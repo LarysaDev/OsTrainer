@@ -21,6 +21,7 @@
     "axios": "^1.7.2",
     "docx": "^9.1.0",
     "file-saver": "^2.0.5",
+    "framer-motion": "^12.4.2",
     "jspdf": "^2.5.2",
     "jspdf-autotable": "^3.8.4",
     "jwt-decode": "^4.0.0",
