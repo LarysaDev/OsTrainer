@@ -1,134 +1,52 @@
-import * as React from "react";
-import LogoutLink from "../../../Components/LogoutLink.tsx";
-import AuthorizeView, {
-  AuthorizedUser,
-} from "../../../Components/AuthorizeView.tsx";
-import styles from "./Dashboard.module.less";
-import {
-  SidePanel,
-  updateActiveLinkByIndex,
-} from "../../../Components/SidePanel/SidePanel";
+import { LoggedInView } from "../../../common/LoggedInView/LoggedInView";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
 import Button from "@mui/material/Button";
-import ClickAwayListener from "@mui/material/ClickAwayListener";
-import Grow from "@mui/material/Grow";
-import Paper from "@mui/material/Paper";
-import Popper from "@mui/material/Popper";
-import MenuItem from "@mui/material/MenuItem";
-import MenuList from "@mui/material/MenuList";
-import Stack from "@mui/material/Stack";
+import { links, updateActiveLinkByIndex } from "../../../Components/SidePanel/SidePanel";
+import { useSelector } from "react-redux";
+import { motion } from "framer-motion";
 
-const studentName = "МІЙ ПРОФІЛЬ";
-
-export function StudentDashboard() {
-  const [open, setOpen] = React.useState(false);
-  const anchorRef = React.useRef<HTMLButtonElement>(null);
-
-  const handleToggle = () => {
-    setOpen((prevOpen) => !prevOpen);
-  };
-
-  const handleClose = (event: Event | React.SyntheticEvent) => {
-    if (
-      anchorRef.current &&
-      anchorRef.current.contains(event.target as HTMLElement)
-    ) {
-      return;
-    }
-
-    setOpen(false);
-  };
-
-  function handleListKeyDown(event: React.KeyboardEvent) {
-    if (event.key === "Tab") {
-      event.preventDefault();
-      setOpen(false);
-    } else if (event.key === "Escape") {
-      setOpen(false);
-    }
-  }
-
-  // return focus to the button when we transitioned from !open -> open
-  const prevOpen = React.useRef(open);
-  React.useEffect(() => {
-    if (prevOpen.current === true && open === false) {
-      anchorRef.current!.focus();
-    }
-
-    prevOpen.current = open;
-  }, [open]);
+export const StudentDashboard = () => {
+  const user = useSelector((state) => state.user);
 
   return (
-    <AuthorizeView>
-      <div className={styles.container}>
-        <div style={{ width: "20%" }}>
-          <SidePanel links={updateActiveLinkByIndex(0)} />
-        </div>
-        <div className={styles.main}>
-          {/* Profile icon */}
-          <div className={styles.profile}>
-            <Stack direction="row" spacing={2}>
-              <div>
-                <Button
-                  ref={anchorRef}
-                  id="composition-button"
-                  aria-controls={open ? "composition-menu" : undefined}
-                  aria-expanded={open ? "true" : undefined}
-                  aria-haspopup="true"
-                  onClick={handleToggle}
-                >
-                  {studentName}
+    <LoggedInView links={updateActiveLinkByIndex(0, links)}>
+      <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100vh", textAlign: "center", p: 3 }}>
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+          <Typography variant="h4" gutterBottom>
+            Ласкаво просимо, {user?.name || "Студент"}!
+          </Typography>
+          <Typography variant="body1" gutterBottom>
+            Тут ви можете переглядати курси, завантажувати навчальні матеріали та відстежувати свій прогрес.
+          </Typography>
+        </motion.div>
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mt: 3, justifyContent: "center" }}>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>
+            <Card sx={{ width: 300 }}>
+              <CardContent>
+                <Typography variant="h6">Мої курси</Typography>
+                <Typography variant="body2">Переглядайте доступні курси та виконуйте завдання.</Typography>
+                <Button variant="contained" sx={{ mt: 1, backgroundColor: "#FBB471", '&:hover': { backgroundColor: "#E69A5B" } }} href="/student/courses">
+                  Перейти
                 </Button>
-                <Popper
-                  open={open}
-                  anchorEl={anchorRef.current}
-                  role={undefined}
-                  placement="bottom-start"
-                  transition
-                  disablePortal
-                >
-                  {({ TransitionProps, placement }) => (
-                    <Grow
-                      {...TransitionProps}
-                      style={{
-                        transformOrigin:
-                          placement === "bottom-start"
-                            ? "left top"
-                            : "left bottom",
-                      }}
-                    >
-                      <Paper>
-                        <ClickAwayListener onClickAway={handleClose}>
-                          <MenuList
-                            autoFocusItem={open}
-                            id="composition-menu"
-                            aria-labelledby="composition-button"
-                            onKeyDown={handleListKeyDown}
-                          >
-                            <MenuItem onClick={() => window.location.href = "/profile"}>Профіль</MenuItem>
-                            <MenuItem onClick={handleClose}>
-                              <span>
-                                <LogoutLink>
-                                  Вийти <AuthorizedUser value="email" />
-                                </LogoutLink>
-                              </span>
-                            </MenuItem>
-                          </MenuList>
-                        </ClickAwayListener>
-                      </Paper>
-                    </Grow>
-                  )}
-                </Popper>
-              </div>
-            </Stack>
-          </div>
-          {/* End of profile icon */}
-          {/* {courses.length > 0 ? (
-            <AssignedCourses />
-          ) : (
-            "You are not assigned to any courses"
-          )} */}
-        </div>
-      </div>
-    </AuthorizeView>
+              </CardContent>
+            </Card>
+          </motion.div>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }}>
+            <Card sx={{ width: 300 }}>
+              <CardContent>
+                <Typography variant="h6">Навчальні матеріали</Typography>
+                <Typography variant="body2">Завантажуйте матеріали для підготовки до занять.</Typography>
+                <Button variant="contained" sx={{ mt: 1, backgroundColor: "#FBB471", '&:hover': { backgroundColor: "#E69A5B" } }} href="/student/materials">
+                  Перейти
+                </Button>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </Box>
+      </Box>
+    </LoggedInView>
   );
-}
+};
