@@ -100,54 +100,76 @@ const SelfTest = () => {
 
   return (
     <LoggedInView links={updateActiveLinkByIndex(-1)}>
-      <Container sx={{ mt: 4, mb: 4 }}>
-        <Typography variant="h4" gutterBottom>
-          Самостійне тестування
-        </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={fetchRandomQuestions}
+      <Box
+        sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 2,
+          p: 2,
+          height: "100vh",
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 2,
+            p: 2,
+            height: "60vh",
+          }}
         >
-          Отримати 5 випадкових питань
-        </Button>
+          <Container sx={{ mt: 4, mb: 4 }}>
+            <Typography variant="h4" gutterBottom>
+              Самостійне тестування
+            </Typography>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={fetchRandomQuestions}
+            >
+              Отримати 5 випадкових питань
+            </Button>
 
-        {questions.length > 0 && (
-          <Paper
-            elevation={3}
-            sx={{ maxHeight: "400px", overflowY: "auto", mt: 3, p: 2 }}
-          >
-            {renderQuestions()}
-          </Paper>
-        )}
-        <Box mt={3}>
-          {testsWereGenerated && (
-            <>
-              {result ? (
-                <Typography variant="h6" mt={2}>
-                  Результати: {result.correct} з {result.total} правильних
-                </Typography>
-              ) : (
-                <Button
-                  variant="contained"
-                  color="success"
-                  onClick={checkResults}
-                >
-                  Перевірити результати
-                </Button>
-              )}
-              <Button
-                variant="outlined"
-                color="primary"
-                onClick={result ? startTestAgain : fetchRandomQuestions}
-                sx={{ ml: 2 }}
+            {questions.length > 0 && (
+              <Paper
+                elevation={3}
+                sx={{ maxHeight: "400px", overflowY: "auto", mt: 3, p: 2 }}
               >
-                {result ? "Почати тестування наново" : "Перегенерувати тести"}
-              </Button>
-            </>
-          )}
+                {renderQuestions()}
+              </Paper>
+            )}
+            <Box mt={3}>
+              {testsWereGenerated && (
+                <>
+                  {result ? (
+                    <Typography variant="h6" mt={2}>
+                      Результати: {result.correct} з {result.total} правильних
+                    </Typography>
+                  ) : (
+                    <Button
+                      variant="contained"
+                      color="success"
+                      onClick={checkResults}
+                    >
+                      Перевірити результати
+                    </Button>
+                  )}
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    onClick={result ? startTestAgain : fetchRandomQuestions}
+                    sx={{ ml: 2 }}
+                  >
+                    {result
+                      ? "Почати тестування наново"
+                      : "Перегенерувати тести"}
+                  </Button>
+                </>
+              )}
+            </Box>
+          </Container>
         </Box>
-      </Container>
+      </Box>
     </LoggedInView>
   );
 };

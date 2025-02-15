@@ -38,6 +38,8 @@ import {
   DownloadFormat,
 } from "../../../common/FileDownloading/types";
 import { Select, SelectChangeEvent } from "@mui/material";
+import { Typography } from "@mui/material";
+
 
 export const NewCourse = () => {
   const userRole = localStorage.getItem('os_trainer_role');
@@ -186,6 +188,29 @@ export const NewCourse = () => {
 
     return getDefaultMatrix();
   };
+
+  if (userRole !== 'Teacher') {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100vh",
+          textAlign: "center",
+          gap: 2,
+        }}
+      >
+        <Typography variant="h5" color="error">
+          🚫 Сторінка недоступна для вашого типу акаунту
+        </Typography>
+        <Button variant="contained" onClick={() => navigate("/")}>
+          На головну 🏠
+        </Button>
+      </Box>
+    );
+  }
 
   return (
     <>
