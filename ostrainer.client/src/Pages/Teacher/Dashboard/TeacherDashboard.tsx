@@ -16,7 +16,7 @@ export const TeacherDashboard = () => {
       <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "start", height: "100vh", textAlign: "center", p: 3 }}>
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
           <Typography variant="h4" gutterBottom>
-            Ласкаво просимо, {user?.name || "Викладач"}!
+            Ласкаво просимо!
           </Typography>
           <Typography variant="body1" gutterBottom>
             Тут ви можете створювати та завантажувати білети, переглядати алгоритми та демонстрації.

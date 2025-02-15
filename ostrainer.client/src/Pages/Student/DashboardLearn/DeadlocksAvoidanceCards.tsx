@@ -6,23 +6,34 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import styles from "./LearnAlgorithms.module.less";
 import {
-  SidePanel,
   updateActiveLinkByIndex,
 } from "../../../Components/SidePanel/SidePanel";
-import AuthorizeView from "../../../Components/AuthorizeView";
+import { LoggedInView } from "../../../common/LoggedInView/LoggedInView";
 
 export const AvoidDeadlocksAlgorithmCards = () => {
   return (
-    <AuthorizeView>
-      <div className={styles.container}>
-        <div style={{ width: "20%" }}>
-          <SidePanel links={updateActiveLinkByIndex(3)} />
-        </div>
-        <div className={styles.main}>
-          <p className={styles.headerText}>УНИКНЕННЯ ТУПИКОВИХ СИТУАЦІЙ</p>
-          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, p: 2 }}>
+    <LoggedInView links={updateActiveLinkByIndex(3)}>
+      <p className={styles.headerText}>ПЛАНУВАННЯ ПОТОКІВ</p>
+      <Box
+        sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 2,
+          p: 2,
+          height: "100vh",
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 2,
+            p: 2,
+            height: "50vh",
+          }}
+        >
             {algorithms.map((algorithm, index) => (
-              <Card key={index} variant="outlined" sx={{ minWidth: 275 }}>
+              <Card key={index} variant="outlined" sx={{ minWidth: 275, maxHeight: '180px' }}>
                 <CardContent>
                   <Typography variant="h5" component="div">
                     {algorithm.name}
@@ -57,9 +68,8 @@ export const AvoidDeadlocksAlgorithmCards = () => {
               </Card>
             ))}
           </Box>
-        </div>
-      </div>
-    </AuthorizeView>
+        </Box>
+    </LoggedInView>
   );
 };
 

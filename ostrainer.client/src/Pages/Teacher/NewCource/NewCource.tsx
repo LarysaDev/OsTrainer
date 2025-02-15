@@ -40,6 +40,8 @@ import {
 import { Select, SelectChangeEvent } from "@mui/material";
 
 export const NewCourse = () => {
+  const userRole = localStorage.getItem('os_trainer_role');
+
   const [downloadType, setDownloadType] = useState<DownloadType>(DownloadType.ToSolve);
   const [downloadFormat, setDownloadFormat] = useState<DownloadFormat>(
     DownloadFormat.word
