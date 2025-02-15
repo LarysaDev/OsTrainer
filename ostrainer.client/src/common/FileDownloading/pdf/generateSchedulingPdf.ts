@@ -2,14 +2,12 @@ import { TDocumentDefinitions } from "pdfmake/interfaces";
 import { DownloadType } from "../types";
 import { MatrixData } from "../types";
 
-// Оголошуємо типи для глобального об'єкта window
 declare global {
   interface Window {
     pdfMake: any;
   }
 }
 
-// Функція для завантаження скриптів pdfMake
 const loadPdfMakeScripts = (): Promise<void> => {
   return new Promise((resolve, reject) => {
     if (window.pdfMake) {
@@ -39,7 +37,6 @@ export const generateSchedulingPdf = async (
   matrixData: MatrixData
 ): Promise<void> => {
   try {
-    // Завантажуємо pdfMake скрипти
     await loadPdfMakeScripts();
     
     const { correctMatrix, userMatrix } = matrixData;
@@ -54,26 +51,21 @@ export const generateSchedulingPdf = async (
       ? "Таблиця результатів"
       : "Заповніть матрицю станів процесів";
 
-    // Визначаємо кількість колонок та рядків
     const columnsCount = matrixToUse[0].length;
     const rowsCount = matrixToUse.length;
     
-    // A4 в портретній орієнтації: 595x842 точок (ширина x висота)
     const pageWidth = 595;
     const margin = 40;
     const availableWidth = pageWidth - 2 * margin;
     
-    // Визначаємо максимальну кількість колонок, яка може поміститися на сторінці
-    const minColumnWidth = 15; // Мінімальна ширина колонки в точках
-    const maxColumnsPerPage = Math.floor(availableWidth / minColumnWidth);
+    const minColumnWidth = 10;
+    const maxColumnsPerPage = 15;
     
-    // Визначаємо, чи потрібно розбивати таблицю
     const needSplitting = columnsCount > maxColumnsPerPage;
     
-    // Адаптивний розмір шрифту базується на кількості колонок
     let fontSize;
     if (needSplitting) {
-      fontSize = 7; // Якщо таблиця розбивається, можемо використовувати більший шрифт
+      fontSize = 7;
     } else if (columnsCount > 15) {
       fontSize = 5;
     } else if (columnsCount > 12) {
@@ -86,7 +78,6 @@ export const generateSchedulingPdf = async (
       fontSize = 9;
     }
     
-    // Підготовка контенту документа
     const content: any[] = [
       {
         text: examSheetName,
@@ -119,52 +110,37 @@ export const generateSchedulingPdf = async (
     
     if (needSplitting) {
       // Розбиваємо таблицю на частини
-      const partsCount = Math.ceil(columnsCount / maxColumnsPerPage);
+      const partsCount = Math.ceil(columnsCount / 15);
+      const allTableParts = [];
       
       for (let part = 0; part < partsCount; part++) {
-        const startCol = part * maxColumnsPerPage;
-        const endCol = Math.min((part + 1) * maxColumnsPerPage, columnsCount);
-        const partColumnsCount = endCol - startCol;
-        
-        // Додаємо заголовок для кожної частини таблиці
-        content.push({
-          text: `${tableHeader} (Частина ${part + 1} з ${partsCount})`,
-          fontSize: 9,
-          bold: true,
-          margin: [0, 20, 0, 15]
-        });
-        
-        // Створюємо підмасив даних для поточної частини
-        const partBody = matrixToUse.map(row => {
-          // Створюємо підмасив комірок для поточної частини рядка
+        const startCol = part * 15;
+        const endCol = Math.min((part + 1) * 15, columnsCount);
+      
+        const partBody = matrixToUse.map((row, rowIndex) => {
           const rowPart = row.slice(startCol, endCol).map(cell => ({
             text: String(cell),
             alignment: "center",
             fontSize: fontSize
           }));
-          
-          // Додаємо першу колонку з індексом рядка для кожної частини, крім першої
-          if (part > 0) {
-            // Знаходимо першу комірку першого рядка для отримання назви
+      
+          if (startCol > 0) {
             rowPart.unshift({
-              text: row[0].toString(),
+              text: rowIndex.toString(),
               alignment: "center",
-              fontSize: fontSize
+              fontSize: fontSize,
             });
           }
-          
+      
           return rowPart;
         });
         
         // Обчислюємо ширини колонок для поточної частини
-        const partColumnWidths = Array(partColumnsCount).fill("*");
-        if (part > 0) {
-          // Додаємо ширину для колонки з індексом рядка
-          partColumnWidths.unshift("*");
-        }
+        const partColumnWidths = Array(endCol - startCol).fill("*");
+        if (startCol > 0) partColumnWidths.unshift("*");
         
         // Додаємо таблицю для поточної частини
-        content.push({
+        allTableParts.push({
           table: {
             headerRows: 0,
             widths: partColumnWidths,
@@ -180,48 +156,12 @@ export const generateSchedulingPdf = async (
             paddingTop: () => 1,
             paddingBottom: () => 1,
           },
-          margin: [0, 0, 0, 20]
+          margin: [0, part === 0 ? 0 : 10, 0, 10] // Мінімальний відступ між частинами
         });
       }
-    } else {
-      // Якщо розбивати не потрібно, додаємо повну таблицю
-      content.push({
-        text: tableHeader,
-        fontSize: 9,
-        bold: true,
-        margin: [0, 20, 0, 15]
-      });
       
-      // Створюємо масив з фіксованими ширинами для кожної колонки
-      const columnWidth = Math.floor(availableWidth / columnsCount);
-      const columnWidths = Array(columnsCount).fill(columnWidth);
-      
-      // Підготовка даних таблиці з форматуванням
-      const tableBody = matrixToUse.map((row) =>
-        row.map((cell) => ({
-          text: String(cell),
-          alignment: "center",
-          fontSize: fontSize
-        }))
-      );
-      
-      content.push({
-        table: {
-          headerRows: 0,
-          widths: columnWidths,
-          body: tableBody,
-        },
-        layout: {
-          hLineWidth: () => 1,
-          vLineWidth: () => 1,
-          hLineColor: () => "#000",
-          vLineColor: () => "#000",
-          paddingLeft: () => 1,
-          paddingRight: () => 1,
-          paddingTop: () => 1,
-          paddingBottom: () => 1,
-        },
-      });
+      content.push(...allTableParts);
+  
     }
 
     const docDefinition: TDocumentDefinitions = {
