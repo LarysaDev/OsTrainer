@@ -41,7 +41,7 @@ const BankersAlgorithmTrainer: React.FC = () => {
   const validateAndInitialize = () => {
     if (numProcesses <= 0 || numResources <= 0) {
       setInputError(
-        "Number of processes and resources must be positive numbers"
+        "Введіть коректні значення для процесів та ресурсів"
       );
       return false;
     }
@@ -202,7 +202,7 @@ const BankersAlgorithmTrainer: React.FC = () => {
           maxWidth: 1200,
           margin: "0 auto",
           overflowY: "auto",
-          height: "80vh",
+          height: "100vh",
         }}
       >
         {" "}
@@ -424,13 +424,13 @@ const BankersAlgorithmTrainer: React.FC = () => {
                   color="primary"
                   onClick={resetSafeState}
                 >
-                  reset
+                  оновити
                 </Button>
               </Box>
 
               <Box sx={{ mb: 2, marginTop: "20px" }}>
                 <TextField
-                  label="Safe Sequence (comma-separated process numbers)"
+                  label="Безпечна послідовність процесів (наприклад: 2, 1, 3)"
                   value={userSafeSequence}
                   onChange={(e) => setUserSafeSequence(e.target.value)}
                   error={sequenceValidation === false}
@@ -456,7 +456,7 @@ const BankersAlgorithmTrainer: React.FC = () => {
                   color="primary"
                   onClick={resetSafeSequence}
                 >
-                  reset
+                  оновити
                 </Button>
               </Box>
               <Button

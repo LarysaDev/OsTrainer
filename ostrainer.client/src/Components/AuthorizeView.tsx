@@ -69,7 +69,7 @@ function AuthorizeView(props: { children: React.ReactNode }) {
       }
     }
   
-    if (loading) return <div>Loading...</div>;
+    if (loading) return <div></div>;
   
     return authorized ? (
       <UserContext.Provider value={user}>{props.children}</UserContext.Provider>

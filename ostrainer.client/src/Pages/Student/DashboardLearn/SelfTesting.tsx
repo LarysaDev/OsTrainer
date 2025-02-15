@@ -116,6 +116,7 @@ const SelfTest = () => {
             gap: 2,
             p: 2,
             height: "60vh",
+            width: '800px'
           }}
         >
           <Container sx={{ mt: 4, mb: 4 }}>
