@@ -8,14 +8,12 @@ import {
   TextRun,
   WidthType,
 } from "docx";
-import { DownloadType, MatrixData } from "../types";
+import { DownloadType, InputData, MatrixData } from "../types";
 import { saveAs } from "file-saver";
 import { AlgorithmType, isSchedulingType } from "../../AlgorithmType";
 
-export const generateSchedulingDocument = (
-  examSheetName: string,
-  description: string,
-  algorithmType: AlgorithmType,
+export const generateWordDocument = (
+  inputData: InputData,
   downloadType: DownloadType,
   matrixData: MatrixData
 ) => {
@@ -56,7 +54,65 @@ export const generateSchedulingDocument = (
     : "Заповніть матрицю";
   console.log("ready...");
 
-  const processStatesParagraphs = isSchedulingType(algorithmType)
+  const inputDataParagraphs = isSchedulingType(inputData.algorithmType)
+    ? [
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: `Час прибуття: ${inputData.arrivalTimes}`,
+              size: 22,
+            }),
+          ],
+        }),
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: `Час виконання: ${inputData.burstTimes}`,
+              size: 22,
+            }),
+          ],
+        }),
+        inputData.priorities
+          ? new Paragraph({
+              children: [
+                new TextRun({
+                  text: `Пріоритети: ${inputData.priorities}`,
+                  size: 22,
+                }),
+              ],
+            })
+          : null,
+          inputData.os
+          ? new Paragraph({
+              children: [
+                new TextRun({
+                  text: `Операційна система: ${inputData.os}`,
+                  size: 22,
+                }),
+              ],
+            })
+          : null,
+      ]
+    : [
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: `Запити сторінок: ${inputData.pageRequests}`,
+              size: 22,
+            }),
+          ],
+        }),
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: `Кількість кадрів: ${inputData.frames}`,
+              size: 22,
+            }),
+          ],
+        }),
+      ];
+
+  const processStatesParagraphs = isSchedulingType(inputData.algorithmType)
     ? [
         new Paragraph({
           children: [
@@ -81,21 +137,22 @@ export const generateSchedulingDocument = (
         children: [
           new Paragraph({
             children: [
-              new TextRun({ text: examSheetName, bold: true, size: 28 }),
+              new TextRun({ text: inputData.name, bold: true, size: 28 }),
             ],
             heading: "Heading1",
           }),
           new Paragraph({
-            children: [new TextRun({ text: description, size: 24 })],
+            children: [new TextRun({ text: inputData.description, size: 24 })],
           }),
           new Paragraph({
             children: [
               new TextRun({
-                text: `Алгоритм для опрацювання: ${algorithmType}`,
+                text: `Алгоритм для опрацювання: ${inputData.algorithmType}`,
                 size: 24,
               }),
             ],
           }),
+          ...inputDataParagraphs, 
           ...processStatesParagraphs,
           new Paragraph({
             children: [
@@ -110,6 +167,6 @@ export const generateSchedulingDocument = (
   });
 
   Packer.toBlob(doc).then((blob) => {
-    saveAs(blob, `${examSheetName}.docx`);
+    saveAs(blob, `${inputData.name}.docx`);
   });
 };

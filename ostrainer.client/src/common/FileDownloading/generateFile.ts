@@ -3,7 +3,7 @@ import {
   isSchedulingType,
   AlgorithmType,
 } from "../AlgorithmType";
-import { generateSchedulingDocument } from "./word/generateSchedulingDocument";
+import { generateWordDocument } from "./word/generateSchedulingDocument";
 import { generateSchedulingPdf } from "./pdf/generateSchedulingPdf";
 import { generateSchedulingExcel } from "./excel/generateSchedulingExcel";
 
@@ -16,28 +16,26 @@ export const generateFile = (
   console.log("generating...");
   switch (downloadFormat) {
     case DownloadFormat.word:
-      return generateWordFile(
-        examSheetName,
-        description,
-        algorithmType,
+      generateWordDocument(
+        inputData,
         downloadType,
         matrixData
       );
       break;
     case DownloadFormat.pdf:
       return generatePdfFile(
-        examSheetName,
-        description,
-        algorithmType,
+        inputData.name,
+        inputData.description,
+        inputData.algorithmType,
         downloadType,
         matrixData
       );
       break;
     case DownloadFormat.excel:
       return generateExcelFile(
-        examSheetName,
-        description,
-        algorithmType,
+        inputData.name,
+        inputData.description,
+        inputData.algorithmType,
         downloadType,
         matrixData
       );
@@ -45,22 +43,6 @@ export const generateFile = (
     default:
       console.error("Не підтримуваний формат.");
   }
-};
-
-const generateWordFile = (
-  examSheetName: string,
-  description: string,
-  algorithmType: AlgorithmType,
-  downloadType: DownloadType,
-  matrixData: MatrixData
-) => {
-  return generateSchedulingDocument(
-    examSheetName,
-    description,
-    algorithmType,
-    downloadType,
-    matrixData
-  );
 };
 
 const generatePdfFile = (

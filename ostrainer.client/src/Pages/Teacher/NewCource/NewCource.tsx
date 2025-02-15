@@ -65,6 +65,7 @@ export const NewCourse = () => {
     frames: 0,
     resources: 0,
     processes: 0,
+    os: system
   });
 
   const [error, setError] = useState<string | null>(null);

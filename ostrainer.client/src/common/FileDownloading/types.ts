@@ -23,6 +23,7 @@ export interface InputData {
   frames: number;
   resources: number;
   processes: number;
+  os: string;
 }
 
 export interface MatrixData {
