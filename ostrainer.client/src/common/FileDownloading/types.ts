@@ -1,3 +1,5 @@
+import { AlgorithmType } from '../../common/AlgorithmType';
+
 export enum DownloadType {
   ToSolve = "toSolve",
   Solved = "solved",
@@ -7,6 +9,20 @@ export enum DownloadFormat {
   word = "docx",
   pdf = "pdf",
   excel = "excel",
+}
+
+export interface InputData {
+  name: string;
+  description: string;
+  algorithmType: AlgorithmType;
+  arrivalTimes: string;
+  burstTimes: string;
+  timeQuantum: string;
+  priorities: string;
+  pageRequests: string;
+  frames: number;
+  resources: number;
+  processes: number;
 }
 
 export interface MatrixData {
@@ -22,5 +38,5 @@ export interface SchedulingMatrixData {
 export interface PageReplacementMatrixData {
   correctMatrix: (number | null | boolean)[][];
   userMatrix: (number | null | boolean)[][];
-  pageFaults: ('f' | '')[]
+  pageFaults: ("f" | "")[];
 }

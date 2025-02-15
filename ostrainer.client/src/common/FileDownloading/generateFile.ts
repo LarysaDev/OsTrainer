@@ -1,8 +1,6 @@
-import { DownloadType, DownloadFormat, MatrixData } from "./types";
+import { DownloadType, DownloadFormat, MatrixData, InputData } from "./types";
 import {
   isSchedulingType,
-  isReplacingType,
-  isDeadlockAvoiding,
   AlgorithmType,
 } from "../AlgorithmType";
 import { generateSchedulingDocument } from "./word/generateSchedulingDocument";
@@ -10,9 +8,7 @@ import { generateSchedulingPdf } from "./pdf/generateSchedulingPdf";
 import { generateSchedulingExcel } from "./excel/generateSchedulingExcel";
 
 export const generateFile = (
-  examSheetName: string,
-  description: string,
-  algorithmType: AlgorithmType,
+  inputData: InputData,
   downloadType: DownloadType,
   downloadFormat: DownloadFormat,
   matrixData: MatrixData

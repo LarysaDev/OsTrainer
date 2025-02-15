@@ -36,6 +36,7 @@ import { Download } from "@mui/icons-material";
 import {
   DownloadType,
   DownloadFormat,
+  InputData
 } from "../../../common/FileDownloading/types";
 import { Select, SelectChangeEvent } from "@mui/material";
 import { Typography } from "@mui/material";
@@ -50,10 +51,9 @@ export const NewCourse = () => {
   );
 
   const navigate = useNavigate();
-  const [showFilledTable, setShowFilledTable] = useState<boolean>(true);
   const [system, setSystem] = useState("Linux");
 
-  const [courseData, setCourseData] = useState({
+  const [courseData, setCourseData] = useState<InputData>({
     name: "",
     description: "",
     algorithmType: AlgorithmType.FCFS,
@@ -433,9 +433,7 @@ export const NewCourse = () => {
               color="primary"
               onClick={() => {
                 generateFile(
-                  courseData.name,
-                  courseData.description,
-                  courseData.algorithmType,
+                  courseData,
                   downloadType,
                   downloadFormat,
                   handleGenerate()
