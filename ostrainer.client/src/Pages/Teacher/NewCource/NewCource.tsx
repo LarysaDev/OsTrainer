@@ -223,7 +223,7 @@ export const NewCourse = () => {
             padding: 2,
             display: "flex",
             flexDirection: "column",
-            height: "100vh",
+            minHeight: 10,
             gap: 2,
             p: 3
           }}
