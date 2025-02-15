@@ -3,7 +3,7 @@ import {
   isSchedulingType,
   AlgorithmType,
 } from "../AlgorithmType";
-import { generateWordDocument } from "./word/generateSchedulingDocument";
+import { generateWordDocument } from "./word/generateDocument";
 import { generateSchedulingPdf } from "./pdf/generateSchedulingPdf";
 import { generateSchedulingExcel } from "./excel/generateSchedulingExcel";
 

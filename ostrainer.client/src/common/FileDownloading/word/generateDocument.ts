@@ -10,7 +10,7 @@ import {
 } from "docx";
 import { DownloadType, InputData, MatrixData } from "../types";
 import { saveAs } from "file-saver";
-import { isSchedulingType } from "../../AlgorithmType";
+import { AlgorithmType, isSchedulingType } from "../../AlgorithmType";
 
 export const generateWordDocument = (
   inputData: InputData,
@@ -53,7 +53,7 @@ export const generateWordDocument = (
     ? "Таблиця результатів"
     : "Заповніть матрицю";
 
-  const inputDataParagraphs = isSchedulingType(inputData.algorithmType)
+    const inputDataParagraphs = isSchedulingType(inputData.algorithmType)
     ? [
         new Paragraph({
           children: [
@@ -71,27 +71,27 @@ export const generateWordDocument = (
             }),
           ],
         }),
-        inputData.priorities
-          ? new Paragraph({
-              children: [
-                new TextRun({
-                  text: `Пріоритети: ${inputData.priorities}`,
-                  size: 22,
-                }),
-              ],
-            })
-          : null,
-          inputData.os
-          ? new Paragraph({
-              children: [
-                new TextRun({
-                  text: `Операційна система: ${inputData.os}`,
-                  size: 22,
-                }),
-              ],
-            })
-          : null,
-      ]
+        (inputData.algorithmType === AlgorithmType.PRIORITY_NON_PREEMPTIVE || inputData.algorithmType === AlgorithmType.PRIORITY_PREEMPTIVE)
+          ? [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: `Пріоритети: ${inputData.priorities}`,
+                    size: 22,
+                  }),
+                ],
+              }),
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: `Операційна система: ${inputData.os}`,
+                    size: 22,
+                  }),
+                ],
+              }),
+            ]
+          : []
+      ]  
     : [
         new Paragraph({
           children: [
