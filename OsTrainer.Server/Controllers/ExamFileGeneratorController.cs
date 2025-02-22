@@ -26,13 +26,13 @@ namespace OsTrainer.Server.Controllers
 
                 var contentType = fileType.ToLower() switch
                 {
-                    "word" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    "docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                     "excel" => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                     "pdf" => "application/pdf",
                     _ => "application/octet-stream"
                 };
 
-                return File(fileBytes, contentType, $"{dto.Request.Name}.docx");
+                return File(fileBytes, contentType, $"{dto.Request.Name}.${fileType}");
             }
             catch (Exception ex)
             {

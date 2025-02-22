@@ -221,11 +221,12 @@ export const NewCourse = () => {
   const handleDownload = async (
     inputData: InputData,
     matrixData: MatrixData,
-    type: DownloadType
+    type: DownloadType,
+    format: DownloadFormat
   ) => {
     try {
       const response = await generateFile({
-        fileType: "word",
+        fileType: format.toString(),
         type: type,
         request: {
           ...inputData,
@@ -237,7 +238,7 @@ export const NewCourse = () => {
       const url = window.URL.createObjectURL(new Blob([response]));
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", `report.docx`);
+      link.setAttribute("download", `${inputData.name}.${format}`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -467,13 +468,7 @@ export const NewCourse = () => {
               color="primary"
               onClick={() => {
                 const matrix: MatrixData = handleGenerate();
-                handleDownload(courseData, matrix, downloadType);
-                // generateFile(
-                //   courseData,
-                //   downloadType,
-                //   downloadFormat,
-                //   handleGenerate()
-                // );
+                handleDownload(courseData, matrix, downloadType, downloadFormat);
               }}
             >
               Завантажити білет <Download sx={{ marginLeft: "10px" }} />
