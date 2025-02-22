@@ -27,7 +27,7 @@ namespace OsTrainer.Server.Controllers
                 var contentType = fileType.ToLower() switch
                 {
                     "docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                    "excel" => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    "xlsx" => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                     "pdf" => "application/pdf",
                     _ => "application/octet-stream"
                 };

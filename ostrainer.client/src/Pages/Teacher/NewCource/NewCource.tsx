@@ -459,7 +459,7 @@ export const NewCourse = () => {
                 onChange={handleDownloadFormatChange}
               >
                 <MenuItem value="docx">DOCX</MenuItem>
-                <MenuItem value="excel">Excel</MenuItem>
+                <MenuItem value="xlsx">Excel</MenuItem>
                 <MenuItem value="pdf">PDF</MenuItem>
               </Select>
             </FormControl>

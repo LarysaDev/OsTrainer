@@ -66,9 +66,13 @@ namespace OsTrainer.Server
             builder.Services.AddSingleton<SchedulingService>();
 
             builder.Services.AddSingleton<WordGenerator>();
+            builder.Services.AddSingleton<PdfGenerator>();
+            builder.Services.AddSingleton<ExcelGenerator>();
+
             builder.Services.AddSingleton<IFileGenerator>(sp => sp.GetRequiredService<WordGenerator>());
-            //builder.Services.AddSingleton<ExcelGenerator>();
-            //builder.Services.AddSingleton<PdfGenerator>();
+            builder.Services.AddSingleton<IFileGenerator>(sp => sp.GetRequiredService<PdfGenerator>());
+            builder.Services.AddSingleton<IFileGenerator>(sp => sp.GetRequiredService<ExcelGenerator>());
+
             builder.Services.AddSingleton<IFileGeneratorFactory, FileGeneratorFactory>();
 
             builder.Services.AddCors(options =>

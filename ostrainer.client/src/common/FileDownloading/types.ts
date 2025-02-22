@@ -8,7 +8,7 @@ export enum DownloadType {
 export enum DownloadFormat {
   word = "docx",
   pdf = "pdf",
-  excel = "excel",
+  excel = "xlsx",
 }
 
 export interface InputData {

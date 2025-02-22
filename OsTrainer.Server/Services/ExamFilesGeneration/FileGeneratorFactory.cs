@@ -19,8 +19,8 @@
             return fileType.ToLower() switch
             {
                 "docx" => _serviceProvider.GetRequiredService<WordGenerator>(),
-                //"excel" => _serviceProvider.GetRequiredService<ExcelGenerator>(),
-                "pdf" => _serviceProvider.GetRequiredService<WordGenerator>(),
+                "xlsx" => _serviceProvider.GetRequiredService<ExcelGenerator>(),
+                "pdf" => _serviceProvider.GetRequiredService<PdfGenerator>(),
                 _ => throw new ArgumentException("Unsupported file type", nameof(fileType))
             };
         }
