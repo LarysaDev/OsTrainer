@@ -34,7 +34,7 @@ export const generateSchedulingMatrixData = (
   console.log(matrixes)
 
   const userMatrixTemplate: (string | number)[][] = [
-    ["Process\Time1", ...timeUnits],
+    ["Process\Time", ...timeUnits],
     ...Array.from({ length: processedCount }, (_, index) => [
       `P${index + 1}`,
       ...Array.from({ length: maxTime }, () => ""),

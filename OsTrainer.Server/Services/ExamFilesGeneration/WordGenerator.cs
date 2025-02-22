@@ -89,12 +89,14 @@ namespace OsTrainer.Server.Services.ExamFilesGeneration
             const int PageWidthTwips = 10_000;
             const double LeftRightMarginPercent = 0.05;
             const int TableSpacing = 200;
+            const int MinRowHeight = 400;
 
             var tables = new List<OpenXmlCompositeElement>();
-
-            int maxColumnCount = matrix.Max(row => row.Length);
             int columnCount = matrix[0].Length;
             int tableCount = (int)Math.Ceiling((double)columnCount / MaxColumns);
+
+            int availableWidth = (int)(PageWidthTwips * (1 - 2 * LeftRightMarginPercent));
+            int columnWidth = availableWidth / MaxColumns; 
 
             for (int tableIndex = 0; tableIndex < tableCount; tableIndex++)
             {
@@ -109,18 +111,17 @@ namespace OsTrainer.Server.Services.ExamFilesGeneration
                 }
 
                 Table table = new Table();
+
                 TableProperties tableProperties = new TableProperties(
                     new TableStyle { Val = "TableGrid" },
-                    new TableWidth { Type = TableWidthUnitValues.Dxa, Width = PageWidthTwips.ToString() }
+                    new TableWidth { Type = TableWidthUnitValues.Dxa, Width = (columnWidth * MaxColumns).ToString() },
+                    new TableLayout { Type = TableLayoutValues.Fixed }
                 );
                 table.Append(tableProperties);
 
                 int startColumn = tableIndex * MaxColumns;
                 int endColumn = Math.Min((tableIndex + 1) * MaxColumns, columnCount);
                 int currentTableColumns = endColumn - startColumn;
-
-                int availableWidth = (int)(PageWidthTwips * (1 - 2 * LeftRightMarginPercent));
-                int columnWidth = availableWidth / 15;
 
                 var gridCols = new TableGrid();
                 for (int i = 0; i < currentTableColumns; i++)
@@ -132,6 +133,11 @@ namespace OsTrainer.Server.Services.ExamFilesGeneration
                 foreach (var fullRow in matrix)
                 {
                     var tableRow = new TableRow();
+
+                    var trProperties = new TableRowProperties(
+                        new TableRowHeight { Val = MinRowHeight, HeightType = HeightRuleValues.AtLeast }
+                    );
+                    tableRow.Append(trProperties);
 
                     var rowSegment = fullRow.Skip(startColumn).Take(currentTableColumns);
 
@@ -147,7 +153,15 @@ namespace OsTrainer.Server.Services.ExamFilesGeneration
                             _ => cell.ToString() ?? ""
                         };
 
-                        var tableCell = new TableCell(new Paragraph(new Run(new Text(cellText))));
+                        var paragraph = new Paragraph(
+                            new ParagraphProperties(
+                                new Justification { Val = JustificationValues.Center }
+                            ),
+                            new Run(new Text(cellText))
+                        );
+
+                        var tableCell = new TableCell(paragraph);
+
                         TableCellProperties cellProperties = new TableCellProperties(
                             new TableCellBorders(
                                 new TopBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 4 },
@@ -155,20 +169,19 @@ namespace OsTrainer.Server.Services.ExamFilesGeneration
                                 new LeftBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 4 },
                                 new RightBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 4 }
                             ),
-                            new TableCellWidth { Type = TableWidthUnitValues.Dxa, Width = columnWidth.ToString() }
+                            new TableCellWidth { Type = TableWidthUnitValues.Dxa, Width = columnWidth.ToString() },
+                            new TableCellVerticalAlignment { Val = TableVerticalAlignmentValues.Center }  // Вертикальне вирівнювання по центру
                         );
                         tableCell.Append(cellProperties);
                         tableRow.Append(tableCell);
                     }
                     table.Append(tableRow);
                 }
-
                 tables.Add(table);
             }
 
             return tables;
         }
-
 
         private static bool IsSchedulingType(AlgorithmType algorithmType)
         {
