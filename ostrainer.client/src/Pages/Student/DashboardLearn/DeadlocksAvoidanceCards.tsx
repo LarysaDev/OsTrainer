@@ -13,7 +13,7 @@ import { LoggedInView } from "../../../common/LoggedInView/LoggedInView";
 export const AvoidDeadlocksAlgorithmCards = () => {
   return (
     <LoggedInView links={updateActiveLinkByIndex(3)}>
-      <p className={styles.headerText}>ПЛАНУВАННЯ ПОТОКІВ</p>
+      <p className={styles.headerText}>УНИКНЕННЯ ТУПИКОВИХ СИТУАЦІЙ</p>
       <Box
         sx={{
           display: "flex",

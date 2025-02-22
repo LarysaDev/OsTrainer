@@ -1,4 +1,4 @@
-import { AlgorithmType } from '../../common/AlgorithmType';
+import { AlgorithmType } from "../../common/AlgorithmType";
 
 export enum DownloadType {
   ToSolve = "toSolve",
@@ -27,7 +27,7 @@ export interface InputData {
 }
 
 export interface MatrixData {
-  correctMatrix: (number | null)[][];
+  correctMatrix: (string | number | boolean | null)[][];
   userMatrix: (string | number)[][];
 }
 

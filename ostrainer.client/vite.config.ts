@@ -167,6 +167,10 @@ export default defineConfig({
             '^/api/pagereplacement/mfu': {
                 target: 'https://localhost:7111/',
                 secure: false
+            },
+            '^/api/FileGenerator/generate': {
+                target: 'https://localhost:7111/',
+                secure: false
             }
         },
         port: 5173,

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using OsTrainer.Server.Data;
+using OsTrainer.Server.Services.ExamFilesGeneration;
 using OsTrainer.Server.Services.JWT;
 using OsTrainer.Server.Services.Scheduling;
 using System.Security.Claims;
@@ -63,6 +64,13 @@ namespace OsTrainer.Server
                     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
                 });
             builder.Services.AddSingleton<SchedulingService>();
+
+            builder.Services.AddSingleton<WordGenerator>();
+            builder.Services.AddSingleton<IFileGenerator>(sp => sp.GetRequiredService<WordGenerator>());
+            //builder.Services.AddSingleton<ExcelGenerator>();
+            //builder.Services.AddSingleton<PdfGenerator>();
+            builder.Services.AddSingleton<IFileGeneratorFactory, FileGeneratorFactory>();
+
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowAll", builder =>

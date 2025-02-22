@@ -11,6 +11,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import {
   AlgorithmType,
+  AlgorithmTypeMapping,
   isDeadlockAvoiding,
   isReplacingType,
   isSchedulingType,
@@ -26,7 +27,7 @@ import {
   generateRoundRobinData,
   generateBankerAlgorithmData,
 } from "../../../common/RandomGenerators/AlgorithmRandomDataGenerator";
-import { generateFile } from "../../../common/FileDownloading/generateFile";
+import { useGenerateFileMutation } from "../../../app/fileGenerationApi";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
@@ -36,16 +37,18 @@ import { Download } from "@mui/icons-material";
 import {
   DownloadType,
   DownloadFormat,
-  InputData
+  InputData,
+  MatrixData,
 } from "../../../common/FileDownloading/types";
 import { Select, SelectChangeEvent } from "@mui/material";
 import { Typography } from "@mui/material";
 
-
 export const NewCourse = () => {
-  const userRole = localStorage.getItem('os_trainer_role');
+  const userRole = localStorage.getItem("os_trainer_role");
 
-  const [downloadType, setDownloadType] = useState<DownloadType>(DownloadType.ToSolve);
+  const [downloadType, setDownloadType] = useState<DownloadType>(
+    DownloadType.ToSolve
+  );
   const [downloadFormat, setDownloadFormat] = useState<DownloadFormat>(
     DownloadFormat.word
   );
@@ -65,7 +68,7 @@ export const NewCourse = () => {
     frames: 0,
     resources: 0,
     processes: 0,
-    os: system
+    os: system,
   });
 
   const [error, setError] = useState<string | null>(null);
@@ -190,7 +193,7 @@ export const NewCourse = () => {
     return getDefaultMatrix();
   };
 
-  if (userRole !== 'Teacher') {
+  if (userRole !== "Teacher") {
     return (
       <Box
         sx={{
@@ -213,6 +216,34 @@ export const NewCourse = () => {
     );
   }
 
+  const [generateFile, { isLoading }] = useGenerateFileMutation();
+
+  const handleDownload = async (
+    inputData: InputData,
+    matrixData: MatrixData
+  ) => {
+    try {
+      const response = await generateFile({
+        fileType: "word",
+        request: {
+          ...inputData,
+          algorithmType: AlgorithmTypeMapping[inputData.algorithmType],
+        },
+        matrixData: matrixData,
+      }).unwrap();
+
+      const url = window.URL.createObjectURL(new Blob([response]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `report.docx`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Помилка при генерації файлу:", error);
+    }
+  };
+
   return (
     <>
       <LoggedInView links={updateActiveLinkByIndex(1, links)}>
@@ -225,7 +256,7 @@ export const NewCourse = () => {
             flexDirection: "column",
             minHeight: 10,
             gap: 2,
-            p: 3
+            p: 3,
           }}
         >
           <h3>
@@ -433,12 +464,14 @@ export const NewCourse = () => {
               variant="contained"
               color="primary"
               onClick={() => {
-                generateFile(
-                  courseData,
-                  downloadType,
-                  downloadFormat,
-                  handleGenerate()
-                );
+                const matrix: MatrixData = handleGenerate();
+                handleDownload(courseData, matrix);
+                // generateFile(
+                //   courseData,
+                //   downloadType,
+                //   downloadFormat,
+                //   handleGenerate()
+                // );
               }}
             >
               Завантажити білет <Download sx={{ marginLeft: "10px" }} />

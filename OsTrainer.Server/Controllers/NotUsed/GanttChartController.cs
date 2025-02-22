@@ -3,7 +3,7 @@ using OsTrainer.Server.Models.Scheduling;
 using OsTrainer.Server.Services.Scheduling;
 
 
-namespace OsTrainer.Server.Controllers
+namespace OsTrainer.Server.Controllers.NotUsed
 {
     /// <summary>
     /// Controller for calculation matrix of processes statuses in scheduling algorithms

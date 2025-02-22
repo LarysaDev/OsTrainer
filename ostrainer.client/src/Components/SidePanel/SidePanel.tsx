@@ -21,13 +21,21 @@ export const links: SidePanelLink[] = [
 export const teacherLinks: SidePanelLink[] = [
   { label: "Головна", link: "/" },
   { label: "Екзаменаційний білет", link: "/newCourse" },
-  { label: "Доступні алгоритми", link: "/available_simulators" }
+  { label: "Доступні алгоритми", link: "/available_simulators" },
 ];
 
-export function updateActiveLinkByIndex(activeIndex: number, linksToUpdate: SidePanelLink[] = links): SidePanelLink[] {
+export function updateActiveLinkByIndex(
+  activeIndex: number,
+  linksToUpdate: SidePanelLink[] = links
+): SidePanelLink[] {
+  const userrole = localStorage.getItem("os_trainer_role");
+  if (userrole == "Teacher") {
+    linksToUpdate = teacherLinks;
+  }
+
   return linksToUpdate.map((link, index) => ({
     ...link,
-    active: index === activeIndex
+    active: index === activeIndex,
   }));
 }
 
@@ -36,7 +44,12 @@ export const SidePanel: React.FC<SidePanelProps> = ({ links }) => {
     <div className={styles.continer}>
       <p className={styles.logo}>OS TRAINER</p>
       {links.map((link) => (
-        <a  className={link.active ? styles.activeItem : styles.item} href={link.link}>{link.label}</a>
+        <a
+          className={link.active ? styles.activeItem : styles.item}
+          href={link.link}
+        >
+          {link.label}
+        </a>
       ))}
     </div>
   );

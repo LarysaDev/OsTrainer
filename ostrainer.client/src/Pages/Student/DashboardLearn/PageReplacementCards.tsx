@@ -13,7 +13,7 @@ import { LoggedInView } from "../../../common/LoggedInView/LoggedInView";
 export const PageReplacementAlgorithmCards = () => {
   return (
     <LoggedInView links={updateActiveLinkByIndex(2)}>
-      <p className={styles.headerText}>ПЛАНУВАННЯ ПОТОКІВ</p>
+      <p className={styles.headerText}>ЗАМІЩЕННЯ СТОРІНОК</p>
       <Box
         sx={{
           display: "flex",

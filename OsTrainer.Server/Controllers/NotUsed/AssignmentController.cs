@@ -4,7 +4,7 @@ using OsTrainer.Server.Data;
 using Microsoft.EntityFrameworkCore;
 using OsTrainer.Server.Models.TestGeneration;
 
-namespace OsTrainer.Server.Controllers
+namespace OsTrainer.Server.Controllers.NotUsed
 {
     [Route("api/[controller]")]
     [ApiController]

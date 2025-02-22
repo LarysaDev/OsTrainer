@@ -15,6 +15,23 @@ export enum AlgorithmType {
 } 
 
 
+export const AlgorithmTypeMapping: Record<AlgorithmType, number> = {
+  [AlgorithmType.FCFS]: 0,
+  [AlgorithmType.RR]: 1,
+  [AlgorithmType.SJF_NON_PREEMPTIVE]: 2,
+  [AlgorithmType.SJF_PREEMPTIVE]: 3,
+  [AlgorithmType.PRIORITY_NON_PREEMPTIVE]: 4,
+  [AlgorithmType.PRIORITY_PREEMPTIVE]: 5,
+  [AlgorithmType.FIFO]: 6,
+  [AlgorithmType.CLOCK]: 7,
+  [AlgorithmType.LRU]: 8,
+  [AlgorithmType.LRU_STACK]: 9,
+  [AlgorithmType.LFU]: 10,
+  [AlgorithmType.MFU]: 11,
+  [AlgorithmType.BANKER]: 12
+};
+
+
 const schedulingAlorithms: AlgorithmType[] = [
   AlgorithmType.FCFS,
   AlgorithmType.RR,

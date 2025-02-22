@@ -1,0 +1,42 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using OsTrainer.Server.Models;
+using OsTrainer.Server.Services.ExamFilesGeneration;
+
+namespace OsTrainer.Server.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class FileGeneratorController : ControllerBase
+    {
+        private readonly IFileGeneratorFactory _fileGeneratorFactory;
+
+        public FileGeneratorController(IFileGeneratorFactory fileGeneratorFactory)
+        {
+            _fileGeneratorFactory = fileGeneratorFactory;
+        }
+
+        [HttpPost("generate")]
+        public IActionResult GenerateFile([FromQuery] string fileType, [FromBody] FileGenerationRequestDto dto)
+        {
+            try
+            {
+                var generator = _fileGeneratorFactory.CreateGenerator(fileType);
+                var fileBytes = generator.GenerateFile(dto.Request, dto.MatrixData);
+
+                var contentType = fileType.ToLower() switch
+                {
+                    "word" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    "excel" => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    "pdf" => "application/pdf",
+                    _ => "application/octet-stream"
+                };
+
+                return File(fileBytes, contentType, $"generated-file.docx");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error generating file: {ex.Message}");
+            }
+        }
+    }
+}

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OsTrainer.Server.Services.PageReplacement;
 
-namespace OsTrainer.Server.Controllers
+namespace OsTrainer.Server.Controllers.NotUsed
 {
     [ApiController]
     [Route("api/[controller]")]
