@@ -10,7 +10,6 @@ namespace OsTrainer.Server.Services.ExamFilesGeneration
     {
         public byte[] GenerateFile(FileGenerationRequest inputData, MatrixData matrixData, DownloadType type)
         {
-            // Set EPPlus license context
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
             using (var package = new ExcelPackage())

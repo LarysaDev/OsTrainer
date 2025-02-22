@@ -68,6 +68,7 @@ namespace OsTrainer.Server.Services.ExamFilesGeneration
                     document.Add(CreateParagraph("Таблиця результатів", true, 14));
 
                     var matrix = type == DownloadType.ToSolve ? matrixData.UserMatrix : matrixData.CorrectMatrix;
+                    
                     foreach (var table in GenerateTables(matrix))
                     {
                         document.Add(table);
@@ -91,10 +92,16 @@ namespace OsTrainer.Server.Services.ExamFilesGeneration
         {
             const int MaxColumns = 15;
             const float TableSpacing = 20f;
+            const float CellPadding = 5f;
+            const float PageWidth = 500f; // Приблизна ширина сторінки
+            const float MinCellHeight = 20f; // Мінімальна висота комірки
 
             var tables = new List<Table>();
             int columnCount = matrix[0].Length;
             int tableCount = (int)Math.Ceiling((double)columnCount / MaxColumns);
+
+            // Розрахунок фіксованої ширини колонки для всіх таблиць
+            float columnWidth = PageWidth / MaxColumns;
 
             for (int tableIndex = 0; tableIndex < tableCount; tableIndex++)
             {
@@ -103,8 +110,8 @@ namespace OsTrainer.Server.Services.ExamFilesGeneration
                 int currentTableColumns = endColumn - startColumn;
 
                 var table = new Table(currentTableColumns)
-                    .UseAllAvailableWidth()
-                    .SetMarginTop(tableIndex > 0 ? TableSpacing : 0);
+                    .SetMarginTop(tableIndex > 0 ? TableSpacing : 0)
+                    .SetWidth(columnWidth * currentTableColumns); // Встановлюємо загальну ширину таблиці
 
                 // Add rows
                 foreach (var fullRow in matrix)
@@ -126,8 +133,10 @@ namespace OsTrainer.Server.Services.ExamFilesGeneration
                         var tableCell = new Cell()
                             .Add(new Paragraph(cellText).SetFont(font))
                             .SetBorder(new SolidBorder(ColorConstants.BLACK, 1))
-                            .SetPadding(5)
-                            .SetTextAlignment(TextAlignment.CENTER);
+                            .SetPadding(CellPadding)
+                            .SetTextAlignment(TextAlignment.CENTER)
+                            .SetWidth(columnWidth) // Встановлюємо фіксовану ширину для кожної комірки
+                            .SetHeight(MinCellHeight); // Встановлюємо мінімальну висоту комірки
 
                         table.AddCell(tableCell);
                     }
