@@ -8,7 +8,7 @@ namespace OsTrainer.Server.Services.ExamFilesGeneration
 {
     public class WordGenerator : IFileGenerator
     {
-        public byte[] GenerateFile(FileGenerationRequest inputData, MatrixData matrixData)
+        public byte[] GenerateFile(FileGenerationRequest inputData, MatrixData matrixData, DownloadType type)
         {
             using (var memoryStream = new MemoryStream())
             {
@@ -53,7 +53,14 @@ namespace OsTrainer.Server.Services.ExamFilesGeneration
                     }
 
                     body.AppendChild(CreateParagraph("Таблиця результатів", true, 14));
-                    body.Append(GenerateTable(matrixData.CorrectMatrix));
+                    if(type is DownloadType.ToSolve)
+                    {
+                        body.Append(GenerateTable(matrixData.UserMatrix));
+                    }
+                    else
+                    {
+                        body.Append(GenerateTable(matrixData.CorrectMatrix));
+                    }
 
                     mainPart.Document.Save();
                 }
@@ -64,10 +71,16 @@ namespace OsTrainer.Server.Services.ExamFilesGeneration
 
         private static Paragraph CreateParagraph(string text, bool bold, int fontSize)
         {
-            return new Paragraph(new Run(
-                new RunProperties(new Bold() { Val = bold ? OnOffValue.FromBoolean(true) : null }, new FontSize() { Val = (fontSize * 2).ToString() }),
-                new Text(text)
-            ));
+            var runProperties = new RunProperties();
+
+            if (bold)
+            {
+                runProperties.Append(new Bold());
+            }
+
+            runProperties.Append(new FontSize() { Val = (fontSize * 2).ToString() });
+
+            return new Paragraph(new Run(runProperties, new Text(text)));
         }
 
         private static List<OpenXmlCompositeElement> GenerateTable(object?[][] matrix)

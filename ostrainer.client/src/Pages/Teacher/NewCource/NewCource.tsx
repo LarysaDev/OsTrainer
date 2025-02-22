@@ -220,11 +220,13 @@ export const NewCourse = () => {
 
   const handleDownload = async (
     inputData: InputData,
-    matrixData: MatrixData
+    matrixData: MatrixData,
+    type: DownloadType
   ) => {
     try {
       const response = await generateFile({
         fileType: "word",
+        type: type,
         request: {
           ...inputData,
           algorithmType: AlgorithmTypeMapping[inputData.algorithmType],
@@ -465,7 +467,7 @@ export const NewCourse = () => {
               color="primary"
               onClick={() => {
                 const matrix: MatrixData = handleGenerate();
-                handleDownload(courseData, matrix);
+                handleDownload(courseData, matrix, downloadType);
                 // generateFile(
                 //   courseData,
                 //   downloadType,

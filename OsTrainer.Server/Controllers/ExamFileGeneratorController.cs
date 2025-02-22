@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OsTrainer.Server.Models;
+using OsTrainer.Server.Models.Enum;
 using OsTrainer.Server.Services.ExamFilesGeneration;
 
 namespace OsTrainer.Server.Controllers
@@ -16,12 +17,12 @@ namespace OsTrainer.Server.Controllers
         }
 
         [HttpPost("generate")]
-        public IActionResult GenerateFile([FromQuery] string fileType, [FromBody] FileGenerationRequestDto dto)
+        public IActionResult GenerateFile([FromQuery] string fileType, [FromQuery] DownloadType type, [FromBody] FileGenerationRequestDto dto)
         {
             try
             {
                 var generator = _fileGeneratorFactory.CreateGenerator(fileType);
-                var fileBytes = generator.GenerateFile(dto.Request, dto.MatrixData);
+                var fileBytes = generator.GenerateFile(dto.Request, dto.MatrixData, type);
 
                 var contentType = fileType.ToLower() switch
                 {
@@ -31,7 +32,7 @@ namespace OsTrainer.Server.Controllers
                     _ => "application/octet-stream"
                 };
 
-                return File(fileBytes, contentType, $"generated-file.docx");
+                return File(fileBytes, contentType, $"{dto.Request.Name}.docx");
             }
             catch (Exception ex)
             {
