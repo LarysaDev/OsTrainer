@@ -1,8 +1,8 @@
 ﻿namespace OsTrainer.Server.Services.PageReplacement
 {
-    public class PageReplacementData
+    public class PageReplacementRequest
     {
-        public List<int> Pages { get; set; }
+        public int[] PageRequests { get; set; } = Array.Empty<int>();
         public int FrameCount { get; set; }
     }
 }

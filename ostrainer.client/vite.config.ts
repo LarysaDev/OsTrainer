@@ -144,7 +144,7 @@ export default defineConfig({
                 target: 'https://localhost:7111/',
                 secure: false
             },
-            '^/api/pagereplacement/fifo': {
+            '^/api/PageReplacement/fifo': {
                 target: 'https://localhost:7111/',
                 secure: false
             },

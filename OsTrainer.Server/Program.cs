@@ -59,10 +59,13 @@ namespace OsTrainer.Server
                 .AddEntityFrameworkStores<AppDbContext>();
 
             builder.Services.AddControllers()
-                .AddJsonOptions(options =>
-                {
-                    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
-                });
+                 .AddJsonOptions(options =>
+                 {
+                     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+                     options.JsonSerializerOptions.WriteIndented = true;
+                 });
+
+
             builder.Services.AddSingleton<SchedulingService>();
 
             builder.Services.AddSingleton<WordGenerator>();

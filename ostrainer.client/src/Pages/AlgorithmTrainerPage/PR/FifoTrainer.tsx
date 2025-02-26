@@ -19,61 +19,11 @@ import {
   Typography,
 } from "@mui/material";
 import { generatePageReplacementData } from "../../../common/RandomGenerators/AlgorithmRandomDataGenerator";
-
-const generateMatrix = (pageRequests: number[], frameCount: number) => {
-  console.log('pageRequests', pageRequests)
-  console.log('frames', frameCount)
-  const matrix = Array.from({ length: frameCount }, () =>
-    new Array(pageRequests.length).fill(null)
-  );
-  const pageFaults: boolean[] = [];
-
-  // Додамо змінну для відстеження позиції наступної заміни
-  let replacePosition = 0;
-
-  pageRequests.forEach((page, columnIndex) => {
-    // Отримуємо поточний стан фреймів з попередньої колонки
-    const currentFrames = columnIndex === 0 
-      ? Array(frameCount).fill(null)
-      : matrix.map(row => row[columnIndex - 1]);
-
-    // Перевіряємо, чи є сторінка вже у фреймах
-    const isPagePresent = currentFrames.includes(page);
-
-    if (!isPagePresent) {
-      pageFaults.push(true);
-      
-      // Знаходимо перший null
-      const nullIndex = currentFrames.indexOf(null);
-      
-      if (nullIndex !== -1) {
-        // Якщо є вільний фрейм, копіюємо попередній стан
-        for (let i = 0; i < frameCount; i++) {
-          matrix[i][columnIndex] = currentFrames[i];
-        }
-        // І додаємо нову сторінку у вільний фрейм
-        matrix[nullIndex][columnIndex] = page;
-      } else {
-        // Якщо вільних фреймів немає, копіюємо попередній стан
-        for (let i = 0; i < frameCount; i++) {
-          matrix[i][columnIndex] = currentFrames[i];
-        }
-        // Замінюємо сторінку в поточній позиції заміни
-        matrix[replacePosition][columnIndex] = page;
-        // Оновлюємо позицію для наступної заміни
-        replacePosition = (replacePosition + 1) % frameCount;
-      }
-    } else {
-      // Якщо сторінка вже є, просто копіюємо попередній стан
-      pageFaults.push(false);
-      for (let i = 0; i < frameCount; i++) {
-        matrix[i][columnIndex] = currentFrames[i];
-      }
-    }
-  });
-  console.log(matrix)
-  return { matrix, pageFaults };
-};
+import { useGenerateFifoMatrixMutation } from "../../../app/algorithmsApi";
+import {
+  PageReplacementRequest,
+  PageReplacementResults,
+} from "../../../app/types";
 
 export const FifoTrainer: React.FC = () => {
   const [pageRequests, setPageRequests] = useState<string>("");
@@ -81,10 +31,24 @@ export const FifoTrainer: React.FC = () => {
   const [pageError, setPageError] = useState<string | null>(null);
   const [frameError, setFrameError] = useState<string | null>(null);
   const [userMatrix, setUserMatrix] = useState<(string | number)[][]>([]);
-  const [correctMatrix, setCorrectMatrix] = useState<(number | null)[][]>([]);
+  const [correctMatrix, setCorrectMatrix] = useState<(number | null | "")[][]>([]);
   const [correctPageFaults, setCorrectPageFaults] = useState<boolean[]>([]);
   const [cellValidation, setCellValidation] = useState<boolean[][]>([]);
   const [pageFaultValidation, setPageFaultValidation] = useState<boolean[]>([]);
+  const [generateMatrix] = useGenerateFifoMatrixMutation();
+
+  const handleGenerateMatrix = async (
+    request: PageReplacementRequest
+  ): Promise<PageReplacementResults> => {
+    try {
+      const data = await generateMatrix(request).unwrap();
+      console.log("Received data:", data);
+      return data;
+    } catch (err) {
+      console.error("Помилка при отриманні матриці:", err);
+      throw err;
+    }
+  };
 
   const validateInputs = () => {
     const trimmedPageRequests = pageRequests.replace(/\s+/g, "");
@@ -129,30 +93,36 @@ export const FifoTrainer: React.FC = () => {
 
   const handleVerifyMatrix = () => {
     if (!correctMatrix.length) return;
-
+  
     const validationMatrix: boolean[][] = [];
     const pageFaultValidations: boolean[] = [];
-
+  
     for (let i = 1; i < userMatrix.length - 1; i++) {
       validationMatrix[i - 1] = [];
       for (let j = 1; j < userMatrix[i].length; j++) {
         const userValue =
           userMatrix[i][j] === "" ? null : Number(userMatrix[i][j]);
         const correctValue = correctMatrix[i - 1][j - 1];
-        validationMatrix[i - 1][j - 1] = userValue === correctValue;
+  
+        if (correctValue === "") {
+          validationMatrix[i - 1][j - 1] = userValue === null;
+        } else {
+          validationMatrix[i - 1][j - 1] = userValue === Number(correctValue);
+        }
       }
     }
-
+  
     const lastRow = userMatrix[userMatrix.length - 1];
     for (let j = 1; j < lastRow.length; j++) {
       const userFault = lastRow[j] === "f";
       const correctFault = correctPageFaults[j - 1];
       pageFaultValidations[j - 1] = userFault === correctFault;
     }
-
+  
     setCellValidation(validationMatrix);
     setPageFaultValidation(pageFaultValidations);
   };
+  
 
   const getCellStyle = (
     rowIndex: number,
@@ -185,7 +155,7 @@ export const FifoTrainer: React.FC = () => {
     setFrameSize(frameSize);
   };
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     if (!validateInputs()) return;
 
     const requestArray = pageRequests
@@ -193,10 +163,16 @@ export const FifoTrainer: React.FC = () => {
       .split(",")
       .map(Number);
 
-    const { matrix: correctFrameMatrix, pageFaults } = generateMatrix(
-      requestArray,
-      frameSize
+    const result = await handleGenerateMatrix({
+      pageRequests: requestArray,
+      frameCount: frameSize,
+    });
+
+    const correctFrameMatrix = result.matrix.map((row) =>
+      row.map((value) => (value < 0 ? "" : value))
     );
+    const pageFaults = result.pageFaults;
+
     setCorrectMatrix(correctFrameMatrix);
     setCorrectPageFaults(pageFaults);
 
@@ -290,7 +266,7 @@ export const FifoTrainer: React.FC = () => {
                 >
                   Автозаповнити вхідні дані
                 </Button>
-                <Typography sx={{marginTop: '15px'}}>
+                <Typography sx={{ marginTop: "15px" }}>
                   <Button
                     variant="contained"
                     color="secondary"
