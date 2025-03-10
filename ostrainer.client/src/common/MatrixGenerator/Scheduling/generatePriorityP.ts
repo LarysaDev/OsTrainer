@@ -23,7 +23,6 @@ export const generatePreemptivePriorityMatrix = (
     );
 
     if (availableProcesses.length === 0) {
-      // Якщо немає доступних процесів, переходимо до наступного часу прибуття
       currentTime = Math.min(
         ...workingProcesses
           .filter((p) => p.remainingTime > 0)
@@ -43,7 +42,6 @@ export const generatePreemptivePriorityMatrix = (
       );
     }
 
-    // Якщо є поточний процес, перевіряємо чи треба його витіснити
     if (currentProcess && currentProcess.remainingTime > 0) {
       if (highestPriorityProcess.priority < currentProcess.priority) {
         currentProcess = highestPriorityProcess;
@@ -58,7 +56,6 @@ export const generatePreemptivePriorityMatrix = (
     }
     workingProcesses[processIndex].currentStartTime = currentTime;
 
-    // Записуємо історію виконання
     executionHistory.push({
       time: currentTime,
       processId: currentProcess.id,
@@ -70,7 +67,7 @@ export const generatePreemptivePriorityMatrix = (
     if (currentProcess.remainingTime === 0) {
       workingProcesses[processIndex].completionTime = currentTime;
       completedProcesses++;
-      currentProcess = null; // Завершуємо виконання поточного процесу
+      currentProcess = null;
     }
   }
 
@@ -83,14 +80,14 @@ export const generatePreemptivePriorityMatrix = (
     const row: string[] = [];
     for (let t = minArrivalTime; t <= maxTime; t++) {
       if (t < process.arrivalTime) {
-        row.push("-"); // Процес ще не прибув
+        row.push("-");
       } else if (t >= workingProcesses[process.id - 1].completionTime!) {
-        row.push(""); // Процес завершено
+        row.push("");
       } else {
         const isExecuting = executionHistory.find(
           (h) => h.time === t && h.processId === process.id
         );
-        row.push(isExecuting ? "e" : "w"); // Виконується або чекає
+        row.push(isExecuting ? "e" : "w");
       }
     }
     correctMatrix.push(row);
