@@ -438,12 +438,12 @@ export const NewCourse = () => {
               <FormControlLabel
                 value="toSolve"
                 control={<Radio />}
-                label="Тільки білет для розв'язання"
+                label="Білет для розв'язання"
               />
               <FormControlLabel
                 value="solved"
                 control={<Radio />}
-                label="Тільки таблиця з відповідями"
+                label="Білет з відповідями"
               />
             </RadioGroup>
           </FormControl>

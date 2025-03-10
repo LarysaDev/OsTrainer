@@ -8,50 +8,57 @@
             List<List<int>> matrix = new List<List<int>>();
             List<bool> pageFaults = new List<bool>();
 
-            Queue<int> frameQueue = new Queue<int>(request.FrameCount);
-            HashSet<int> currentPages = new HashSet<int>();
-
             for (int row = 0; row < request.FrameCount; row++)
             {
                 matrix.Add(Enumerable.Repeat(-1, columnCount).ToList());
             }
 
+            List<int> frames = new List<int>(request.FrameCount);
+
+            Dictionary<int, int> pageToRowIndex = new Dictionary<int, int>();
+
             for (int col = 0; col < columnCount; col++)
             {
-                int page = request.PageRequests[col];
+                int currentPage = request.PageRequests[col];
 
-                if (!currentPages.Contains(page))
+                if (col > 0)
                 {
-                    pageFaults.Add(true);
-
-                    if (frameQueue.Count < request.FrameCount)
+                    for (int row = 0; row < request.FrameCount; row++)
                     {
-                        frameQueue.Enqueue(page);
-                        currentPages.Add(page);
+                        matrix[row][col] = matrix[row][col - 1];
+                    }
+                }
+
+                bool pageFault = !pageToRowIndex.ContainsKey(currentPage);
+                pageFaults.Add(pageFault);
+
+                if (pageFault)
+                {
+                    if (frames.Count < request.FrameCount)
+                    {
+                        int emptyRow = frames.Count;
+                        matrix[emptyRow][col] = currentPage;
+                        frames.Add(currentPage);
+                        pageToRowIndex[currentPage] = emptyRow;
                     }
                     else
                     {
-                        int removedPage = frameQueue.Dequeue();
-                        currentPages.Remove(removedPage);
+                        int oldestPage = frames[0];
+                        int rowToReplace = pageToRowIndex[oldestPage];
 
-                        frameQueue.Enqueue(page);
-                        currentPages.Add(page);
+                        frames.RemoveAt(0);
+                        pageToRowIndex.Remove(oldestPage);
+
+                        matrix[rowToReplace][col] = currentPage;
+                        frames.Add(currentPage);
+                        pageToRowIndex[currentPage] = rowToReplace;
                     }
-                }
-                else
-                {
-                    pageFaults.Add(false);
-                }
-
-                int rowIndex = 0;
-                foreach (int item in frameQueue)
-                {
-                    matrix[rowIndex++][col] = item;
                 }
             }
 
             return new PageReplacementResults(matrix, pageFaults);
         }
+
 
 
         //public PageReplacementResults Clock(PageReplacementData data)

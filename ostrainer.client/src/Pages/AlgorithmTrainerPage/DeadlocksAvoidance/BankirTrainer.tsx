@@ -40,9 +40,7 @@ const BankersAlgorithmTrainer: React.FC = () => {
 
   const validateAndInitialize = () => {
     if (numProcesses <= 0 || numResources <= 0) {
-      setInputError(
-        "Введіть коректні значення для процесів та ресурсів"
-      );
+      setInputError("Введіть коректні значення для процесів та ресурсів");
       return false;
     }
     setInputError(null);
@@ -83,8 +81,8 @@ const BankersAlgorithmTrainer: React.FC = () => {
     col: number,
     value: string
   ) => {
-    const newMatrix = [...matrix];
-    newMatrix[row][col] = parseInt(value) || 0;
+    const newMatrix = matrix.map((r, i) => (i === row ? [...r] : r));
+    newMatrix[row][col] = isNaN(parseInt(value)) ? 0 : parseInt(value);
     matrixSetter(newMatrix);
   };
 
@@ -104,7 +102,9 @@ const BankersAlgorithmTrainer: React.FC = () => {
     max: number[][],
     alloc: number[][]
   ): number[][] => {
-    return max.map((row, i) => row.map((val, j) => val - alloc[i][j]));
+    return max.map((row, i) =>
+      row.map((val, j) => Math.max(0, val - alloc[i][j]))
+    );
   };
 
   const fillCalculatedValues = () => {
@@ -152,7 +152,11 @@ const BankersAlgorithmTrainer: React.FC = () => {
   };
 
   const resetNeedMatrix = () => {
-    setUserNeed("");
+    setUserNeed(
+      Array(numProcesses)
+        .fill(0)
+        .map(() => Array(numResources).fill(""))
+    );
   };
 
   const resetSafeSequence = () => {
@@ -181,10 +185,12 @@ const BankersAlgorithmTrainer: React.FC = () => {
 
     // Validate sequence if system is actually safe
     if (safeStateResult.isSafe) {
-      const userSeq = userSafeSequence
-        .split(",")
-        .map((s) => parseInt(s.trim()))
-        .filter((n) => !isNaN(n));
+      const userSeq = userSafeSequence.trim()
+        ? userSafeSequence
+            .split(",")
+            .map((s) => parseInt(s.trim()))
+            .filter((n) => !isNaN(n))
+        : [];
 
       const isValidSequence =
         userSeq.length === safeStateResult.sequence.length &&
@@ -439,7 +445,7 @@ const BankersAlgorithmTrainer: React.FC = () => {
                   }
                   sx={{
                     width: "80%",
-                    paddingRight: '10px',
+                    paddingRight: "10px",
                     "& input": {
                       backgroundColor:
                         sequenceValidation === true
@@ -451,7 +457,7 @@ const BankersAlgorithmTrainer: React.FC = () => {
                   }}
                 />
                 <Button
-                sx={{marginTop: '8px'}}
+                  sx={{ marginTop: "8px" }}
                   variant="contained"
                   color="primary"
                   onClick={resetSafeSequence}
