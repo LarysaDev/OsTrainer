@@ -1,5 +1,8 @@
 import { AlgorithmType } from "../AlgorithmType";
-import { PageReplacementMatrixData, SchedulingMatrixData } from "../FileDownloading/types";
+import {
+  PageReplacementMatrixData,
+  SchedulingMatrixData,
+} from "../FileDownloading/types";
 import { getMatrixGenerationLogic } from "./getMatrixGenerationLogic";
 
 export const generateSchedulingMatrixData = (
@@ -10,42 +13,46 @@ export const generateSchedulingMatrixData = (
   type: AlgorithmType,
   os: string
 ) => {
-  const arrivalArray = arrivalTimes
-      .replace(/\s+/g, "")
-      .split(",")
-      .map(Number);
-    const burstArray = burstTimes.replace(/\s+/g, "").split(",").map(Number);
-    const priorityArray = priorities.replace(/\s+/g, "").split(",").map(Number);
+  const arrivalArray = arrivalTimes.replace(/\s+/g, "").split(",").map(Number);
+  const burstArray = burstTimes.replace(/\s+/g, "").split(",").map(Number);
+  const priorityArray = priorities.replace(/\s+/g, "").split(",").map(Number);
 
-    const processList = arrivalArray.map((arrival, index) => ({
-      id: index + 1,
-      arrivalTime: arrival,
-      burstTime: burstArray[index],
-      priority: priorityArray[index]
-    }));
+  const processList = arrivalArray.map((arrival, index) => ({
+    id: index + 1,
+    arrivalTime: arrival,
+    burstTime: burstArray[index],
+    priority: priorityArray[index],
+  }));
 
   const matrixes: SchedulingMatrixData = getMatrixGenerationLogic(type, processList, timeQuantum ?? 0, os);
-
-  const maxTime = matrixes.userMatrix[0].length;
-  const processedCount = arrivalArray.length;
   
-  const timeUnits = Array.from({ length: maxTime }, (_, i) => i);
+  const maxTime = matrixes.correctMatrix[0].length;
+  const minArrivalTime = Math.min(...processList.map(p => p.arrivalTime));
 
-  console.log(matrixes)
+  const processedCount = processList.length;
+
+  const timeUnits = Array.from(
+    { length: maxTime },
+    (_, i) => i + minArrivalTime
+  );
+
+  console.log(matrixes);
 
   const userMatrixTemplate: (string | number)[][] = [
-    ["Process\Time", ...timeUnits],
+    ["Process\\Time", ...timeUnits], 
     ...Array.from({ length: processedCount }, (_, index) => [
       `P${index + 1}`,
-      ...Array.from({ length: maxTime }, () => ""),
+      ...Array.from({ length: maxTime }, () => ""), 
     ]),
   ];
-
   const updatedCorrectMatrix = [
-    ["Process\Time", ...timeUnits],
+    ["ProcessTime", ...timeUnits],
     ...Array.from({ length: processedCount }, (_, processIndex) => [
       `P${processIndex + 1}`,
-      ...timeUnits.map((_, requestIndex) => matrixes.correctMatrix[processIndex][requestIndex] ?? null),
+      ...timeUnits.map(
+        (_, requestIndex) =>
+          matrixes.correctMatrix[processIndex][requestIndex] ?? null
+      ),
     ]),
   ];
 
@@ -60,8 +67,18 @@ export const generatePageReplacementMatrixData = (
   frameSize: number,
   algType: AlgorithmType
 ) => {
-  const pageRequests = pageRequestsArray.replace(/\s+/g, "").split(",").map(Number);
-  const matrixes: PageReplacementMatrixData = getMatrixGenerationLogic(algType, null, 0, pageRequests, frameSize, null);
+  const pageRequests = pageRequestsArray
+    .replace(/\s+/g, "")
+    .split(",")
+    .map(Number);
+  const matrixes: PageReplacementMatrixData = getMatrixGenerationLogic(
+    algType,
+    null,
+    0,
+    pageRequests,
+    frameSize,
+    null
+  );
   const pageFaults = matrixes.pageFaults;
 
   const userMatrixTemplate: (string | number)[][] = [
@@ -76,7 +93,10 @@ export const generatePageReplacementMatrixData = (
     ["Page Requests", ...pageRequests],
     ...Array.from({ length: frameSize }, (_, frameIndex) => [
       `frame ${frameIndex + 1}`,
-      ...pageRequests.map((_, requestIndex) => matrixes.correctMatrix[frameIndex][requestIndex] ?? null),
+      ...pageRequests.map(
+        (_, requestIndex) =>
+          matrixes.correctMatrix[frameIndex][requestIndex] ?? null
+      ),
     ]),
     ["Page Fault?", ...pageFaults],
   ];

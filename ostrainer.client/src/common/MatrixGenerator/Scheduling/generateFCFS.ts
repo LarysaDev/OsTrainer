@@ -1,7 +1,6 @@
 import { SchedulingMatrixData } from "../../FileDownloading/types";
 
 export const generateFCFSMatrix = (processes): SchedulingMatrixData => {
-  console.log(processes);
   const n = processes.length;
   const correctMatrix: string[][] = [];
   const completionTimes = new Array(n).fill(0);
@@ -26,6 +25,7 @@ export const generateFCFSMatrix = (processes): SchedulingMatrixData => {
   }
 
   const maxTime = Math.max(...completionTimes);
+  const minArrivalTime = Math.min(...processes.map(p => p.arrivalTime));
 
   for (let i = 0; i < n; i++) {
     const row: string[] = [];
@@ -33,22 +33,22 @@ export const generateFCFSMatrix = (processes): SchedulingMatrixData => {
     const startTime = completionTimes[i] - process.burstTime;
     const endTime = completionTimes[i];
 
-    for (let t = 0; t <= maxTime; t++) {
+    for (let t = minArrivalTime; t <= maxTime; t++) {
       if (t < process.arrivalTime) {
-        row.push("-");  // Not arrived
+        row.push("-");  
       } else if (t >= startTime && t < endTime) {
-        row.push("e");  // Executing
+        row.push("e");
       } else if (t >= endTime) {
-        row.push("");   // Completed
+        row.push(""); 
       } else {
-        row.push("w");  // Waiting
+        row.push("w"); 
       }
     }
     correctMatrix.push(row);
   }
 
   const userMatrix = correctMatrix.map(row =>
-    row.map(() => "")
+    row.map(() => "") 
   );
 
   return {

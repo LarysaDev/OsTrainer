@@ -294,6 +294,7 @@ export const RrTrainer: React.FC = () => {
     </div>
   );
 };
+
 function roundRobinScheduler(arrivalTimes, burstTimes, timeQuantum) {
   const processes = arrivalTimes.map((at, index) => ({
     id: index + 1,
