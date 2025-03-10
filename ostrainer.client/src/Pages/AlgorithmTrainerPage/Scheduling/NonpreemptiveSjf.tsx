@@ -118,73 +118,75 @@ export const NonpreemptiveSjfTrainer: React.FC = () => {
 
   const generateMatrixTable = (arrivalTime: number[], burstTime: number[]) => {
     const processes: Process[] = arrivalTime.map((arrival, index) => ({
+      id: index + 1,
       arrivalTime: arrival,
       burstTime: burstTime[index],
+      remainingTime: burstTime[index],
       completed: false,
+      startTime: undefined,
+      completionTime: undefined,
     }));
-
+  
     const n = processes.length;
     const completionTimes: number[] = new Array(n).fill(0);
     const startTimes: number[] = new Array(n).fill(0);
     const waitingTimes: number[] = new Array(n).fill(0);
     const turnaroundTimes: number[] = new Array(n).fill(0);
-
+  
     let currentTime = Math.min(...arrivalTime);
     let completedProcesses = 0;
-
+  
     while (completedProcesses < n) {
       let selectedProcess: number = -1;
       let shortestBurst = Number.MAX_VALUE;
-
+  
       for (let i = 0; i < n; i++) {
         if (
           !processes[i].completed &&
           processes[i].arrivalTime <= currentTime &&
-          processes[i].burstTime < shortestBurst
+          processes[i].remainingTime < shortestBurst
         ) {
           selectedProcess = i;
-          shortestBurst = processes[i].burstTime;
+          shortestBurst = processes[i].remainingTime;
         }
       }
-
+  
       if (selectedProcess !== -1) {
         startTimes[selectedProcess] = currentTime;
-        completionTimes[selectedProcess] =
-          currentTime + processes[selectedProcess].burstTime;
-        currentTime = completionTimes[selectedProcess];
+        completionTimes[selectedProcess] = currentTime + processes[selectedProcess].burstTime;
         processes[selectedProcess].completed = true;
+        processes[selectedProcess].completionTime = completionTimes[selectedProcess];
+        currentTime = completionTimes[selectedProcess];
         completedProcesses++;
       } else {
         let nextArrival = Number.MAX_VALUE;
         for (let i = 0; i < n; i++) {
-          if (
-            !processes[i].completed &&
-            processes[i].arrivalTime > currentTime
-          ) {
+          if (!processes[i].completed && processes[i].arrivalTime > currentTime) {
             nextArrival = Math.min(nextArrival, processes[i].arrivalTime);
           }
         }
         currentTime = nextArrival;
       }
     }
-
+  
     for (let i = 0; i < n; i++) {
       turnaroundTimes[i] = completionTimes[i] - processes[i].arrivalTime;
       waitingTimes[i] = turnaroundTimes[i] - processes[i].burstTime;
     }
-
+  
     const maxTime = Math.max(...completionTimes);
+  
     const matrix: (string | number)[][] = [];
-
+  
     const headerRow: (string | number)[] = ["Process\\Time"];
-    for (let t = 0; t <= maxTime; t++) {
+    for (let t = Math.min(...arrivalTime); t <= maxTime; t++) {
       headerRow.push(t);
     }
     matrix.push(headerRow);
-
+  
     processes.forEach((process, index) => {
       const row: (string | number)[] = [`P${index + 1}`];
-      for (let t = 0; t <= maxTime; t++) {
+      for (let t = Math.min(...arrivalTime); t <= maxTime; t++) {
         if (t < process.arrivalTime) {
           row.push("-");
         } else if (t >= startTimes[index] && t < completionTimes[index]) {
@@ -197,7 +199,7 @@ export const NonpreemptiveSjfTrainer: React.FC = () => {
       }
       matrix.push(row);
     });
-
+  
     setMatrix(matrix);
     setUserMatrix(
       matrix.map((row) =>
@@ -206,6 +208,7 @@ export const NonpreemptiveSjfTrainer: React.FC = () => {
     );
     setColorMatrix(matrix.map((row) => row.map(() => "")));
   };
+  
 
   const handleUserInputChange = (
     rowIndex: number,

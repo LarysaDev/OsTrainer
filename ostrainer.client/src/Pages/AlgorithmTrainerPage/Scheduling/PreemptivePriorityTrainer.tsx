@@ -149,12 +149,13 @@ export const PreemptivePriorityTrainer: React.FC = () => {
     }
   };
 
+ 
   const generateMatrixTable = (
     arrivalTimes: number[],
     burstTimes: number[],
-    priorities: number[]
+    priorities: number[],
+    system: string
   ) => {
-    // Ініціалізуємо процеси
     let processes: Process[] = arrivalTimes.map((arrival, index) => ({
       id: index + 1,
       arrivalTime: arrival,
@@ -165,17 +166,17 @@ export const PreemptivePriorityTrainer: React.FC = () => {
       startTime: undefined,
       currentStartTime: undefined,
     }));
-
+  
     let currentTime = Math.min(...arrivalTimes);
     let completedProcesses = 0;
     let executionHistory: { time: number; processId: number }[] = [];
     let currentProcess: Process | null = null;
-
+  
     while (completedProcesses < processes.length) {
       let availableProcesses = processes.filter(
         (p) => p.arrivalTime <= currentTime && p.remainingTime > 0
       );
-
+  
       if (availableProcesses.length === 0) {
         let nextArrival = Math.min(
           ...processes
@@ -185,7 +186,7 @@ export const PreemptivePriorityTrainer: React.FC = () => {
         currentTime = nextArrival;
         continue;
       }
-
+  
       let highestPriorityProcess;
       if (system === "Windows") {
         highestPriorityProcess = availableProcesses.reduce((prev, current) =>
@@ -196,7 +197,7 @@ export const PreemptivePriorityTrainer: React.FC = () => {
           prev.priority <= current.priority ? prev : current
         );
       }
-
+  
       if (currentProcess && currentProcess.remainingTime > 0) {
         if (highestPriorityProcess.priority < currentProcess.priority) {
           currentProcess = highestPriorityProcess;
@@ -204,45 +205,54 @@ export const PreemptivePriorityTrainer: React.FC = () => {
       } else {
         currentProcess = highestPriorityProcess;
       }
-
+  
       if (processes[currentProcess.id - 1].startTime === undefined) {
         processes[currentProcess.id - 1].startTime = currentTime;
       }
       processes[currentProcess.id - 1].currentStartTime = currentTime;
-
+  
       executionHistory.push({
         time: currentTime,
         processId: currentProcess.id,
       });
-
+  
       currentProcess.remainingTime--;
       currentTime++;
-
+  
       if (currentProcess.remainingTime === 0) {
         processes[currentProcess.id - 1].completionTime = currentTime;
         completedProcesses++;
-        currentProcess = null;
+        currentProcess = null; 
       }
     }
-
+  
+    const turnaroundTimes = processes.map(
+      (p) => p.completionTime! - p.arrivalTime
+    );
+    const waitingTimes = processes.map(
+      (p) => turnaroundTimes[p.id - 1] - p.burstTime
+    );
+  
     const maxTime = Math.max(...processes.map((p) => p.completionTime!));
+    const minArrivalTime = Math.min(...arrivalTimes);
+  
     const matrix: (string | number)[][] = [];
-
     const headerRow: (string | number)[] = ["Process\\Time"];
-    for (let t = 0; t <= maxTime; t++) {
+  
+    for (let t = minArrivalTime; t <= maxTime; t++) {
       headerRow.push(t);
     }
     matrix.push(headerRow);
-
     processes.forEach((process) => {
       const row: (string | number)[] = [`P${process.id}`];
-      for (let t = 0; t <= maxTime; t++) {
+  
+      for (let t = minArrivalTime; t <= maxTime; t++) {
         if (t < process.arrivalTime) {
           row.push("-");
         } else if (t >= process.completionTime!) {
           row.push("");
         } else {
-          const isExecuting = executionHistory.find(
+          const isExecuting = executionHistory.some(
             (h) => h.time === t && h.processId === process.id
           );
           if (isExecuting) {
@@ -254,7 +264,7 @@ export const PreemptivePriorityTrainer: React.FC = () => {
       }
       matrix.push(row);
     });
-
+  
     setMatrix(matrix);
     setUserMatrix(
       matrix.map((row) =>
@@ -263,6 +273,7 @@ export const PreemptivePriorityTrainer: React.FC = () => {
     );
     setColorMatrix(matrix.map((row) => row.map(() => "")));
   };
+  
 
   const handleUserInputChange = (
     rowIndex: number,

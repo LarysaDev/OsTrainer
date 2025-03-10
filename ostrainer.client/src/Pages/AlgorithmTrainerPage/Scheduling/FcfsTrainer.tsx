@@ -126,7 +126,9 @@ export const FcfsTrainer: React.FC = () => {
       (a, b) => a.arrivalTime - b.arrivalTime
     );
 
-    let currentTime = 0;
+    const minArrivalTime = Math.min(...processes.map(p => p.arrivalTime));
+    
+    let currentTime = minArrivalTime;
     for (let i = 0; i < n; i++) {
       const process = sortedProcesses[i];
       if (currentTime < process.arrivalTime) {
@@ -142,7 +144,8 @@ export const FcfsTrainer: React.FC = () => {
 
     const headerRow = ["Process\\Time"];
     const maxTime = Math.max(...completionTimes);
-    for (let t = 0; t <= maxTime; t++) {
+    
+    for (let t = minArrivalTime; t <= maxTime; t++) {
       headerRow.push(t);
     }
     matrix.push(headerRow);
@@ -154,7 +157,7 @@ export const FcfsTrainer: React.FC = () => {
       const startTime = completionTimes[i] - process.burstTime;
       const endTime = completionTimes[i];
 
-      for (let t = 0; t <= maxTime; t++) {
+      for (let t = minArrivalTime; t <= maxTime; t++) {
         if (t < process.arrivalTime) {
           row.push("-");
         } else if (t >= startTime && t < endTime) {
@@ -175,7 +178,7 @@ export const FcfsTrainer: React.FC = () => {
       )
     );
     setColorMatrix(matrix.map((row) => row.map(() => "")));
-  }
+}
 
   const handleUserInputChange = (
     rowIndex: number,

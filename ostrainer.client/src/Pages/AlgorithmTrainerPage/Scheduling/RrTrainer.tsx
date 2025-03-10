@@ -294,7 +294,6 @@ export const RrTrainer: React.FC = () => {
     </div>
   );
 };
-
 function roundRobinScheduler(arrivalTimes, burstTimes, timeQuantum) {
   const processes = arrivalTimes.map((at, index) => ({
     id: index + 1,
@@ -302,10 +301,11 @@ function roundRobinScheduler(arrivalTimes, burstTimes, timeQuantum) {
     burstTime: burstTimes[index],
     remainingTime: burstTimes[index],
     inQueue: false,
-    lastExecutionTime: -1, // Track when process was last executed
+    lastExecutionTime: -1,
   }));
 
-  let currentTime = Math.min(...arrivalTimes);
+  const minArrivalTime = Math.min(...arrivalTimes);
+  let currentTime = minArrivalTime;
   let completed = 0;
   let queue = [];
   let statesMatrix = [["Process\\Time"]];
@@ -314,15 +314,7 @@ function roundRobinScheduler(arrivalTimes, burstTimes, timeQuantum) {
     statesMatrix.push([`P${index + 1}`]);
   });
 
-  // Fill initial waiting states
-  for (let t = 0; t < currentTime; t++) {
-    processes.forEach((process, index) => {
-      statesMatrix[index + 1].push("-");
-    });
-  }
-
   while (completed < processes.length) {
-    // Add newly arrived processes to queue
     processes.forEach((process) => {
       if (
         process.arrivalTime <= currentTime &&
@@ -342,14 +334,11 @@ function roundRobinScheduler(arrivalTimes, burstTimes, timeQuantum) {
       continue;
     }
 
-    // Get next process
     const currentProcess = queue.shift();
     currentProcess.inQueue = false;
 
-    // Execute for time quantum or remaining time
     const executeTime = Math.min(timeQuantum, currentProcess.remainingTime);
 
-    // Update states during execution
     for (let t = 0; t < executeTime; t++) {
       processes.forEach((process, index) => {
         if (process.id === currentProcess.id) {
@@ -363,40 +352,33 @@ function roundRobinScheduler(arrivalTimes, burstTimes, timeQuantum) {
         }
       });
       currentTime++;
-      currentProcess.lastExecutionTime = currentTime;
     }
-
-    // Update remaining time
+    
     currentProcess.remainingTime -= executeTime;
+    currentProcess.lastExecutionTime = currentTime - 1;
 
-    // Handle process completion or re-queueing
     if (currentProcess.remainingTime === 0) {
       completed++;
     } else {
-      // Check for any new arrivals before re-queueing
       processes.forEach((process) => {
         if (
           process.arrivalTime <= currentTime &&
           process.remainingTime > 0 &&
-          !process.inQueue &&
-          process.id !== currentProcess.id
+          !process.inQueue
         ) {
           queue.push(process);
           process.inQueue = true;
         }
       });
-      // Add current process back to queue
       queue.push(currentProcess);
       currentProcess.inQueue = true;
     }
   }
 
-  // Add time headers
   const timeHeader = Array.from(
     { length: statesMatrix[1].length - 1 },
-    (_, i) => i
+    (_, i) => i + minArrivalTime
   );
   statesMatrix[0] = ["Process\\Time", ...timeHeader];
-
   return statesMatrix;
 }

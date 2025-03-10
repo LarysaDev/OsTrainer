@@ -124,17 +124,18 @@ export const PreemptiveSjfTrainer: React.FC = () => {
       completionTime: undefined,
       currentStartTime: undefined,
     }));
-
-    let currentTime = Math.min(...arrivalTimes);
+  
+    const minArrivalTime = Math.min(...arrivalTimes);
+    let currentTime = minArrivalTime;
     let completedProcesses = 0;
     let executionHistory: { time: number; processId: number }[] = [];
     let currentProcess: Process | null = null;
-
+  
     while (completedProcesses < processes.length) {
       let availableProcesses = processes.filter(
         (p) => p.arrivalTime <= currentTime && p.remainingTime > 0
       );
-
+  
       if (availableProcesses.length === 0) {
         currentTime = Math.min(
           ...processes
@@ -143,11 +144,11 @@ export const PreemptiveSjfTrainer: React.FC = () => {
         );
         continue;
       }
-
+  
       availableProcesses.sort((a, b) => a.remainingTime - b.remainingTime);
-
+  
       let nextProcess = availableProcesses[0];
-
+  
       if (currentProcess && currentProcess.remainingTime > 0) {
         if (nextProcess.remainingTime < currentProcess.remainingTime) {
           currentProcess = nextProcess;
@@ -155,39 +156,41 @@ export const PreemptiveSjfTrainer: React.FC = () => {
       } else {
         currentProcess = nextProcess;
       }
-
+  
       if (processes[currentProcess.id - 1].startTime === undefined) {
         processes[currentProcess.id - 1].startTime = currentTime;
       }
+  
       processes[currentProcess.id - 1].currentStartTime = currentTime;
-
+  
       executionHistory.push({
         time: currentTime,
         processId: currentProcess.id,
       });
-
+  
       currentProcess.remainingTime--;
       currentTime++;
-
+  
       if (currentProcess.remainingTime === 0) {
         processes[currentProcess.id - 1].completionTime = currentTime;
         completedProcesses++;
         currentProcess = null;
       }
     }
-
+  
     const maxTime = Math.max(...processes.map((p) => p.completionTime!));
+  
     const matrix: (string | number)[][] = [];
-
+  
     const headerRow: (string | number)[] = ["Process\\Time"];
-    for (let t = 0; t <= maxTime; t++) {
+    for (let t = minArrivalTime; t <= maxTime; t++) {
       headerRow.push(t);
     }
     matrix.push(headerRow);
-
+  
     processes.forEach((process) => {
       const row: (string | number)[] = [`P${process.id}`];
-      for (let t = 0; t <= maxTime; t++) {
+      for (let t = minArrivalTime; t <= maxTime; t++) {
         if (t < process.arrivalTime) {
           row.push("-");
         } else if (t >= process.completionTime!) {
@@ -197,15 +200,15 @@ export const PreemptiveSjfTrainer: React.FC = () => {
             (h) => h.time === t && h.processId === process.id
           );
           if (isExecuting) {
-            row.push("e");
+            row.push("e"); 
           } else {
-            row.push("w");
+            row.push("w"); 
           }
         }
       }
       matrix.push(row);
     });
-
+  
     setMatrix(matrix);
     setUserMatrix(
       matrix.map((row) =>
@@ -214,6 +217,7 @@ export const PreemptiveSjfTrainer: React.FC = () => {
     );
     setColorMatrix(matrix.map((row) => row.map(() => "")));
   };
+  
 
   const handleUserInputChange = (
     rowIndex: number,
