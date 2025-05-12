@@ -31,7 +31,8 @@ const SelfTest = () => {
         }
       );
 
-      const testQuestions = response.data.tests.$values || [];
+      const testQuestions = response.data.tests || [];
+
       setQuestions(testQuestions);
       setSelectedAnswers(Array(testQuestions.length).fill(-1));
       setResult(null);
@@ -66,7 +67,7 @@ const SelfTest = () => {
     return questions.map((question, index) => (
       <Box key={question.Id} mb={2}>
         <Typography variant="h6">{question.questionText}</Typography>
-        {question.options.$values.map((option, optionIndex) => (
+        {question.options.map((option, optionIndex) => (
           <div key={optionIndex}>
             <label>
               <input

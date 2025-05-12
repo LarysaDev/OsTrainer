@@ -111,6 +111,7 @@ export const FcfsTrainer: React.FC = () => {
   };
 
   function generateMatrixTable(processes) {
+    console.log(processes);
     const n = processes.length;
     const matrix = [];
     const completionTimes = new Array(n).fill(0);
